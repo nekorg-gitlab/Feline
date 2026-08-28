@@ -1,0 +1,13 @@
+services:
+  feline:
+    build: .
+    image: feline:latest
+    container_name: feline
+    ports:
+      - "80:80"
+      - "443:443"
+    restart: unless-stopped
+    # volumes:
+    #   - ./config.json:/app/config.json:ro
+    #   - ./certs/cert.pem:/etc/nginx/certs/cert.pem:ro
+    #   - ./certs/key.pem:/etc/nginx/certs/key.pem:ro

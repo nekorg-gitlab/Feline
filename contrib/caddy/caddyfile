@@ -1,0 +1,6 @@
+# more info: https://caddyserver.com/docs/caddyfile/patterns#single-page-apps-spas
+feline.domain.tld {
+  root * /path/to/feline/dist
+  try_files {path} / index.html
+  file_server
+}
