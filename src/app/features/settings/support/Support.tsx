@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Box, Button, Icon, Icons, Scroll, Text, config, toRem } from 'folds';
+import { Box, Button, Icon, Icons, Scroll, Text, color, config, toRem } from 'folds';
 import { Page, PageContent, PageHeader } from '../../../components/page';
 import { SequenceCard } from '../../../components/sequence-card';
 import { SequenceCardStyle } from '../styles.css';
@@ -89,7 +89,7 @@ export function Support({ requestClose }: SupportProps) {
       <PageHeader outlined={false}>
         <Box grow="Yes" gap="200">
           <Box grow="Yes" alignItems="Center" gap="200">
-            <Box style={{ width: toRem(24), height: toRem(24), background: config.colors.Critical.A400, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <Box style={{ width: toRem(24), height: toRem(24), background: color.Critical.Main, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <Icon src={Icons.Heart} size="100" filled style={{ color: 'white' }} />
             </Box>
             <Text size="H3" truncate>
@@ -118,9 +118,9 @@ export function Support({ requestClose }: SupportProps) {
                 <Box
                   style={{
                     padding: `${config.space.S200} ${config.space.S300}`,
-                    background: config.colors.Critical.A200,
+                    background: color.Critical.Container,
                     borderRadius: config.radii.R300,
-                    border: `1px solid ${config.colors.Critical.A300}`,
+                    border: `1px solid ${color.Critical.Main}`,
                   }}
                 >
                   <Text size="T200" priority="300">
@@ -140,7 +140,7 @@ export function Support({ requestClose }: SupportProps) {
                     gap="300"
                     style={
                       idx === 0
-                        ? { border: `1px solid ${config.colors.Critical.A300}`, background: config.colors.Surface.Container }
+                        ? { border: `1px solid ${color.Critical.Main}`, background: color.Surface.Container }
                         : undefined
                     }
                   >
@@ -152,7 +152,7 @@ export function Support({ requestClose }: SupportProps) {
                           <Box
                             style={{
                               padding: `0 ${config.space.S100}`,
-                              background: config.colors.Critical.A400,
+                              background: color.Critical.Main,
                               borderRadius: config.radii.R300,
                             }}
                           >
