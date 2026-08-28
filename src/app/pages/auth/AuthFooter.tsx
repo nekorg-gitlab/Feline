@@ -5,7 +5,7 @@ import * as css from './styles.css';
 export function AuthFooter() {
   return (
     <Box className={css.AuthFooter} justifyContent="Center" gap="400" wrap="Wrap">
-      <Text as="a" size="T300" href="https://feline.in" target="_blank" rel="noreferrer">
+      <Text as="a" size="T300" href="/donate" target="_blank" rel="noreferrer">
         About
       </Text>
       <Text

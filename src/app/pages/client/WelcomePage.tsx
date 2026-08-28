@@ -1,9 +1,12 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Box, Button, Icon, Icons, Text, config, toRem } from 'folds';
 import { Page, PageHero, PageHeroSection } from '../../components/page';
 import FelineSVG from '../../../../public/res/svg/feline.svg';
+import { getDonatePath } from '../../pages/pathUtils';
 
 export function WelcomePage() {
+  const navigate = useNavigate();
   return (
     <Page>
       <Box
@@ -43,10 +46,7 @@ export function WelcomePage() {
                   </Text>
                 </Button>
                 <Button
-                  as="a"
-                  href="https://feline.in/#sponsor"
-                  target="_blank"
-                  rel="noreferrer noopener"
+                  onClick={() => navigate(getDonatePath())}
                   fill="Soft"
                   before={<Icon size="200" src={Icons.Heart} />}
                 >

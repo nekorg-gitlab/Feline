@@ -9,7 +9,7 @@ All types of contributions are encouraged and valued. Please make sure to read t
 > - Tweet about it (tag @felineapp)
 > - Refer this project in your project's readme
 > - Mention the project at local meetups and tell your friends/colleagues
-> - [Donate to us](https://feline.in/#sponsor)
+> - [Donate to us](/donate) — PayPal: felipefmavelar@gmail.com
 
 ## Bug reports
 
