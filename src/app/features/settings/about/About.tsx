@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Box, Text, IconButton, Icon, Icons, Scroll, Button, config, toRem } from 'folds';
 import { Page, PageContent, PageHeader } from '../../../components/page';
 import { SequenceCard } from '../../../components/sequence-card';
@@ -7,12 +8,24 @@ import { SettingTile } from '../../../components/setting-tile';
 import FelineSVG from '../../../../../public/res/svg/feline.svg';
 import { clearCacheAndReload } from '../../../../client/initMatrix';
 import { useMatrixClient } from '../../../hooks/useMatrixClient';
+import { getDonatePath } from '../../../pages/pathUtils';
 
 type AboutProps = {
   requestClose: () => void;
+  onSupportClick?: () => void;
 };
-export function About({ requestClose }: AboutProps) {
+export function About({ requestClose, onSupportClick }: AboutProps) {
   const mx = useMatrixClient();
+  const navigate = useNavigate();
+
+  const handleSupportClick = () => {
+    if (onSupportClick) {
+      onSupportClick();
+      return;
+    }
+    requestClose();
+    navigate(getDonatePath());
+  };
 
   return (
     <Page>
@@ -66,10 +79,7 @@ export function About({ requestClose }: AboutProps) {
                       <Text size="B300">Source Code</Text>
                     </Button>
                     <Button
-                      as="a"
-                      href="https://feline.in/#sponsor"
-                      rel="noreferrer noopener"
-                      target="_blank"
+                      onClick={handleSupportClick}
                       variant="Critical"
                       fill="Soft"
                       size="300"
