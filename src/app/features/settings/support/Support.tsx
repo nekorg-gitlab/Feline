@@ -71,7 +71,7 @@ export function Support({ requestClose }: SupportProps) {
       description: 'On-chain donations. Contact via email for address.',
       actionLabel: 'Contact for Address',
       href: 'mailto:felipefmavelar@gmail.com?subject=Bitcoin%20Donation%20Address',
-      icon: <Icon src={Icons.Block} size="100" />,
+      icon: <Icon src={Icons.BlockCode} size="100" />,
       variant: 'Secondary',
     },
     {
@@ -79,7 +79,7 @@ export function Support({ requestClose }: SupportProps) {
       description: 'For larger donations orองค์กร support. Reach out via email.',
       actionLabel: 'Contact via Email',
       href: 'mailto:felipefmavelar@gmail.com?subject=Donation%20Inquiry',
-      icon: <Icon src={Icons.Users} size="100" />,
+      icon: <Icon src={Icons.UserPlus} size="100" />,
       variant: 'Secondary',
     },
   ];
