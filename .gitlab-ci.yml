@@ -1,0 +1,35 @@
+image: node:24.13.1-alpine
+
+stages:
+  - deploy
+
+cache:
+  key:
+    files:
+      - package-lock.json
+  paths:
+    - node_modules/
+    - .npm/
+
+variables:
+  NODE_OPTIONS: "--max_old_space_size=4096"
+
+pages:
+  stage: deploy
+  script:
+    - npm ci --cache .npm --prefer-offline
+    # For project Pages at https://nekorg.gitlab.io/feline/ you need base /feline/
+    # For a custom domain (root) use base /:
+    - npm run build -- --base=/feline/
+    # - npm run build -- --base=/
+    # GitLab Pages serves from `public/` - Vite builds to `dist/`
+    - rm -rf public
+    - mv dist public
+    # SPA fallback: GitLab Pages has no _redirects support like Netlify (netlify.toml:33).
+    # Copying index.html to 404.html makes client-side routing work (404.html is served for unknown paths).
+    - cp public/index.html public/404.html
+  artifacts:
+    paths:
+      - public
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH

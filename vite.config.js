@@ -74,6 +74,23 @@ function serverMatrixSdkCryptoWasm(wasmFilePath) {
   };
 }
 
+function fixManifestBase() {
+  let base = buildConfig.base;
+  return {
+    name: 'fix-manifest-base',
+    configResolved(config) {
+      base = config.base;
+    },
+    transformIndexHtml(html) {
+      if (base !== '/' && html.includes('href="/manifest.json"')) {
+        const baseWithSlash = base.endsWith('/') ? base : `${base}/`;
+        return html.replace('href="/manifest.json"', `href="${baseWithSlash}manifest.json"`);
+      }
+      return html;
+    },
+  };
+}
+
 export default defineConfig({
   appType: 'spa',
   publicDir: false,
@@ -87,6 +104,7 @@ export default defineConfig({
     },
   },
   plugins: [
+    fixManifestBase(),
     serverMatrixSdkCryptoWasm('/node_modules/.vite/deps/pkg/matrix_sdk_crypto_wasm_bg.wasm'),
     topLevelAwait({
       // The export name of top-level await promise for each chunk module
