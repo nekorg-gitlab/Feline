@@ -6,6 +6,7 @@ import {
   DONATE_PATH,
   EXPLORE_PATH,
   EXPLORE_SERVER_PATH,
+  HOME_CHAT_CREATE_PATH,
   HOME_CREATE_PATH,
   HOME_JOIN_PATH,
   HOME_PATH,
@@ -111,6 +112,8 @@ export const getDirectRoomPath = (roomIdOrAlias: string, eventId?: string): stri
 
   return generatePath(DIRECT_ROOM_PATH, params);
 };
+
+export const getHomeChatCreatePath = (): string => HOME_CHAT_CREATE_PATH;
 
 export const getSpacePath = (spaceIdOrAlias: string): string => {
   const params = {

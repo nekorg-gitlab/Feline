@@ -5,18 +5,21 @@ import { IsDirectRoomProvider, RoomProvider } from '../../../hooks/useRoom';
 import { useMatrixClient } from '../../../hooks/useMatrixClient';
 import { JoinBeforeNavigate } from '../../../features/join-before-navigate';
 import { useHomeRooms } from './useHomeRooms';
+import { useDirectRooms } from '../direct/useDirectRooms';
 import { useSearchParamsViaServers } from '../../../hooks/router/useSearchParamsViaServers';
 
 export function HomeRouteRoomProvider({ children }: { children: ReactNode }) {
   const mx = useMatrixClient();
   const rooms = useHomeRooms();
+  const directs = useDirectRooms();
 
   const { roomIdOrAlias, eventId } = useParams();
   const viaServers = useSearchParamsViaServers();
   const roomId = useSelectedRoom();
   const room = mx.getRoom(roomId);
+  const isDirect = directs.includes(room?.roomId ?? '');
 
-  if (!room || !rooms.includes(room.roomId)) {
+  if (!room || (!rooms.includes(room.roomId) && !directs.includes(room.roomId))) {
     return (
       <JoinBeforeNavigate
         roomIdOrAlias={roomIdOrAlias!}
@@ -28,7 +31,7 @@ export function HomeRouteRoomProvider({ children }: { children: ReactNode }) {
 
   return (
     <RoomProvider key={room.roomId} value={room}>
-      <IsDirectRoomProvider value={false}>{children}</IsDirectRoomProvider>
+      <IsDirectRoomProvider value={isDirect}>{children}</IsDirectRoomProvider>
     </RoomProvider>
   );
 }

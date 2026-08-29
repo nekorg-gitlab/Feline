@@ -21,7 +21,7 @@ import { useRoomCreators } from '../../hooks/useRoomCreators';
 import { useRoomPermissions } from '../../hooks/useRoomPermissions';
 import { useMemberPowerCompare } from '../../hooks/useMemberPowerCompare';
 import { CreatorChip } from './CreatorChip';
-import { getDirectCreatePath, withSearchParam } from '../../pages/pathUtils';
+import { getHomeChatCreatePath, withSearchParam } from '../../pages/pathUtils';
 import { DirectCreateSearchParams } from '../../pages/paths';
 
 type UserRoomProfileProps = {
@@ -67,7 +67,7 @@ export function UserRoomProfile({ userId }: UserRoomProfileProps) {
     const directSearchParam: DirectCreateSearchParams = {
       userId,
     };
-    navigate(withSearchParam(getDirectCreatePath(), directSearchParam));
+    navigate(withSearchParam(getHomeChatCreatePath(), directSearchParam));
   };
 
   return (

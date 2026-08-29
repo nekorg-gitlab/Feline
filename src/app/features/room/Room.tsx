@@ -1,6 +1,6 @@
 import React, { useCallback } from 'react';
 import { Box, Line } from 'folds';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { isKeyHotkey } from 'is-hotkey';
 import { useAtomValue } from 'jotai';
 import { RoomView } from './RoomView';
@@ -20,11 +20,15 @@ import { callChatAtom } from '../../state/callEmbed';
 import { CallChatView } from './CallChatView';
 import { useCallEmbed } from '../../hooks/useCallEmbed';
 import { useCallMembers, useCallSession } from '../../hooks/useCall';
+import { getHomePath, getSpacePath } from '../../pages/pathUtils';
+import { useSelectedSpace } from '../../hooks/router/useSelectedSpace';
 
 export function Room() {
   const { eventId } = useParams();
   const room = useRoom();
   const mx = useMatrixClient();
+  const navigate = useNavigate();
+  const spaceId = useSelectedSpace();
 
   const callSession = useCallSession(room);
   const callMembers = useCallMembers(callSession);
@@ -42,10 +46,20 @@ export function Room() {
     useCallback(
       (evt) => {
         if (isKeyHotkey('escape', evt)) {
+          const portalContainer = document.getElementById('portalContainer');
+          if (portalContainer && portalContainer.children.length > 0) {
+            markAsRead(mx, room.roomId, hideActivity);
+            return;
+          }
           markAsRead(mx, room.roomId, hideActivity);
+          if (spaceId) {
+            navigate(getSpacePath(spaceId));
+          } else {
+            navigate(getHomePath());
+          }
         }
       },
-      [mx, room.roomId, hideActivity]
+      [mx, room.roomId, hideActivity, navigate, spaceId]
     )
   );
 

@@ -11,7 +11,9 @@ import {
 import { ClientConfig } from '../hooks/useClientConfig';
 import { AuthLayout, Login, Register, ResetPassword } from './auth';
 import {
+  DIRECT_CREATE_PATH,
   DIRECT_PATH,
+  DIRECT_ROOM_PATH,
   DONATE_PATH,
   EXPLORE_PATH,
   HOME_PATH,
@@ -21,6 +23,7 @@ import {
   RESET_PASSWORD_PATH,
   SPACE_PATH,
   SUPPORT_PATH,
+  _CHAT_CREATE_PATH,
   _CREATE_PATH,
   _INVITES_PATH,
   _JOIN_PATH,
@@ -33,7 +36,9 @@ import {
 } from './paths';
 import {
   getAppPathFromHref,
+  getHomeChatCreatePath,
   getHomePath,
+  getHomeRoomPath,
   getInboxNotificationsPath,
   getLoginPath,
   getOriginBaseUrl,
@@ -41,7 +46,7 @@ import {
 } from './pathUtils';
 import { ClientBindAtoms, ClientLayout, ClientRoot } from './client';
 import { Home, HomeRouteRoomProvider, HomeSearch } from './client/home';
-import { Direct, DirectCreate, DirectRouteRoomProvider } from './client/direct';
+import { DirectCreate } from './client/direct';
 import { RouteSpaceProvider, Space, SpaceRouteRoomProvider, SpaceSearch } from './client/space';
 import { Explore, PublicRooms } from './client/explore';
 import { Notifications, Inbox, Invites } from './client/inbox';
@@ -171,6 +176,7 @@ export const createRouter = (clientConfig: ClientConfig, screenSize: ScreenSize)
         >
           {mobile ? null : <Route index element={<WelcomePage />} />}
           <Route path={_CREATE_PATH} element={<HomeCreateRoom />} />
+          <Route path={_CHAT_CREATE_PATH} element={<DirectCreate />} />
           <Route path={_JOIN_PATH} element={<p>join</p>} />
           <Route path={_SEARCH_PATH} element={<HomeSearch />} />
           <Route
@@ -182,31 +188,21 @@ export const createRouter = (clientConfig: ClientConfig, screenSize: ScreenSize)
             }
           />
         </Route>
+        <Route path={DIRECT_PATH} loader={() => redirect(getHomePath())} />
+        <Route path={DIRECT_CREATE_PATH} loader={() => redirect(getHomeChatCreatePath())} />
         <Route
-          path={DIRECT_PATH}
-          element={
-            <PageRoot
-              nav={
-                <MobileFriendlyPageNav path={DIRECT_PATH}>
-                  <Direct />
-                </MobileFriendlyPageNav>
-              }
-            >
-              <Outlet />
-            </PageRoot>
-          }
-        >
-          {mobile ? null : <Route index element={<WelcomePage />} />}
-          <Route path={_CREATE_PATH} element={<DirectCreate />} />
-          <Route
-            path={_ROOM_PATH}
-            element={
-              <DirectRouteRoomProvider>
-                <Room />
-              </DirectRouteRoomProvider>
+          path={DIRECT_ROOM_PATH}
+          loader={({ params }) => {
+            const { roomIdOrAlias, eventId } = params as {
+              roomIdOrAlias: string;
+              eventId?: string;
+            };
+            if (roomIdOrAlias) {
+              return redirect(getHomeRoomPath(roomIdOrAlias, eventId));
             }
-          />
-        </Route>
+            return redirect(getHomePath());
+          }}
+        />
         <Route
           path={SPACE_PATH}
           element={

@@ -47,6 +47,8 @@ export const HOME_CREATE_PATH = `/home/${_CREATE_PATH}`;
 export const HOME_JOIN_PATH = `/home/${_JOIN_PATH}`;
 export const HOME_SEARCH_PATH = `/home/${_SEARCH_PATH}`;
 export const HOME_ROOM_PATH = `/home/${_ROOM_PATH}`;
+export const _CHAT_CREATE_PATH = 'chat-create/';
+export const HOME_CHAT_CREATE_PATH = `/home/${_CHAT_CREATE_PATH}`;
 
 export const DIRECT_PATH = '/direct/';
 export type DirectCreateSearchParams = {

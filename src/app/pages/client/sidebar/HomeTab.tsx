@@ -3,11 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Box, Icon, Icons, Menu, MenuItem, PopOut, RectCords, Text, config, toRem } from 'folds';
 import { useAtomValue } from 'jotai';
 import FocusTrap from 'focus-trap-react';
-import { useOrphanRooms } from '../../../state/hooks/roomList';
 import { useMatrixClient } from '../../../hooks/useMatrixClient';
-import { mDirectAtom } from '../../../state/mDirectList';
-import { roomToParentsAtom } from '../../../state/room/roomToParents';
-import { allRoomsAtom } from '../../../state/room-list/roomList';
 import { roomToUnreadAtom } from '../../../state/room/roomToUnread';
 import { getHomePath, joinPathComponent } from '../../pathUtils';
 import { useRoomsUnread } from '../../../state/hooks/unread';
@@ -22,6 +18,7 @@ import { UnreadBadge } from '../../../components/unread-badge';
 import { ScreenSize, useScreenSizeContext } from '../../../hooks/useScreenSize';
 import { useNavToActivePathAtom } from '../../../state/hooks/navToActivePath';
 import { useHomeRooms } from '../home/useHomeRooms';
+import { useDirectRooms } from '../direct/useDirectRooms';
 import { markAsRead } from '../../../utils/notifications';
 import { stopPropagation } from '../../../utils/keyboard';
 import { useSetting } from '../../../state/hooks/settings';
@@ -32,13 +29,15 @@ type HomeMenuProps = {
 };
 const HomeMenu = forwardRef<HTMLDivElement, HomeMenuProps>(({ requestClose }, ref) => {
   const orphanRooms = useHomeRooms();
+  const directs = useDirectRooms();
+  const allRooms = [...orphanRooms, ...directs];
   const [hideActivity] = useSetting(settingsAtom, 'hideActivity');
-  const unread = useRoomsUnread(orphanRooms, roomToUnreadAtom);
+  const unread = useRoomsUnread(allRooms, roomToUnreadAtom);
   const mx = useMatrixClient();
 
   const handleMarkAsRead = () => {
     if (!unread) return;
-    orphanRooms.forEach((rId) => markAsRead(mx, rId, hideActivity));
+    allRooms.forEach((rId) => markAsRead(mx, rId, hideActivity));
     requestClose();
   };
 
@@ -63,14 +62,13 @@ const HomeMenu = forwardRef<HTMLDivElement, HomeMenuProps>(({ requestClose }, re
 
 export function HomeTab() {
   const navigate = useNavigate();
-  const mx = useMatrixClient();
   const screenSize = useScreenSizeContext();
   const navToActivePath = useAtomValue(useNavToActivePathAtom());
 
-  const mDirects = useAtomValue(mDirectAtom);
-  const roomToParents = useAtomValue(roomToParentsAtom);
-  const orphanRooms = useOrphanRooms(mx, allRoomsAtom, mDirects, roomToParents);
-  const homeUnread = useRoomsUnread(orphanRooms, roomToUnreadAtom);
+  const orphanRooms = useHomeRooms();
+  const directs = useDirectRooms();
+  const allHomeRooms = [...orphanRooms, ...directs];
+  const homeUnread = useRoomsUnread(allHomeRooms, roomToUnreadAtom);
   const homeSelected = useHomeSelected();
   const [menuAnchor, setMenuAnchor] = useState<RectCords>();
 
