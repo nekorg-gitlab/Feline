@@ -16,7 +16,6 @@ import {
   toRem,
 } from 'folds';
 import { useVirtualizer } from '@tanstack/react-virtual';
-import { useAtom, useAtomValue } from 'jotai';
 import FocusTrap from 'focus-trap-react';
 import { factoryRoomIdByActivity, factoryRoomIdByAtoZ } from '../../../utils/sort';
 import {
@@ -49,18 +48,15 @@ import { useHomeRooms } from './useHomeRooms';
 import { useDirectRooms } from '../direct/useDirectRooms';
 import { useMatrixClient } from '../../../hooks/useMatrixClient';
 import { VirtualTile } from '../../../components/virtualizer';
-import { RoomNavCategoryButton, RoomNavItem } from '../../../features/room-nav';
-import { makeNavCategoryId } from '../../../state/closedNavCategories';
-import { roomToUnreadAtom } from '../../../state/room/roomToUnread';
-import { useCategoryHandler } from '../../../hooks/useCategoryHandler';
+import { RoomNavItem } from '../../../features/room-nav';
 import { useNavToActivePathMapper } from '../../../hooks/useNavToActivePathMapper';
 import { PageNav, PageNavHeader, PageNavContent } from '../../../components/page';
 import { useRoomsUnread } from '../../../state/hooks/unread';
 import { markAsRead } from '../../../utils/notifications';
-import { useClosedNavCategoriesAtom } from '../../../state/hooks/closedNavCategories';
 import { stopPropagation } from '../../../utils/keyboard';
 import { useSetting } from '../../../state/hooks/settings';
 import { settingsAtom } from '../../../state/settings';
+import { roomToUnreadAtom } from '../../../state/room/roomToUnread';
 import {
   getRoomNotificationMode,
   useRoomsNotificationPreferencesContext,
@@ -208,8 +204,6 @@ function HomeEmpty() {
   );
 }
 
-const ROOM_CATEGORY_ID = makeNavCategoryId('home', 'room');
-const DIRECT_CATEGORY_ID = makeNavCategoryId('home', 'direct');
 export function Home() {
   const mx = useMatrixClient();
   useNavToActivePathMapper('home');
@@ -217,7 +211,6 @@ export function Home() {
   const rooms = useHomeRooms();
   const directs = useDirectRooms();
   const notificationPreferences = useRoomsNotificationPreferencesContext();
-  const roomToUnread = useAtomValue(roomToUnreadAtom);
   const navigate = useNavigate();
 
   const selectedRoomId = useSelectedRoom();
@@ -225,27 +218,16 @@ export function Home() {
   const createChatSelected = useHomeChatCreateSelected();
   const searchSelected = useHomeSearchSelected();
   const noRoomToDisplay = rooms.length === 0 && directs.length === 0;
-  const [closedCategories, setClosedCategories] = useAtom(useClosedNavCategoriesAtom());
 
-  const sortedRooms = useMemo(() => {
-    const items = Array.from(rooms).sort(
-      closedCategories.has(ROOM_CATEGORY_ID)
-        ? factoryRoomIdByActivity(mx)
-        : factoryRoomIdByAtoZ(mx)
-    );
-    if (closedCategories.has(ROOM_CATEGORY_ID)) {
-      return items.filter((rId) => roomToUnread.has(rId) || rId === selectedRoomId);
-    }
-    return items;
-  }, [mx, rooms, closedCategories, roomToUnread, selectedRoomId]);
+  const sortedRooms = useMemo(
+    () => Array.from(rooms).sort(factoryRoomIdByAtoZ(mx)),
+    [mx, rooms]
+  );
 
-  const sortedDirects = useMemo(() => {
-    const items = Array.from(directs).sort(factoryRoomIdByActivity(mx));
-    if (closedCategories.has(DIRECT_CATEGORY_ID)) {
-      return items.filter((rId) => roomToUnread.has(rId) || rId === selectedRoomId);
-    }
-    return items;
-  }, [mx, directs, closedCategories, roomToUnread, selectedRoomId]);
+  const sortedDirects = useMemo(
+    () => Array.from(directs).sort(factoryRoomIdByActivity(mx)),
+    [mx, directs]
+  );
 
   const roomVirtualizer = useVirtualizer({
     count: sortedRooms.length,
@@ -260,10 +242,6 @@ export function Home() {
     estimateSize: () => 38,
     overscan: 10,
   });
-
-  const handleCategoryClick = useCategoryHandler(setClosedCategories, (categoryId) =>
-    closedCategories.has(categoryId)
-  );
 
   return (
     <PageNav>
@@ -361,16 +339,12 @@ export function Home() {
                 </NavLink>
               </NavItem>
             </NavCategory>
-            {sortedDirects.length > 0 && (
+            {directs.length > 0 && (
               <NavCategory>
                 <NavCategoryHeader>
-                  <RoomNavCategoryButton
-                    closed={closedCategories.has(DIRECT_CATEGORY_ID)}
-                    data-category-id={DIRECT_CATEGORY_ID}
-                    onClick={handleCategoryClick}
-                  >
+                  <Text size="O400" priority="300" truncate>
                     Direct Messages
-                  </RoomNavCategoryButton>
+                  </Text>
                 </NavCategoryHeader>
                 <div
                   style={{
@@ -407,16 +381,12 @@ export function Home() {
                 </div>
               </NavCategory>
             )}
-            {sortedRooms.length > 0 && (
+            {rooms.length > 0 && (
               <NavCategory>
                 <NavCategoryHeader>
-                  <RoomNavCategoryButton
-                    closed={closedCategories.has(ROOM_CATEGORY_ID)}
-                    data-category-id={ROOM_CATEGORY_ID}
-                    onClick={handleCategoryClick}
-                  >
+                  <Text size="O400" priority="300" truncate>
                     Rooms
-                  </RoomNavCategoryButton>
+                  </Text>
                 </NavCategoryHeader>
                 <div
                   style={{
