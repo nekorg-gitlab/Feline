@@ -28,9 +28,6 @@ pages:
     # SPA fallback: GitLab Pages has no _redirects support like Netlify (netlify.toml:33).
     # Copying index.html to 404.html makes client-side routing work (404.html is served for unknown paths).
     - cp public/index.html public/404.html
-    # Enable hash routing for GitLab Pages project site to avoid BrowserRouter 404 noise.
-    # The app already supports hashRouter via clientConfig; force-enable for /feline/ base.
-    - node -e "const fs=require('fs'); const p='public/config.json'; const c=JSON.parse(fs.readFileSync(p,'utf8')); c.hashRouter={enabled:true, basename:'/feline/'}; fs.writeFileSync(p, JSON.stringify(c,null,2)); console.log('Enabled hashRouter for GitLab Pages:', c.hashRouter);"
   artifacts:
     paths:
       - public
