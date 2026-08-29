@@ -3,7 +3,6 @@ import {
   DIRECT_CREATE_PATH,
   DIRECT_PATH,
   DIRECT_ROOM_PATH,
-  DONATE_PATH,
   EXPLORE_PATH,
   EXPLORE_SERVER_PATH,
   HOME_CHAT_CREATE_PATH,
@@ -24,7 +23,6 @@ import {
   SPACE_ROOM_PATH,
   SPACE_SEARCH_PATH,
   CREATE_PATH,
-  SUPPORT_PATH,
 } from './paths';
 import { trimLeadingSlash, trimTrailingSlash } from '../utils/common';
 import { HashRouterConfig } from '../hooks/useClientConfig';
@@ -161,6 +159,3 @@ export const getCreatePath = (): string => CREATE_PATH;
 export const getInboxPath = (): string => INBOX_PATH;
 export const getInboxNotificationsPath = (): string => INBOX_NOTIFICATIONS_PATH;
 export const getInboxInvitesPath = (): string => INBOX_INVITES_PATH;
-
-export const getDonatePath = (): string => DONATE_PATH;
-export const getSupportPath = (): string => SUPPORT_PATH;
