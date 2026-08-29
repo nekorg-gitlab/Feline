@@ -21,6 +21,7 @@ export interface Settings {
   lightThemeId?: string;
   darkThemeId?: string;
   monochromeMode?: boolean;
+  accentColor?: string;
   isMarkdown: boolean;
   editorToolbar: boolean;
   twitterEmoji: boolean;
@@ -55,6 +56,7 @@ const defaultSettings: Settings = {
   lightThemeId: undefined,
   darkThemeId: undefined,
   monochromeMode: false,
+  accentColor: undefined,
   isMarkdown: true,
   editorToolbar: false,
   twitterEmoji: false,

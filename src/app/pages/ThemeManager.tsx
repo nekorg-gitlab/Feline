@@ -10,9 +10,11 @@ import {
 } from '../hooks/useTheme';
 import { useSetting } from '../state/hooks/settings';
 import { settingsAtom } from '../state/settings';
+import { applyAccentColor } from '../utils/accentColor';
 
 export function UnAuthRouteThemeManager() {
   const systemThemeKind = useSystemThemeKind();
+  const [accentColor] = useSetting(settingsAtom, 'accentColor');
 
   useEffect(() => {
     document.body.className = '';
@@ -23,7 +25,8 @@ export function UnAuthRouteThemeManager() {
     if (systemThemeKind === ThemeKind.Light) {
       document.body.classList.add(...LightTheme.classNames);
     }
-  }, [systemThemeKind]);
+    applyAccentColor(accentColor);
+  }, [systemThemeKind, accentColor]);
 
   return null;
 }
@@ -31,6 +34,7 @@ export function UnAuthRouteThemeManager() {
 export function AuthRouteThemeManager({ children }: { children: ReactNode }) {
   const activeTheme = useActiveTheme();
   const [monochromeMode] = useSetting(settingsAtom, 'monochromeMode');
+  const [accentColor] = useSetting(settingsAtom, 'accentColor');
 
   useEffect(() => {
     document.body.className = '';
@@ -43,7 +47,8 @@ export function AuthRouteThemeManager({ children }: { children: ReactNode }) {
     } else {
       document.body.style.filter = '';
     }
-  }, [activeTheme, monochromeMode]);
+    applyAccentColor(accentColor);
+  }, [activeTheme, monochromeMode, accentColor]);
 
   return <ThemeContextProvider value={activeTheme}>{children}</ThemeContextProvider>;
 }

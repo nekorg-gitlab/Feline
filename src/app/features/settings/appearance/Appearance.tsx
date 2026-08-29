@@ -41,6 +41,9 @@ import {
   useThemeNames,
   useThemes,
 } from '../../../hooks/useTheme';
+import { HexColorPicker } from 'react-colorful';
+import { HexColorPickerPopOut } from '../../../components/HexColorPickerPopOut';
+import { applyAccentColor } from '../../../utils/accentColor';
 import { SequenceCardStyle } from '../styles.css';
 
 type ThemeSelectorProps = {
@@ -295,6 +298,65 @@ function PageZoomInput() {
   );
 }
 
+function AccentColorPicker() {
+  const [accentColor, setAccentColor] = useSetting(settingsAtom, 'accentColor');
+
+  const handlePick = (c: string) => {
+    setAccentColor(c);
+    applyAccentColor(c);
+  };
+  const handleReset = () => {
+    setAccentColor(undefined);
+    applyAccentColor(undefined);
+  };
+
+  return (
+    <HexColorPickerPopOut
+      picker={
+        <Box direction="Column" gap="200">
+          <HexColorPicker
+            color={accentColor ?? '#1245A8'}
+            onChange={handlePick}
+          />
+          <Button
+            size="300"
+            variant="Secondary"
+            fill="Soft"
+            radii="400"
+            onClick={handleReset}
+          >
+            <Text size="B300">Reset Accent</Text>
+          </Button>
+        </Box>
+      }
+    >
+      {(openPicker, opened) => (
+        <Button
+          aria-pressed={opened}
+          onClick={openPicker}
+          size="300"
+          variant="Secondary"
+          fill="Soft"
+          radii="300"
+          before={
+            <Box
+              style={{
+                width: toRem(16),
+                height: toRem(16),
+                borderRadius: '50%',
+                background: accentColor ?? 'transparent',
+                border: `1px solid ${accentColor ? 'transparent' : 'rgba(127, 127, 127, 0.5)'}`,
+              }}
+            />
+          }
+        >
+          <Text size="B300">{accentColor ? 'Change' : 'Pick'}</Text>
+        </Button>
+      )}
+    </HexColorPickerPopOut>
+  );
+}
+
 export function Appearance() {
   const [systemTheme, setSystemTheme] = useSetting(settingsAtom, 'useSystemTheme');
   const [monochromeMode, setMonochromeMode] = useSetting(settingsAtom, 'monochromeMode');
@@ -340,7 +402,18 @@ export function Appearance() {
       </SequenceCard>
 
       <SequenceCard className={SequenceCardStyle} variant="SurfaceVariant" direction="Column">
-        <SettingTile title="Page Zoom" after={<PageZoomInput />} />
+        <SettingTile
+          title="Page Zoom"
+          after={<PageZoomInput />}
+        />
+      </SequenceCard>
+
+      <SequenceCard className={SequenceCardStyle} variant="SurfaceVariant" direction="Column">
+        <SettingTile
+          title="Accent Color"
+          description="Override the accent color used across the app."
+          after={<AccentColorPicker />}
+        />
       </SequenceCard>
     </Box>
   );
