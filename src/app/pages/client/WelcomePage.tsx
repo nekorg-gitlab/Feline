@@ -19,18 +19,7 @@ export function WelcomePage() {
           <PageHero
             icon={<img width="70" height="70" src={FelineSVG} alt="Feline Logo" />}
             title="Welcome to Feline"
-            subTitle={
-              <span>
-                Yet another matrix client.{' '}
-                <a
-                  href="https://github.com/felineapp/feline/releases"
-                  target="_blank"
-                  rel="noreferrer noopener"
-                >
-                  v4.12.6
-                </a>
-              </span>
-            }
+            subTitle="The best matrix client ever."
           >
             <Box justifyContent="Center">
               <Box grow="Yes" style={{ maxWidth: toRem(300) }} direction="Column" gap="300">

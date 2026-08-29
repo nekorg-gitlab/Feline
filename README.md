@@ -1,7 +1,7 @@
 # Feline
 
-Hosted on **134.65.28.106** (`https://134.65.28.106` — self-signed).
+Live at **https://nekorg.gitlab.io/feline**
 
-> **Note:** You must open the site using `https://` for it to work correctly. Using `http://` will not work fine due to mixed-content / secure context requirements (self-signed certificate — accept the browser warning).
+Based on [Cinny](https://github.com/cinnyapp/cinny) — a matrix client. Feline is a fork with custom styling and features.
 
-We should get a domain later.
+The best matrix client ever.

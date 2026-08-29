@@ -59,9 +59,8 @@ export function About({ requestClose, onSupportClick }: AboutProps) {
                   <Box direction="Column" gap="100">
                     <Box gap="100" alignItems="End">
                       <Text size="H3">Feline</Text>
-                      <Text size="T200">v4.12.6</Text>
                     </Box>
-                    <Text>Yet another matrix client.</Text>
+                    <Text>The best matrix client ever.</Text>
                   </Box>
 
                   <Box gap="200" wrap="Wrap">
