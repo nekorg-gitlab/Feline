@@ -1,12 +1,12 @@
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState } from 'react';
 import { Box, Button, Icon, Icons, Text, config, toRem } from 'folds';
 import { Page, PageHero, PageHeroSection } from '../../components/page';
 import FelineSVG from '../../../../public/res/svg/feline.svg';
-import { getDonatePath } from '../../pages/pathUtils';
+import { Modal500 } from '../../components/Modal500';
+import { Support } from '../../features/settings/support';
 
 export function WelcomePage() {
-  const navigate = useNavigate();
+  const [supportOpen, setSupportOpen] = useState(false);
   return (
     <Page>
       <Box
@@ -35,7 +35,7 @@ export function WelcomePage() {
                   </Text>
                 </Button>
                 <Button
-                  onClick={() => navigate(getDonatePath())}
+                  onClick={() => setSupportOpen(true)}
                   fill="Soft"
                   before={<Icon size="200" src={Icons.Heart} />}
                 >
@@ -48,6 +48,11 @@ export function WelcomePage() {
           </PageHero>
         </PageHeroSection>
       </Box>
+      {supportOpen && (
+        <Modal500 requestClose={() => setSupportOpen(false)}>
+          <Support requestClose={() => setSupportOpen(false)} />
+        </Modal500>
+      )}
     </Page>
   );
 }

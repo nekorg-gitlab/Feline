@@ -1,5 +1,4 @@
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState } from 'react';
 import { Box, Text, IconButton, Icon, Icons, Scroll, Button, config, toRem } from 'folds';
 import { Page, PageContent, PageHeader } from '../../../components/page';
 import { SequenceCard } from '../../../components/sequence-card';
@@ -8,7 +7,8 @@ import { SettingTile } from '../../../components/setting-tile';
 import FelineSVG from '../../../../../public/res/svg/feline.svg';
 import { clearCacheAndReload } from '../../../../client/initMatrix';
 import { useMatrixClient } from '../../../hooks/useMatrixClient';
-import { getDonatePath } from '../../../pages/pathUtils';
+import { Modal500 } from '../../../components/Modal500';
+import { Support } from '../support';
 
 type AboutProps = {
   requestClose: () => void;
@@ -16,33 +16,33 @@ type AboutProps = {
 };
 export function About({ requestClose, onSupportClick }: AboutProps) {
   const mx = useMatrixClient();
-  const navigate = useNavigate();
+  const [supportOpen, setSupportOpen] = useState(false);
 
   const handleSupportClick = () => {
     if (onSupportClick) {
       onSupportClick();
       return;
     }
-    requestClose();
-    navigate(getDonatePath());
+    setSupportOpen(true);
   };
 
   return (
-    <Page>
-      <PageHeader outlined={false}>
-        <Box grow="Yes" gap="200">
-          <Box grow="Yes" alignItems="Center" gap="200">
-            <Text size="H3" truncate>
-              About
-            </Text>
+    <>
+      <Page>
+        <PageHeader outlined={false}>
+          <Box grow="Yes" gap="200">
+            <Box grow="Yes" alignItems="Center" gap="200">
+              <Text size="H3" truncate>
+                About
+              </Text>
+            </Box>
+            <Box shrink="No">
+              <IconButton onClick={requestClose} variant="Surface">
+                <Icon src={Icons.Cross} />
+              </IconButton>
+            </Box>
           </Box>
-          <Box shrink="No">
-            <IconButton onClick={requestClose} variant="Surface">
-              <Icon src={Icons.Cross} />
-            </IconButton>
-          </Box>
-        </Box>
-      </PageHeader>
+        </PageHeader>
       <Box grow="Yes">
         <Scroll hideTrack visibility="Hover">
           <PageContent>
@@ -248,6 +248,12 @@ export function About({ requestClose, onSupportClick }: AboutProps) {
           </PageContent>
         </Scroll>
       </Box>
-    </Page>
+      </Page>
+      {supportOpen && (
+        <Modal500 requestClose={() => setSupportOpen(false)}>
+          <Support requestClose={() => setSupportOpen(false)} />
+        </Modal500>
+      )}
+    </>
   );
 }
