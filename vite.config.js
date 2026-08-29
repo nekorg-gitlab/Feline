@@ -91,6 +91,30 @@ function fixManifestBase() {
   };
 }
 
+function securityHeaders() {
+  return {
+    name: 'security-headers',
+    configureServer(server) {
+      server.middlewares.use((req, res, next) => {
+        res.setHeader(
+          'Permissions-Policy',
+          'camera=(), microphone=(), geolocation=(), payment=(), usb=()'
+        );
+        next();
+      });
+    },
+    transformIndexHtml(html) {
+      if (!html.includes('Permissions-Policy')) {
+        return html.replace(
+          '</head>',
+          '  <meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=(), payment=(), usb=()" />\n  </head>'
+        );
+      }
+      return html;
+    },
+  };
+}
+
 export default defineConfig({
   appType: 'spa',
   publicDir: false,
@@ -104,6 +128,7 @@ export default defineConfig({
     },
   },
   plugins: [
+    securityHeaders(),
     fixManifestBase(),
     serverMatrixSdkCryptoWasm('/node_modules/.vite/deps/pkg/matrix_sdk_crypto_wasm_bg.wasm'),
     topLevelAwait({

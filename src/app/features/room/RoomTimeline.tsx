@@ -917,7 +917,7 @@ export function RoomTimeline({ room, eventId, roomInputRef, editor }: RoomTimeli
       evt.stopPropagation();
       const userId = evt.currentTarget.getAttribute('data-user-id');
       if (!userId) {
-        console.warn('Button should have "data-user-id" attribute!');
+        if (import.meta.env.DEV) console.warn('Button should have "data-user-id" attribute!');
         return;
       }
       openUserRoomProfile(
@@ -934,7 +934,7 @@ export function RoomTimeline({ room, eventId, roomInputRef, editor }: RoomTimeli
       evt.preventDefault();
       const userId = evt.currentTarget.getAttribute('data-user-id');
       if (!userId) {
-        console.warn('Button should have "data-user-id" attribute!');
+        if (import.meta.env.DEV) console.warn('Button should have "data-user-id" attribute!');
         return;
       }
       const name = getMemberDisplayName(room, userId) ?? getMxIdLocalPart(userId) ?? userId;
@@ -955,7 +955,7 @@ export function RoomTimeline({ room, eventId, roomInputRef, editor }: RoomTimeli
     (evt, startThread = false) => {
       const replyId = evt.currentTarget.getAttribute('data-event-id');
       if (!replyId) {
-        console.warn('Button should have "data-event-id" attribute!');
+        if (import.meta.env.DEV) console.warn('Button should have "data-event-id" attribute!');
         return;
       }
       const replyEvt = room.findEventById(replyId);

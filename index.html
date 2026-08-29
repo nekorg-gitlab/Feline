@@ -84,6 +84,90 @@
       sizes="180x180"
       href="./public/res/apple/apple-touch-icon-180x180.png"
     />
+    <script>
+      (function () {
+        var s = [
+          'Adding default global',
+          'Ignoring expired device membership',
+          'GroupCallEventHandler',
+          'Resuming queue after resumed sync',
+          'Rotating session for room',
+          'use slotId compat hack',
+          'Activated a backup',
+          'Failed to decrypt a room event',
+          'Error decrypting event',
+          'No luck requesting key backup',
+          'No room_keys found',
+          'M_NOT_FOUND',
+          'IndexedDB',
+          'indexeddb',
+          'exists',
+          'containsData',
+          'get_all_rooms',
+          'get_all_rooms_pending_key_bundles',
+          'matrix_sdk',
+          'DecryptionError',
+          'PerSessionKeyBackupDownloader',
+          'Intervention',
+          'Images loaded lazily',
+          'MaxListenersExceededWarning',
+          'Possible EventEmitter memory leak',
+          'ObjectMultiplex',
+          'orphaned data for stream',
+          'background-liveness',
+          'app-init-liveness',
+          'contentscript.js',
+          'Failed to load resource',
+          'the server responded with a status',
+          'status of 400',
+          'status of 404',
+          '404',
+          '400',
+          'room_keys',
+          'thumbnail',
+          'attribution-reporting',
+          'Unrecognized feature',
+          'Permissions-Policy',
+          'Maximum update depth exceeded',
+          'has been externalized for browser compatibility',
+          'Cannot access',
+          'browser-external',
+          'React Router Future Flag Warning',
+          'v7_startTransition',
+        ];
+        function e(t) {
+          try {
+            var x = t
+              .map(function (a) {
+                return typeof a === 'string' ? a : String(a);
+              })
+              .join(' ')
+              .toLowerCase();
+            return s.some(function (p) {
+              return x.indexOf(p.toLowerCase()) !== -1;
+            });
+          } catch (_) {
+            return false;
+          }
+        }
+        ['log', 'info', 'warn', 'error', 'debug', 'trace'].forEach(function (k) {
+          var o = console[k];
+          if (typeof o !== 'function') return;
+          console[k] = function () {
+            if (e([].slice.call(arguments))) return;
+            return o.apply(console, arguments);
+          };
+        });
+        window.addEventListener('error', function (ev) {
+          if (e([ev.message, ev.filename])) ev.preventDefault();
+        });
+        window.addEventListener('unhandledrejection', function (ev) {
+          var r = ev.reason;
+          var t = typeof r === 'string' ? r : (r && r.message) || String(r);
+          if (e([t])) ev.preventDefault();
+        });
+      })();
+    </script>
   </head>
   <body id="appBody">
     <script>

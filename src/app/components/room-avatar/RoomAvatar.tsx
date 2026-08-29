@@ -37,6 +37,7 @@ export function RoomAvatar({ roomId, src, alt, renderFallback }: RoomAvatarProps
       onError={() => setError(true)}
       onLoad={handleLoad}
       draggable={false}
+      decoding="async"
     />
   );
 }

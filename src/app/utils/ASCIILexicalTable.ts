@@ -35,7 +35,7 @@ export class ASCIILexicalTable {
     this.widthToSize = [];
     this.populateWidthToSize();
 
-    if (this.size() > Number.MAX_SAFE_INTEGER) {
+    if (this.size() > Number.MAX_SAFE_INTEGER && import.meta.env.DEV) {
       console.warn(
         `[!] Warning: ASCIILexicalTable size is larger than the Number.MAX_SAFE_INTEGER: ${this.size()} > ${
           Number.MAX_SAFE_INTEGER

@@ -34,7 +34,7 @@ export function ServerConfigsLoader({ children }: ServerConfigsLoaderProps) {
       try {
         validatedAuthMetadata = validateAuthMetadata(authMetadata);
       } catch (e) {
-        console.error(e);
+        if (import.meta.env.DEV) console.error(e);
       }
 
       return {

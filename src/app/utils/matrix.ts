@@ -315,7 +315,22 @@ export const downloadMedia = async (src: string, mx?: MatrixClient): Promise<Blo
   }
   const headers = token ? { Authorization: `Bearer ${token}` } : undefined;
   const res = await fetch(src, { method: 'GET', headers });
-  if (!res.ok) throw new Error(`Failed to fetch media: ${res.status} ${res.statusText}`);
+  if (!res.ok) {
+    const isNotFound = res.status === 404;
+    const urlPath = (() => {
+      try {
+        return new URL(src).pathname;
+      } catch {
+        return src;
+      }
+    })();
+    if (isNotFound && import.meta.env.DEV) {
+      console.debug(`[media] not found (404): ${urlPath}`);
+    } else if (isNotFound) {
+      void urlPath;
+    }
+    throw new Error(`Failed to fetch media: ${res.status} ${res.statusText}`);
+  }
   return res.blob();
 };
 

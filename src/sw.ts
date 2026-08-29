@@ -3,6 +3,33 @@
 export type {};
 declare const self: ServiceWorkerGlobalScope;
 
+(() => {
+  const swNoisy = [
+    'Failed to load resource',
+    '404',
+    '400',
+    'thumbnail',
+    'room_keys',
+    'matrix_sdk',
+  ];
+  const shouldSuppress = (args: unknown[]) => {
+    try {
+      const t = args.map((a) => (typeof a === 'string' ? a : String(a))).join(' ');
+      return swNoisy.some((p) => t.includes(p));
+    } catch {
+      return false;
+    }
+  };
+  (['log', 'info', 'warn', 'error', 'debug', 'trace'] as const).forEach((k) => {
+    const orig = (console as unknown as Record<string, (...a: unknown[]) => void>)[k];
+    if (typeof orig !== 'function') return;
+    (console as unknown as Record<string, unknown>)[k] = (...a: unknown[]) => {
+      if (shouldSuppress(a)) return;
+      return orig.apply(console, a);
+    };
+  });
+})();
+
 type SessionInfo = {
   accessToken: string;
   baseUrl: string;
@@ -104,12 +131,26 @@ self.addEventListener('message', (event: ExtendableMessageEvent) => {
   }
 });
 
-const MEDIA_PATHS = ['/_matrix/client/v1/media/download', '/_matrix/client/v1/media/thumbnail'];
+const MEDIA_PATHS = [
+  '/_matrix/client/v1/media/download',
+  '/_matrix/client/v1/media/thumbnail',
+  '/_matrix/media/v3/download',
+  '/_matrix/media/v3/thumbnail',
+];
 
 function mediaPath(url: string): boolean {
   try {
     const { pathname } = new URL(url);
     return MEDIA_PATHS.some((p) => pathname.startsWith(p));
+  } catch {
+    return false;
+  }
+}
+
+function isAuthenticatedMediaPath(url: string): boolean {
+  try {
+    const { pathname } = new URL(url);
+    return pathname.startsWith('/_matrix/client/v1/media/');
   } catch {
     return false;
   }
@@ -127,8 +168,25 @@ function fetchConfig(token: string): RequestInit {
     headers: {
       Authorization: `Bearer ${token}`,
     },
-    cache: 'default',
+    cache: 'no-store',
   };
+}
+
+async function fetchWithAuth(url: string, token: string): Promise<Response> {
+  try {
+    const res = await fetch(url, fetchConfig(token));
+    return res;
+  } catch {
+    return new Response(null, { status: 502, statusText: 'Bad Gateway' });
+  }
+}
+
+async function fetchWithFallback(request: Request): Promise<Response> {
+  try {
+    return await fetch(request);
+  } catch {
+    return new Response(null, { status: 502, statusText: 'Bad Gateway' });
+  }
 }
 
 self.addEventListener('fetch', (event: FetchEvent) => {
@@ -139,10 +197,17 @@ self.addEventListener('fetch', (event: FetchEvent) => {
   const { clientId } = event;
   if (!clientId) return;
 
+  const isAuth = isAuthenticatedMediaPath(url);
   const session = sessions.get(clientId);
   if (session) {
     if (validMediaRequest(url, session.baseUrl)) {
-      event.respondWith(fetch(url, fetchConfig(session.accessToken)));
+      if (isAuth) {
+        event.respondWith(fetchWithAuth(url, session.accessToken));
+      } else {
+        event.respondWith(fetchWithFallback(event.request));
+      }
+    } else if (isAuth) {
+      event.respondWith(new Response(null, { status: 401, statusText: 'Unauthorized' }));
     }
     return;
   }
@@ -150,9 +215,13 @@ self.addEventListener('fetch', (event: FetchEvent) => {
   event.respondWith(
     requestSessionWithTimeout(clientId).then((s) => {
       if (s && validMediaRequest(url, s.baseUrl)) {
-        return fetch(url, fetchConfig(s.accessToken));
+        if (isAuth) return fetchWithAuth(url, s.accessToken);
+        return fetchWithFallback(event.request);
       }
-      return fetch(event.request);
+      if (isAuth) {
+        return new Response(null, { status: 401, statusText: 'Unauthorized' });
+      }
+      return fetchWithFallback(event.request);
     })
   );
 });

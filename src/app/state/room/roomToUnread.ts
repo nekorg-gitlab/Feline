@@ -115,6 +115,12 @@ export const unreadEqual = (u1: Unread, u2: Unread): boolean => {
   return fromEqual;
 };
 
+const compareUnreadEqual = (u1?: Unread, u2?: Unread): boolean => {
+  if (u1 === undefined && u2 === undefined) return true;
+  if (!u1 || !u2) return false;
+  return unreadEqual(u1, u2);
+};
+
 const baseRoomToUnread = atom<RoomToUnread>(new Map());
 export const roomToUnreadAtom = atom<RoomToUnread, [RoomToUnreadAction], undefined>(
   (get) => get(baseRoomToUnread),

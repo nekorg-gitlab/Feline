@@ -50,7 +50,7 @@ export const getImageMsgContent = async (
 ): Promise<IContent> => {
   const { file, originalFile, encInfo, metadata } = item;
   const [imgError, imgEl] = await to(loadImageElement(getImageFileUrl(originalFile)));
-  if (imgError) console.warn(imgError);
+  if (imgError && import.meta.env.DEV) console.warn(imgError);
 
   const content: IContent = {
     msgtype: MsgType.Image,
@@ -85,7 +85,7 @@ export const getVideoMsgContent = async (
   const { file, originalFile, encInfo, metadata } = item;
 
   const [videoError, videoEl] = await to(loadVideoElement(getVideoFileUrl(originalFile)));
-  if (videoError) console.warn(videoError);
+  if (videoError && import.meta.env.DEV) console.warn(videoError);
 
   const content: IContent = {
     msgtype: MsgType.Video,
@@ -109,7 +109,7 @@ export const getVideoMsgContent = async (
         scaleYDimension(videoEl.videoWidth, 512, videoEl.videoHeight)
       );
     }
-    if (thumbError) console.warn(thumbError);
+    if (thumbError && import.meta.env.DEV) console.warn(thumbError);
     content.info = {
       ...getVideoInfo(videoEl, file),
       ...thumbContent,

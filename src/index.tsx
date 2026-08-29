@@ -1,3 +1,7 @@
+import { setupLogger } from './client/logger';
+
+setupLogger();
+
 /* eslint-disable import/first */
 import React from 'react';
 import { createRoot } from 'react-dom/client';
@@ -26,7 +30,6 @@ try {
   const r = typeof parsed.roundness === 'number' ? parsed.roundness : 50;
   applyRoundness(r);
 } catch {}
-console.log('[Feline] build 2026-08-29-v2 media+sw fix');
 
 // Register Service Worker
 if ('serviceWorker' in navigator) {
@@ -56,6 +59,7 @@ const mountApp = () => {
   const rootContainer = document.getElementById('root');
 
   if (rootContainer === null) {
+    // eslint-disable-next-line no-console
     console.error('Root container element not found!');
     return;
   }

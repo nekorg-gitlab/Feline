@@ -5,6 +5,7 @@ import { RoomToUnread, Unread } from '../../../types/matrix/room';
 import { roomToUnreadAtom, unreadEqual } from '../room/roomToUnread';
 
 const compareUnreadEqual = (u1?: Unread, u2?: Unread): boolean => {
+  if (u1 === undefined && u2 === undefined) return true;
   if (!u1 || !u2) return false;
   return unreadEqual(u1, u2);
 };
