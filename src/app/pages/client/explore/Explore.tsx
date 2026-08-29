@@ -25,12 +25,9 @@ import {
   NavItemContent,
   NavLink,
 } from '../../../components/nav';
-import { getExploreFeaturedPath, getExploreServerPath } from '../../pathUtils';
+import { getExploreServerPath } from '../../pathUtils';
 import { useClientConfig } from '../../../hooks/useClientConfig';
-import {
-  useExploreFeaturedSelected,
-  useExploreServer,
-} from '../../../hooks/router/useExploreSelected';
+import { useExploreServer } from '../../../hooks/router/useExploreSelected';
 import { useMatrixClient } from '../../../hooks/useMatrixClient';
 import { getMxIdServer } from '../../../utils/matrix';
 import { AsyncStatus, useAsyncCallback } from '../../../hooks/useAsyncCallback';
@@ -163,8 +160,8 @@ export function Explore() {
   const userServer = userId ? getMxIdServer(userId) : undefined;
   const servers =
     clientConfig.featuredCommunities?.servers?.filter((server) => server !== userServer) ?? [];
+  const allServers = userServer ? [userServer, ...servers] : servers;
 
-  const featuredSelected = useExploreFeaturedSelected();
   const selectedServer = useExploreServer();
 
   return (
@@ -181,58 +178,14 @@ export function Explore() {
 
       <PageNavContent>
         <Box direction="Column" gap="300">
-          <NavCategory>
-            <NavItem variant="Background" radii="400" aria-selected={featuredSelected}>
-              <NavLink to={getExploreFeaturedPath()}>
-                <NavItemContent>
-                  <Box as="span" grow="Yes" alignItems="Center" gap="200">
-                    <Avatar size="200" radii="400">
-                      <Icon src={Icons.Bulb} size="100" filled={featuredSelected} />
-                    </Avatar>
-                    <Box as="span" grow="Yes">
-                      <Text as="span" size="Inherit" truncate>
-                        Featured
-                      </Text>
-                    </Box>
-                  </Box>
-                </NavItemContent>
-              </NavLink>
-            </NavItem>
-            {userServer && (
-              <NavItem
-                variant="Background"
-                radii="400"
-                aria-selected={selectedServer === userServer}
-              >
-                <NavLink to={getExploreServerPath(userServer)}>
-                  <NavItemContent>
-                    <Box as="span" grow="Yes" alignItems="Center" gap="200">
-                      <Avatar size="200" radii="400">
-                        <Icon
-                          src={Icons.Server}
-                          size="100"
-                          filled={selectedServer === userServer}
-                        />
-                      </Avatar>
-                      <Box as="span" grow="Yes">
-                        <Text as="span" size="Inherit" truncate>
-                          {userServer}
-                        </Text>
-                      </Box>
-                    </Box>
-                  </NavItemContent>
-                </NavLink>
-              </NavItem>
-            )}
-          </NavCategory>
-          {servers.length > 0 && (
+          {allServers.length > 0 && (
             <NavCategory>
               <NavCategoryHeader>
                 <Text size="O400" style={{ paddingLeft: config.space.S200 }}>
                   Servers
                 </Text>
               </NavCategoryHeader>
-              {servers.map((server) => (
+              {allServers.map((server) => (
                 <NavItem
                   key={server}
                   variant="Background"

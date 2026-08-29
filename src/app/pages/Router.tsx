@@ -22,7 +22,6 @@ import {
   SPACE_PATH,
   SUPPORT_PATH,
   _CREATE_PATH,
-  _FEATURED_PATH,
   _INVITES_PATH,
   _JOIN_PATH,
   _LOBBY_PATH,
@@ -34,7 +33,6 @@ import {
 } from './paths';
 import {
   getAppPathFromHref,
-  getExploreFeaturedPath,
   getHomePath,
   getInboxNotificationsPath,
   getLoginPath,
@@ -45,7 +43,7 @@ import { ClientBindAtoms, ClientLayout, ClientRoot } from './client';
 import { Home, HomeRouteRoomProvider, HomeSearch } from './client/home';
 import { Direct, DirectCreate, DirectRouteRoomProvider } from './client/direct';
 import { RouteSpaceProvider, Space, SpaceRouteRoomProvider, SpaceSearch } from './client/space';
-import { Explore, FeaturedRooms, PublicRooms } from './client/explore';
+import { Explore, PublicRooms } from './client/explore';
 import { Notifications, Inbox, Invites } from './client/inbox';
 import { setAfterLoginRedirectPath } from './afterLoginRedirectPath';
 import { Room } from '../features/room';
@@ -263,14 +261,7 @@ export const createRouter = (clientConfig: ClientConfig, screenSize: ScreenSize)
             </PageRoot>
           }
         >
-          {mobile ? null : (
-            <Route
-              index
-              loader={() => redirect(getExploreFeaturedPath())}
-              element={<WelcomePage />}
-            />
-          )}
-          <Route path={_FEATURED_PATH} element={<FeaturedRooms />} />
+          {mobile ? null : <Route index element={<WelcomePage />} />}
           <Route path={_SERVER_PATH} element={<PublicRooms />} />
         </Route>
         <Route path={CREATE_PATH} element={<Create />} />
