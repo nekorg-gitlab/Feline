@@ -1,5 +1,9 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import { Box, Icon, Icons, Scroll, IconButton } from 'folds';
+import { useNavigate } from 'react-router-dom';
+import { isKeyHotkey } from 'is-hotkey';
+import { useKeyDown } from '../../../hooks/useKeyDown';
+import { getHomePath } from '../../pathUtils';
 import {
   Page,
   PageContent,
@@ -15,8 +19,23 @@ import { useRoomNavigate } from '../../../hooks/useRoomNavigate';
 
 export function HomeCreateRoom() {
   const screenSize = useScreenSizeContext();
+  const navigate = useNavigate();
 
   const { navigateRoom } = useRoomNavigate();
+
+  useKeyDown(
+    window,
+    useCallback(
+      (evt) => {
+        if (isKeyHotkey('escape', evt)) {
+          const portalContainer = document.getElementById('portalContainer');
+          if (portalContainer && portalContainer.children.length > 0) return;
+          navigate(getHomePath());
+        }
+      },
+      [navigate]
+    )
+  );
 
   return (
     <Page>

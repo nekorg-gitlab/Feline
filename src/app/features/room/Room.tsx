@@ -20,7 +20,7 @@ import { callChatAtom } from '../../state/callEmbed';
 import { CallChatView } from './CallChatView';
 import { useCallEmbed } from '../../hooks/useCallEmbed';
 import { useCallMembers, useCallSession } from '../../hooks/useCall';
-import { getHomePath, getSpacePath } from '../../pages/pathUtils';
+import { getHomePath } from '../../pages/pathUtils';
 import { useSelectedSpace } from '../../hooks/router/useSelectedSpace';
 
 export function Room() {
@@ -52,11 +52,8 @@ export function Room() {
             return;
           }
           markAsRead(mx, room.roomId, hideActivity);
-          if (spaceId) {
-            navigate(getSpacePath(spaceId));
-          } else {
-            navigate(getHomePath());
-          }
+          if (spaceId) return;
+          navigate(getHomePath());
         }
       },
       [mx, room.roomId, hideActivity, navigate, spaceId]

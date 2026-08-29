@@ -1,5 +1,9 @@
-import React, { useRef } from 'react';
+import React, { useCallback, useRef } from 'react';
 import { Box, Icon, Icons, Text, Scroll, IconButton } from 'folds';
+import { useNavigate } from 'react-router-dom';
+import { isKeyHotkey } from 'is-hotkey';
+import { useKeyDown } from '../../../hooks/useKeyDown';
+import { getHomePath } from '../../pathUtils';
 import { Page, PageContent, PageContentCenter, PageHeader } from '../../../components/page';
 import { MessageSearch } from '../../../features/message-search';
 import { useHomeRooms } from './useHomeRooms';
@@ -10,6 +14,21 @@ export function HomeSearch() {
   const scrollRef = useRef<HTMLDivElement>(null);
   const rooms = useHomeRooms();
   const screenSize = useScreenSizeContext();
+  const navigate = useNavigate();
+
+  useKeyDown(
+    window,
+    useCallback(
+      (evt) => {
+        if (isKeyHotkey('escape', evt)) {
+          const portalContainer = document.getElementById('portalContainer');
+          if (portalContainer && portalContainer.children.length > 0) return;
+          navigate(getHomePath());
+        }
+      },
+      [navigate]
+    )
+  );
 
   return (
     <Page>

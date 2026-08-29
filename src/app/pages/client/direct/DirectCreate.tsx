@@ -1,9 +1,11 @@
-import React, { useEffect } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Box, Icon, IconButton, Icons, Scroll } from 'folds';
+import { isKeyHotkey } from 'is-hotkey';
+import { useKeyDown } from '../../../hooks/useKeyDown';
+import { getHomePath, getHomeRoomPath } from '../../pathUtils';
 import { useMatrixClient } from '../../../hooks/useMatrixClient';
 import { getDirectCreateSearchParams } from '../../pathSearchParam';
-import { getHomeRoomPath } from '../../pathUtils';
 import { getDMRoomFor } from '../../../utils/matrix';
 import { useDirectRooms } from './useDirectRooms';
 import { ScreenSize, useScreenSizeContext } from '../../../hooks/useScreenSize';
@@ -27,6 +29,20 @@ export function DirectCreate() {
   const { userId } = getDirectCreateSearchParams(searchParams);
 
   const directs = useDirectRooms();
+
+  useKeyDown(
+    window,
+    useCallback(
+      (evt) => {
+        if (isKeyHotkey('escape', evt)) {
+          const portalContainer = document.getElementById('portalContainer');
+          if (portalContainer && portalContainer.children.length > 0) return;
+          navigate(getHomePath());
+        }
+      },
+      [navigate]
+    )
+  );
 
   useEffect(() => {
     if (userId) {
