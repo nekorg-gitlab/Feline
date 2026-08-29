@@ -6,7 +6,8 @@ export const getLocalStorageItem = <T>(key: string, defaultValue: T): T => {
   if (item === 'undefined') return undefined as T;
   try {
     return JSON.parse(item) as T;
-  } catch {
+  } catch (e) {
+    if (import.meta.env.DEV) console.warn(`[storage] corrupted key "${key}"`, e);
     return defaultValue;
   }
 };
@@ -39,7 +40,7 @@ export const atomWithLocalStorage = <T>(
     };
   };
 
-  const localStorageAtom = atom<T, [T], undefined>(
+  const localStorageAtom = atom<T, [T], void>(
     (get) => get(baseAtom),
     (get, set, newValue) => {
       set(baseAtom, newValue);

@@ -47,7 +47,8 @@ export function useAuthenticatedMxcUrl(
         if (prev && prev.startsWith('blob:')) URL.revokeObjectURL(prev);
         return blobUrl;
       });
-    } catch {
+    } catch (err) {
+      if (import.meta.env.DEV) console.warn('[mxc] thumbnail fetch failed', err);
       const hasThumbnailParams = !!width || !!height || !!resizeMethod;
       if (hasThumbnailParams) {
         const fallbackUrl = mxcUrlToHttp(mx, mxcUrl, useAuthentication);
@@ -59,7 +60,9 @@ export function useAuthenticatedMxcUrl(
               return blobUrl;
             });
             return;
-          } catch {}
+          } catch (fallbackErr) {
+            if (import.meta.env.DEV) console.warn('[mxc] fallback fetch failed', fallbackErr);
+          }
         }
       }
       setUrl(undefined);
@@ -75,7 +78,6 @@ export function useAuthenticatedMxcUrl(
     } else {
       setUrl(undefined);
     }
-    return () => {};
   }, [mxcUrl, useAuthentication, mx, width, height, resizeMethod, load]);
 
   useEffect(() => {
@@ -114,7 +116,8 @@ export function useAuthenticatedMxcUrls(
           try {
             const blob = await downloadMedia(mediaUrl, mx);
             return URL.createObjectURL(blob);
-          } catch {
+          } catch (err) {
+            if (import.meta.env.DEV) console.debug('[mxc] batch fetch failed', err);
             const hasThumbnailParams = !!width || !!height || !!resizeMethod;
             if (hasThumbnailParams) {
               const fallbackUrl = mxcUrlToHttp(mx, mxcUrl, useAuthentication);
@@ -122,7 +125,9 @@ export function useAuthenticatedMxcUrls(
                 try {
                   const blob = await downloadMedia(fallbackUrl, mx);
                   return URL.createObjectURL(blob);
-                } catch {}
+                } catch (fallbackErr) {
+                  if (import.meta.env.DEV) console.debug('[mxc] batch fallback failed', fallbackErr);
+                }
               }
             }
             return undefined;

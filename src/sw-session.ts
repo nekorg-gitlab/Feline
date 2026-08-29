@@ -4,12 +4,10 @@ export function pushSessionToSW(baseUrl?: string, accessToken?: string) {
   const send = (target: ServiceWorker | null) => {
     if (!target) return;
     try {
-      target.postMessage({
-        type: 'setSession',
-        accessToken,
-        baseUrl,
-      });
-    } catch {}
+      target.postMessage({ type: 'setSession', accessToken, baseUrl });
+    } catch (err) {
+      if (import.meta.env.DEV) console.warn('[sw] postMessage failed', err);
+    }
   };
 
   // Prefer controller, but fallback to ready/active for first load when controller is not yet set
@@ -20,9 +18,8 @@ export function pushSessionToSW(baseUrl?: string, accessToken?: string) {
 
   // Fallback: try ready/active (handles first load before SW claims)
   navigator.serviceWorker.ready
-    .then((reg) => {
-      const sw = reg.active ?? reg.waiting ?? reg.installing ?? null;
-      send(sw);
-    })
-    .catch(() => {});
+    .then((reg) => send(reg.active ?? reg.waiting ?? reg.installing ?? null))
+    .catch((err) => {
+      if (import.meta.env.DEV) console.warn('[sw] ready failed', err);
+    });
 }

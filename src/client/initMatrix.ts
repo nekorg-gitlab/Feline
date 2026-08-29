@@ -60,8 +60,8 @@ export const logoutClient = async (mx: MatrixClient) => {
   mx.stopClient();
   try {
     await mx.logout();
-  } catch {
-    // ignore if failed to logout
+  } catch (err) {
+    if (import.meta.env.DEV) console.warn('[matrix] logout failed', err);
   }
   await mx.clearStores();
   window.localStorage.clear();

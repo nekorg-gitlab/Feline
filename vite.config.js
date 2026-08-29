@@ -123,8 +123,7 @@ export default defineConfig({
     port: 8080,
     host: true,
     fs: {
-      // Allow serving files from one level up to the project root
-      allow: ['..'],
+      allow: ['.'],
     },
   },
   plugins: [
@@ -172,10 +171,19 @@ export default defineConfig({
   },
   build: {
     outDir: 'dist',
-    sourcemap: true,
+    sourcemap: false,
     copyPublicDir: false,
     rollupOptions: {
       plugins: [inject({ Buffer: ['buffer', 'Buffer'] })],
+      output: {
+        manualChunks: {
+          vendor: ['react', 'react-dom', 'react-router-dom'],
+          matrix: ['matrix-js-sdk', 'matrix-widget-api'],
+          ui: ['folds', '@vanilla-extract/css', 'classnames'],
+          editor: ['slate', 'slate-react', 'slate-history', 'slate-dom'],
+        },
+      },
     },
+    chunkSizeWarningLimit: 1000,
   },
 });

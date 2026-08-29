@@ -5,7 +5,8 @@ export const checkIndexedDBSupport = async (): Promise<boolean> => {
     let db;
     try {
       db = indexedDB.open(dbName);
-    } catch {
+    } catch (err) {
+      if (import.meta.env.DEV) console.debug('[idb] open failed', err);
       resolve(false);
       return;
     }

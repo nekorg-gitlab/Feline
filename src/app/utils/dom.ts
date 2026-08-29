@@ -180,7 +180,7 @@ export const getScrollInfo = (target: HTMLElement): ScrollInfo => ({
   scrollable: target.scrollHeight > target.offsetHeight,
 });
 
-export const scrollToBottom = (scrollEl: HTMLElement, behavior?: 'auto' | 'instant' | 'smooth') => {
+export const scrollToBottom = (scrollEl: HTMLElement, behavior?: ScrollBehavior) => {
   scrollEl.scrollTo({
     top: Math.round(scrollEl.scrollHeight - scrollEl.offsetHeight),
     behavior,
@@ -214,7 +214,8 @@ export const setFavicon = (url: string): void => {
 export const tryDecodeURIComponent = (encodedURIComponent: string): string => {
   try {
     return decodeURIComponent(encodedURIComponent);
-  } catch {
+  } catch (err) {
+    if (import.meta.env.DEV) console.debug('[uri] decode failed', err);
     return encodedURIComponent;
   }
 };

@@ -29,8 +29,8 @@ export function usePermissionState(name: PermissionName, initialValue: Permissio
         handlePermissionChange.apply(permStatus);
         permStatus.addEventListener('change', handlePermissionChange);
       })
-      .catch(() => {
-        // Silence error since FF doesn't support microphone permission
+      .catch((err) => {
+        if (import.meta.env.DEV) console.debug('[permission] query failed', err);
       });
 
     return () => {

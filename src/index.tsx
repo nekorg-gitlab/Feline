@@ -29,7 +29,9 @@ try {
   const parsed = raw ? JSON.parse(raw) : {};
   const r = typeof parsed.roundness === 'number' ? parsed.roundness : 50;
   applyRoundness(r);
-} catch {}
+} catch (err) {
+  if (import.meta.env.DEV) console.warn('[init] roundness parse failed', err);
+}
 
 // Register Service Worker
 if ('serviceWorker' in navigator) {

@@ -2,12 +2,9 @@ import { IconName, IconSrc } from 'folds';
 
 export const bytesToSize = (bytes: number): string => {
   const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
-  if (bytes === 0) return '0KB';
-
-  let sizeIndex = Math.floor(Math.log(bytes) / Math.log(1000));
-
-  if (sizeIndex === 0) sizeIndex = 1;
-
+  if (bytes === 0) return '0 Bytes';
+  if (bytes < 1000) return `${bytes} Bytes`;
+  const sizeIndex = Math.floor(Math.log(bytes) / Math.log(1000));
   return `${(bytes / 1000 ** sizeIndex).toFixed(1)} ${sizes[sizeIndex]}`;
 };
 
@@ -57,7 +54,9 @@ export const promiseFulfilledResult = <T>(
   if (settledResult.status === 'fulfilled') return settledResult.value;
   return undefined;
 };
-export const promiseRejectedResult = <T>(settledResult: PromiseSettledResult<T>): any => {
+export const promiseRejectedResult = <T>(
+  settledResult: PromiseSettledResult<T>
+): unknown => {
   if (settledResult.status === 'rejected') return settledResult.reason;
   return undefined;
 };
@@ -82,8 +81,8 @@ export const randomNumberBetween = (min: number, max: number) =>
   Math.floor(Math.random() * (max - min + 1)) + min;
 
 export const scaleYDimension = (x: number, scaledX: number, y: number): number => {
-  const scaleFactor = scaledX / x;
-  return scaleFactor * y;
+  if (!x) return 0;
+  return (scaledX / x) * y;
 };
 
 export const parseGeoUri = (location: string) => {
@@ -91,15 +90,12 @@ export const parseGeoUri = (location: string) => {
     const [, data] = location.split(':');
     const [cords] = data.split(';');
     const [latitude, longitude] = cords.split(',');
-
     if (typeof latitude === 'string' && typeof longitude === 'string') {
-      return {
-        latitude,
-        longitude,
-      };
+      return { latitude, longitude };
     }
     return undefined;
-  } catch {
+  } catch (err) {
+    if (import.meta.env.DEV) console.debug('[geo] parse failed', err);
     return undefined;
   }
 };

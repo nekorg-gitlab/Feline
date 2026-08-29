@@ -13,7 +13,6 @@ import {
   UploadProgress,
   UploadResponse,
 } from 'matrix-js-sdk';
-import to from 'await-to-js';
 import { IImageInfo, IThumbnailContent, IVideoInfo } from '../../types/matrix/common';
 import { AccountDataEvent } from '../../types/matrix/accountData';
 import { getStateEvent } from './room';
@@ -166,7 +165,7 @@ export const uploadContent = async (
     else onError(new MatrixError(data));
   } catch (e: any) {
     const error = typeof e?.message === 'string' ? e.message : undefined;
-    const errcode = typeof e?.name === 'string' ? e.message : undefined;
+    const errcode = typeof e?.errcode === 'string' ? e.errcode : undefined;
     onError(new MatrixError({ error, errcode }));
   }
 };
@@ -321,28 +320,26 @@ export const downloadMedia = async (src: string, mx?: MatrixClient): Promise<Blo
   if (mx) {
     try {
       token = mx.getAccessToken();
-    } catch {}
+    } catch (err) {
+      if (import.meta.env.DEV) console.warn('[matrix] getAccessToken failed', err);
+    }
   }
   if (!token) {
     try {
       token = localStorage.getItem('feline_access_token') ?? undefined;
-    } catch {}
+    } catch (err) {
+      if (import.meta.env.DEV) console.warn('[matrix] localStorage read failed', err);
+    }
   }
   const headers = token ? { Authorization: `Bearer ${token}` } : undefined;
   const res = await fetch(src, { method: 'GET', headers });
   if (!res.ok) {
-    const isNotFound = res.status === 404;
-    const urlPath = (() => {
+    if (res.status === 404 && import.meta.env.DEV) {
       try {
-        return new URL(src).pathname;
+        console.debug(`[media] not found (404): ${new URL(src).pathname}`);
       } catch {
-        return src;
+        console.debug(`[media] not found (404): ${src}`);
       }
-    })();
-    if (isNotFound && import.meta.env.DEV) {
-      console.debug(`[media] not found (404): ${urlPath}`);
-    } else if (isNotFound) {
-      void urlPath;
     }
     throw new Error(`Failed to fetch media: ${res.status} ${res.statusText}`);
   }
@@ -365,57 +362,39 @@ export const rateLimitedActions = async <T, R = void>(
   callback: (item: T, index: number) => Promise<R>,
   maxRetryCount?: number
 ) => {
-  let retryCount = 0;
-
+  const sleep = (ms: number) => new Promise<void>((resolve) => setTimeout(resolve, ms));
   let actionInterval = 0;
 
-  const sleepForMs = (ms: number) =>
-    new Promise((resolve) => {
-      setTimeout(resolve, ms);
-    });
-
-  const performAction = async (dataItem: T, index: number) => {
-    const [err] = await to<R, MatrixError>(callback(dataItem, index));
-
-    if (err?.httpStatus === 429) {
-      if (retryCount === maxRetryCount) {
-        return;
-      }
-
-      const waitMS = err.getRetryAfterMs() ?? 3000;
-      actionInterval = waitMS * 1.5;
-      await sleepForMs(waitMS);
-      retryCount += 1;
-
-      await performAction(dataItem, index);
-    }
-  };
-
   for (let i = 0; i < data.length; i += 1) {
-    const dataItem = data[i];
-    retryCount = 0;
+    let retryCount = 0;
     // eslint-disable-next-line no-await-in-loop
-    await performAction(dataItem, i);
+    while (true) {
+      try {
+        // eslint-disable-next-line no-await-in-loop
+        await callback(data[i], i);
+        break;
+      } catch (err) {
+        const mErr = err as MatrixError;
+        if (mErr?.httpStatus !== 429 || retryCount === maxRetryCount) break;
+        const waitMS = mErr.getRetryAfterMs?.() ?? 3000;
+        actionInterval = waitMS * 1.5;
+        // eslint-disable-next-line no-await-in-loop
+        await sleep(waitMS);
+        retryCount += 1;
+      }
+    }
     if (actionInterval > 0) {
       // eslint-disable-next-line no-await-in-loop
-      await sleepForMs(actionInterval);
+      await sleep(actionInterval);
     }
   }
 };
 
-export const knockSupported = (version: string): boolean => {
-  const unsupportedVersion = ['1', '2', '3', '4', '5', '6'];
-  return !unsupportedVersion.includes(version);
-};
-export const restrictedSupported = (version: string): boolean => {
-  const unsupportedVersion = ['1', '2', '3', '4', '5', '6', '7'];
-  return !unsupportedVersion.includes(version);
-};
-export const knockRestrictedSupported = (version: string): boolean => {
-  const unsupportedVersion = ['1', '2', '3', '4', '5', '6', '7', '8', '9'];
-  return !unsupportedVersion.includes(version);
-};
-export const creatorsSupported = (version: string): boolean => {
-  const unsupportedVersion = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11'];
-  return !unsupportedVersion.includes(version);
-};
+const V1_6 = new Set(['1', '2', '3', '4', '5', '6']);
+const V1_7 = new Set(['1', '2', '3', '4', '5', '6', '7']);
+const V1_9 = new Set(['1', '2', '3', '4', '5', '6', '7', '8', '9']);
+const V1_11 = new Set(['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11']);
+export const knockSupported = (v: string) => !V1_6.has(v);
+export const restrictedSupported = (v: string) => !V1_7.has(v);
+export const knockRestrictedSupported = (v: string) => !V1_9.has(v);
+export const creatorsSupported = (v: string) => !V1_11.has(v);

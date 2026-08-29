@@ -4,19 +4,13 @@ export type {};
 declare const self: ServiceWorkerGlobalScope;
 
 (() => {
-  const swNoisy = [
-    'Failed to load resource',
-    '404',
-    '400',
-    'thumbnail',
-    'room_keys',
-    'matrix_sdk',
-  ];
+  const swNoisy = ['Failed to load resource', 'matrix_sdk', 'thumbnail'];
   const shouldSuppress = (args: unknown[]) => {
     try {
       const t = args.map((a) => (typeof a === 'string' ? a : String(a))).join(' ');
       return swNoisy.some((p) => t.includes(p));
-    } catch {
+    } catch (err) {
+      void err;
       return false;
     }
   };
@@ -172,20 +166,19 @@ function fetchConfig(token: string): RequestInit {
   };
 }
 
+const badGateway = () => new Response(null, { status: 502, statusText: 'Bad Gateway' });
 async function fetchWithAuth(url: string, token: string): Promise<Response> {
   try {
-    const res = await fetch(url, fetchConfig(token));
-    return res;
+    return await fetch(url, fetchConfig(token));
   } catch {
-    return new Response(null, { status: 502, statusText: 'Bad Gateway' });
+    return badGateway();
   }
 }
-
 async function fetchWithFallback(request: Request): Promise<Response> {
   try {
     return await fetch(request);
   } catch {
-    return new Response(null, { status: 502, statusText: 'Bad Gateway' });
+    return badGateway();
   }
 }
 

@@ -171,7 +171,8 @@ export const getNotificationType = (mx: MatrixClient, roomId: string): Notificat
   let roomPushRule: IPushRule | undefined;
   try {
     roomPushRule = mx.getRoomPushRule('global', roomId);
-  } catch {
+  } catch (err) {
+    if (import.meta.env.DEV) console.debug('[room] getRoomPushRule failed', err);
     roomPushRule = undefined;
   }
 
