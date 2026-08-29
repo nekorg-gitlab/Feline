@@ -1,6 +1,13 @@
 import { atom } from 'jotai';
 
 const STORAGE_KEY = 'settings';
+
+export type CustomThemeColorGroup =
+  | 'Background'
+  | 'Surface'
+  | 'SurfaceVariant'
+  | 'Primary'
+  | 'Secondary';
 export type DateFormat =
   | 'D MMM YYYY'
   | 'DD/MM/YYYY'
@@ -21,7 +28,7 @@ export interface Settings {
   lightThemeId?: string;
   darkThemeId?: string;
   monochromeMode?: boolean;
-  accentColor?: string;
+  customThemeColors?: Partial<Record<CustomThemeColorGroup, string>>;
   isMarkdown: boolean;
   editorToolbar: boolean;
   twitterEmoji: boolean;
@@ -56,7 +63,7 @@ const defaultSettings: Settings = {
   lightThemeId: undefined,
   darkThemeId: undefined,
   monochromeMode: false,
-  accentColor: undefined,
+  customThemeColors: undefined,
   isMarkdown: true,
   editorToolbar: false,
   twitterEmoji: false,

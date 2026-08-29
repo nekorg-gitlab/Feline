@@ -43,7 +43,8 @@ import {
 } from '../../../hooks/useTheme';
 import { HexColorPicker } from 'react-colorful';
 import { HexColorPickerPopOut } from '../../../components/HexColorPickerPopOut';
-import { applyAccentColor } from '../../../utils/accentColor';
+import { applyThemeOverrides } from '../../../utils/themeOverride';
+import { CustomThemeColorGroup } from '../../../state/settings';
 import { SequenceCardStyle } from '../styles.css';
 
 type ThemeSelectorProps = {
@@ -298,62 +299,67 @@ function PageZoomInput() {
   );
 }
 
-function AccentColorPicker() {
-  const [accentColor, setAccentColor] = useSetting(settingsAtom, 'accentColor');
+const CUSTOM_THEME_GROUPS: { group: CustomThemeColorGroup; label: string }[] = [
+  { group: 'Background', label: 'Background' },
+  { group: 'Surface', label: 'Surface' },
+  { group: 'SurfaceVariant', label: 'Surface Variant' },
+  { group: 'Primary', label: 'Primary' },
+  { group: 'Secondary', label: 'Secondary' },
+];
 
-  const handlePick = (c: string) => {
-    setAccentColor(c);
-    applyAccentColor(c);
+function CustomColorTile({ group, label }: { group: CustomThemeColorGroup; label: string }) {
+  const [customThemeColors, setCustomThemeColors] = useSetting(
+    settingsAtom,
+    'customThemeColors',
+  );
+  const value = customThemeColors?.[group];
+
+  const handlePick = (hex: string) => {
+    const next = { ...customThemeColors, [group]: hex };
+    setCustomThemeColors(next);
+    applyThemeOverrides(next);
   };
   const handleReset = () => {
-    setAccentColor(undefined);
-    applyAccentColor(undefined);
+    const next = { ...customThemeColors };
+    delete next[group];
+    setCustomThemeColors(next);
+    applyThemeOverrides(next);
   };
 
   return (
-    <HexColorPickerPopOut
-      picker={
-        <Box direction="Column" gap="200">
-          <HexColorPicker
-            color={accentColor ?? '#1245A8'}
-            onChange={handlePick}
-          />
-          <Button
-            size="300"
-            variant="Secondary"
-            fill="Soft"
-            radii="400"
-            onClick={handleReset}
-          >
-            <Text size="B300">Reset Accent</Text>
-          </Button>
-        </Box>
-      }
-    >
-      {(openPicker, opened) => (
-        <Button
-          aria-pressed={opened}
-          onClick={openPicker}
-          size="300"
-          variant="Secondary"
-          fill="Soft"
-          radii="300"
-          before={
-            <Box
-              style={{
-                width: toRem(16),
-                height: toRem(16),
-                borderRadius: '50%',
-                background: accentColor ?? 'transparent',
-                border: `1px solid ${accentColor ? 'transparent' : 'rgba(127, 127, 127, 0.5)'}`,
-              }}
-            />
-          }
+    <SettingTile
+      title={label}
+      after={
+        <HexColorPickerPopOut
+          picker={<HexColorPicker color={value ?? '#000000'} onChange={handlePick} />}
+          onRemove={handleReset}
         >
-          <Text size="B300">{accentColor ? 'Change' : 'Pick'}</Text>
-        </Button>
-      )}
-    </HexColorPickerPopOut>
+          {(openPicker, opened) => (
+            <Button
+              aria-pressed={opened}
+              onClick={openPicker}
+              size="300"
+              variant="Secondary"
+              fill="Soft"
+              radii="300"
+              before={
+                <Box
+                  style={{
+                    width: toRem(16),
+                    height: toRem(16),
+                    borderRadius: '50%',
+                    background: value ?? 'transparent',
+                    border: `1px solid ${value ? 'transparent' : 'rgba(127, 127, 127, 0.5)'}`,
+                  }}
+                />
+              }
+            >
+              <Text size="B300">{value ? 'Change' : 'Pick'}</Text>
+            </Button>
+          )}
+        </HexColorPickerPopOut>
+      }
+    />
   );
 }
 
@@ -361,6 +367,12 @@ export function Appearance() {
   const [systemTheme, setSystemTheme] = useSetting(settingsAtom, 'useSystemTheme');
   const [monochromeMode, setMonochromeMode] = useSetting(settingsAtom, 'monochromeMode');
   const [twitterEmoji, setTwitterEmoji] = useSetting(settingsAtom, 'twitterEmoji');
+  const [, setCustomThemeColors] = useSetting(settingsAtom, 'customThemeColors');
+
+  const handleResetCustomTheme = () => {
+    setCustomThemeColors(undefined);
+    applyThemeOverrides(undefined);
+  };
 
   return (
     <Box direction="Column" gap="100">
@@ -387,6 +399,31 @@ export function Appearance() {
         />
       </SequenceCard>
 
+      <SequenceCard className={SequenceCardStyle} variant="SurfaceVariant" direction="Column" gap="400">
+        <SettingTile
+          title="Custom Theme"
+          description="Override individual theme colors. Pick a base color for each element; the rest of its shades are derived automatically."
+        />
+        {CUSTOM_THEME_GROUPS.map(({ group, label }) => (
+          <CustomColorTile key={group} group={group} label={label} />
+        ))}
+        <SettingTile
+          title="Reset Custom Theme"
+          description="Clear all custom colors and revert to the selected theme."
+          after={
+            <Button
+              size="300"
+              variant="Secondary"
+              fill="Soft"
+              radii="400"
+              onClick={handleResetCustomTheme}
+            >
+              <Text size="B300">Reset All</Text>
+            </Button>
+          }
+        />
+      </SequenceCard>
+
       <SequenceCard className={SequenceCardStyle} variant="SurfaceVariant" direction="Column">
         <SettingTile
           title="Monochrome Mode"
@@ -405,14 +442,6 @@ export function Appearance() {
         <SettingTile
           title="Page Zoom"
           after={<PageZoomInput />}
-        />
-      </SequenceCard>
-
-      <SequenceCard className={SequenceCardStyle} variant="SurfaceVariant" direction="Column">
-        <SettingTile
-          title="Accent Color"
-          description="Override the accent color used across the app."
-          after={<AccentColorPicker />}
         />
       </SequenceCard>
     </Box>

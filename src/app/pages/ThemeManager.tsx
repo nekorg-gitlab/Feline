@@ -10,11 +10,11 @@ import {
 } from '../hooks/useTheme';
 import { useSetting } from '../state/hooks/settings';
 import { settingsAtom } from '../state/settings';
-import { applyAccentColor } from '../utils/accentColor';
+import { applyThemeOverrides } from '../utils/themeOverride';
 
 export function UnAuthRouteThemeManager() {
   const systemThemeKind = useSystemThemeKind();
-  const [accentColor] = useSetting(settingsAtom, 'accentColor');
+  const [customThemeColors] = useSetting(settingsAtom, 'customThemeColors');
 
   useEffect(() => {
     document.body.className = '';
@@ -25,8 +25,8 @@ export function UnAuthRouteThemeManager() {
     if (systemThemeKind === ThemeKind.Light) {
       document.body.classList.add(...LightTheme.classNames);
     }
-    applyAccentColor(accentColor);
-  }, [systemThemeKind, accentColor]);
+    applyThemeOverrides(customThemeColors);
+  }, [systemThemeKind, customThemeColors]);
 
   return null;
 }
@@ -34,7 +34,7 @@ export function UnAuthRouteThemeManager() {
 export function AuthRouteThemeManager({ children }: { children: ReactNode }) {
   const activeTheme = useActiveTheme();
   const [monochromeMode] = useSetting(settingsAtom, 'monochromeMode');
-  const [accentColor] = useSetting(settingsAtom, 'accentColor');
+  const [customThemeColors] = useSetting(settingsAtom, 'customThemeColors');
 
   useEffect(() => {
     document.body.className = '';
@@ -47,8 +47,8 @@ export function AuthRouteThemeManager({ children }: { children: ReactNode }) {
     } else {
       document.body.style.filter = '';
     }
-    applyAccentColor(accentColor);
-  }, [activeTheme, monochromeMode, accentColor]);
+    applyThemeOverrides(customThemeColors);
+  }, [activeTheme, monochromeMode, customThemeColors]);
 
   return <ThemeContextProvider value={activeTheme}>{children}</ThemeContextProvider>;
 }
