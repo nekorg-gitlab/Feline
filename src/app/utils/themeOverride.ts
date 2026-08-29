@@ -91,6 +91,21 @@ const getCustomThemeVars = (
   return vars;
 };
 
+export const toHex = (input: string): string | null =>
+  chroma.valid(input) ? chroma(input).hex() : null;
+
+export const rgbParts = (hex: string): { r: number; g: number; b: number } | null => {
+  if (!chroma.valid(hex)) return null;
+  const [r, g, b] = chroma(hex).rgb();
+  return { r, g, b };
+};
+
+export const hslParts = (hex: string): { h: number; s: number; l: number } | null => {
+  if (!chroma.valid(hex)) return null;
+  const [h, s, l] = chroma(hex).hsl();
+  return { h, s, l };
+};
+
 export const applyThemeOverrides = (
   customColors?: Partial<Record<CustomThemeColorGroup, string>>,
 ): void => {

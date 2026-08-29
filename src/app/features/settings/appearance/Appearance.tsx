@@ -43,7 +43,7 @@ import {
 } from '../../../hooks/useTheme';
 import { HexColorPicker } from 'react-colorful';
 import { HexColorPickerPopOut } from '../../../components/HexColorPickerPopOut';
-import { applyThemeOverrides } from '../../../utils/themeOverride';
+import { applyThemeOverrides, toHex, rgbParts, hslParts } from '../../../utils/themeOverride';
 import { CustomThemeColorGroup } from '../../../state/settings';
 import { SequenceCardStyle } from '../styles.css';
 
@@ -313,13 +313,81 @@ function CustomColorTile({ group, label }: { group: CustomThemeColorGroup; label
     'customThemeColors',
   );
   const value = customThemeColors?.[group];
+  const initRgb = value ? rgbParts(value) : null;
+  const initHsl = value ? hslParts(value) : null;
+  const [hexText, setHexText] = useState(value ? value.replace('#', '') : '');
+  const [rText, setRText] = useState(initRgb ? `${initRgb.r}` : '');
+  const [gText, setGText] = useState(initRgb ? `${initRgb.g}` : '');
+  const [bText, setBText] = useState(initRgb ? `${initRgb.b}` : '');
+  const [hText, setHText] = useState(
+    initHsl && !Number.isNaN(initHsl.h) ? `${Math.round(initHsl.h)}` : '',
+  );
+  const [sText, setSText] = useState(initHsl ? `${Math.round(initHsl.s * 100)}` : '');
+  const [lText, setLText] = useState(initHsl ? `${Math.round(initHsl.l * 100)}` : '');
 
-  const handlePick = (hex: string) => {
+  const applyFromHex = (hex: string) => {
+    const rgb = rgbParts(hex);
+    if (rgb) {
+      setRText(`${rgb.r}`);
+      setGText(`${rgb.g}`);
+      setBText(`${rgb.b}`);
+    }
+    const hsl = hslParts(hex);
+    if (hsl) {
+      setHText(Number.isNaN(hsl.h) ? '' : `${Math.round(hsl.h)}`);
+      setSText(`${Math.round(hsl.s * 100)}`);
+      setLText(`${Math.round(hsl.l * 100)}`);
+    }
+    setHexText(hex.replace('#', ''));
     const next = { ...customThemeColors, [group]: hex };
     setCustomThemeColors(next);
     applyThemeOverrides(next);
   };
+
+  const handlePick = (hex: string) => applyFromHex(hex);
+
+  const applyFromRgb = (r: string, g: string, b: string) => {
+    const hex = toHex(`rgb(${r}, ${g}, ${b})`);
+    if (hex) applyFromHex(hex);
+  };
+  const onR: ChangeEventHandler<HTMLInputElement> = (e) => {
+    setRText(e.target.value);
+    applyFromRgb(e.target.value, gText, bText);
+  };
+  const onG: ChangeEventHandler<HTMLInputElement> = (e) => {
+    setGText(e.target.value);
+    applyFromRgb(rText, e.target.value, bText);
+  };
+  const onB: ChangeEventHandler<HTMLInputElement> = (e) => {
+    setBText(e.target.value);
+    applyFromRgb(rText, gText, e.target.value);
+  };
+
+  const applyFromHsl = (h: string, s: string, l: string) => {
+    const hex = toHex(`hsl(${h}, ${s}%, ${l}%)`);
+    if (hex) applyFromHex(hex);
+  };
+  const onH: ChangeEventHandler<HTMLInputElement> = (e) => {
+    setHText(e.target.value);
+    applyFromHsl(e.target.value, sText, lText);
+  };
+  const onS: ChangeEventHandler<HTMLInputElement> = (e) => {
+    setSText(e.target.value);
+    applyFromHsl(hText, e.target.value, lText);
+  };
+  const onL: ChangeEventHandler<HTMLInputElement> = (e) => {
+    setLText(e.target.value);
+    applyFromHsl(hText, sText, e.target.value);
+  };
+
+  const onHex: ChangeEventHandler<HTMLInputElement> = (e) => {
+    setHexText(e.target.value);
+    const hex = toHex(e.target.value);
+    if (hex) applyFromHex(hex);
+  };
+
   const handleReset = () => {
+    [setHexText, setRText, setGText, setBText, setHText, setSText, setLText].forEach((s) => s(''));
     const next = { ...customThemeColors };
     delete next[group];
     setCustomThemeColors(next);
@@ -331,7 +399,96 @@ function CustomColorTile({ group, label }: { group: CustomThemeColorGroup; label
       title={label}
       after={
         <HexColorPickerPopOut
-          picker={<HexColorPicker color={value ?? '#000000'} onChange={handlePick} />}
+          picker={
+            <Box direction="Column" gap="200">
+              <HexColorPicker color={value ?? '#000000'} onChange={handlePick} />
+              <Box direction="Row" gap="100" alignItems="Center">
+                <Text size="B300">hex #</Text>
+                <Input
+                  variant="Secondary"
+                  size="300"
+                  radii="300"
+                  placeholder="00ff88"
+                  value={hexText}
+                  onChange={onHex}
+                  outlined
+                  style={{ width: toRem(96) }}
+                />
+              </Box>
+              <Box direction="Row" gap="100" alignItems="Center">
+                <Text size="B300">rgb</Text>
+                <Input
+                  type="number"
+                  variant="Secondary"
+                  size="300"
+                  radii="300"
+                  placeholder="r"
+                  value={rText}
+                  onChange={onR}
+                  outlined
+                  style={{ width: toRem(60) }}
+                />
+                <Input
+                  type="number"
+                  variant="Secondary"
+                  size="300"
+                  radii="300"
+                  placeholder="g"
+                  value={gText}
+                  onChange={onG}
+                  outlined
+                  style={{ width: toRem(60) }}
+                />
+                <Input
+                  type="number"
+                  variant="Secondary"
+                  size="300"
+                  radii="300"
+                  placeholder="b"
+                  value={bText}
+                  onChange={onB}
+                  outlined
+                  style={{ width: toRem(60) }}
+                />
+              </Box>
+              <Box direction="Row" gap="100" alignItems="Center">
+                <Text size="B300">hsl</Text>
+                <Input
+                  type="number"
+                  variant="Secondary"
+                  size="300"
+                  radii="300"
+                  placeholder="h"
+                  value={hText}
+                  onChange={onH}
+                  outlined
+                  style={{ width: toRem(60) }}
+                />
+                <Input
+                  type="number"
+                  variant="Secondary"
+                  size="300"
+                  radii="300"
+                  placeholder="s"
+                  value={sText}
+                  onChange={onS}
+                  outlined
+                  style={{ width: toRem(60) }}
+                />
+                <Input
+                  type="number"
+                  variant="Secondary"
+                  size="300"
+                  radii="300"
+                  placeholder="l"
+                  value={lText}
+                  onChange={onL}
+                  outlined
+                  style={{ width: toRem(60) }}
+                />
+              </Box>
+            </Box>
+          }
           onRemove={handleReset}
         >
           {(openPicker, opened) => (
