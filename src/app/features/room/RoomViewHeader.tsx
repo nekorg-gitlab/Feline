@@ -328,7 +328,7 @@ function CallButton() {
         tooltip={
           <Tooltip>
             {inAnotherCall ? (
-              <Text size="L400">Already in another call — End the current call to join!</Text>
+              <Text size="L400">Already in another call - End the current call to join!</Text>
             ) : (
               <Text>Call</Text>
             )}

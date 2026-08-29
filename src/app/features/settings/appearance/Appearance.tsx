@@ -294,7 +294,7 @@ function RoundnessControl() {
     <Box direction="Column" gap="400">
       <SettingTile
         title="Roundness"
-        description="Control how rounded the interface feels — 0 is sharp squares, 100 is fully circular."
+        description="Control how rounded the interface feels - 0 is sharp squares, 100 is fully circular."
         after={
           <Button
             size="300"

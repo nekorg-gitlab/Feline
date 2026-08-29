@@ -83,7 +83,7 @@ export function Support({ requestClose }: SupportProps) {
                       felipefmavelar@gmail.com
                     </Text>
                     <Text size="T200" priority="300">
-                      Direct PayPal transfer — open PayPal and send to this email, or use the button below.
+                      Direct PayPal transfer - open PayPal and send to this email, or use the button below.
                     </Text>
                   </Box>
                   <Box gap="200" wrap="Wrap">
