@@ -296,6 +296,21 @@ export const mxcUrlToHttp = (
     useAuthentication
   );
 
+export const getThumbnailFallbackUrl = (url: string): string | null => {
+  if (!url.includes('/thumbnail')) return null;
+  try {
+    const parsed = new URL(url);
+    parsed.pathname = parsed.pathname.replace('/thumbnail', '/download');
+    parsed.searchParams.delete('width');
+    parsed.searchParams.delete('height');
+    parsed.searchParams.delete('method');
+    parsed.searchParams.delete('animated');
+    return parsed.href;
+  } catch {
+    return null;
+  }
+};
+
 export const downloadMedia = async (src: string, mx?: MatrixClient): Promise<Blob> => {
   if (src.startsWith('blob:') || src.startsWith('data:')) {
     const res = await fetch(src);

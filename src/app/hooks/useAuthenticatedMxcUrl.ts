@@ -37,14 +37,31 @@ export function useAuthenticatedMxcUrl(
       setUrl(mediaUrl);
       return;
     }
+    const tryFetch = async (url: string) => {
+      const blob = await downloadMedia(url, mx);
+      return URL.createObjectURL(blob);
+    };
     try {
-      const blob = await downloadMedia(mediaUrl, mx);
-      const blobUrl = URL.createObjectURL(blob);
+      const blobUrl = await tryFetch(mediaUrl);
       setUrl((prev) => {
         if (prev && prev.startsWith('blob:')) URL.revokeObjectURL(prev);
         return blobUrl;
       });
     } catch {
+      const hasThumbnailParams = !!width || !!height || !!resizeMethod;
+      if (hasThumbnailParams) {
+        const fallbackUrl = mxcUrlToHttp(mx, mxcUrl, useAuthentication);
+        if (fallbackUrl && fallbackUrl !== mediaUrl) {
+          try {
+            const blobUrl = await tryFetch(fallbackUrl);
+            setUrl((prev) => {
+              if (prev && prev.startsWith('blob:')) URL.revokeObjectURL(prev);
+              return blobUrl;
+            });
+            return;
+          } catch {}
+        }
+      }
       setUrl(undefined);
     }
   }, [mx, mxcUrl, useAuthentication, width, height, resizeMethod]);
@@ -98,6 +115,16 @@ export function useAuthenticatedMxcUrls(
             const blob = await downloadMedia(mediaUrl, mx);
             return URL.createObjectURL(blob);
           } catch {
+            const hasThumbnailParams = !!width || !!height || !!resizeMethod;
+            if (hasThumbnailParams) {
+              const fallbackUrl = mxcUrlToHttp(mx, mxcUrl, useAuthentication);
+              if (fallbackUrl && fallbackUrl !== mediaUrl) {
+                try {
+                  const blob = await downloadMedia(fallbackUrl, mx);
+                  return URL.createObjectURL(blob);
+                } catch {}
+              }
+            }
             return undefined;
           }
         })

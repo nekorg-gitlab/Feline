@@ -1,8 +1,9 @@
 import { JoinRule } from 'matrix-js-sdk';
 import { AvatarFallback, AvatarImage, Icon, Icons, color } from 'folds';
-import React, { ComponentProps, ReactEventHandler, ReactNode, forwardRef, useState } from 'react';
+import React, { ComponentProps, ReactEventHandler, ReactNode, forwardRef, useEffect, useState } from 'react';
 import * as css from './RoomAvatar.css';
 import { getRoomIconSrc } from '../../utils/room';
+import { getThumbnailFallbackUrl } from '../../utils/matrix';
 import colorMXID from '../../../util/colorMXID';
 
 type RoomAvatarProps = {
@@ -13,12 +14,32 @@ type RoomAvatarProps = {
 };
 export function RoomAvatar({ roomId, src, alt, renderFallback }: RoomAvatarProps) {
   const [error, setError] = useState(false);
+  const [currentSrc, setCurrentSrc] = useState(src);
+  const [fallbackTried, setFallbackTried] = useState(false);
+
+  useEffect(() => {
+    setCurrentSrc(src);
+    setFallbackTried(false);
+    setError(false);
+  }, [src]);
 
   const handleLoad: ReactEventHandler<HTMLImageElement> = (evt) => {
     evt.currentTarget.setAttribute('data-image-loaded', 'true');
   };
 
-  if (!src || error) {
+  const handleError = () => {
+    if (!fallbackTried && currentSrc) {
+      const fallback = getThumbnailFallbackUrl(currentSrc);
+      if (fallback && fallback !== currentSrc) {
+        setFallbackTried(true);
+        setCurrentSrc(fallback);
+        return;
+      }
+    }
+    setError(true);
+  };
+
+  if (!currentSrc || error) {
     return (
       <AvatarFallback
         style={{ backgroundColor: colorMXID(roomId ?? ''), color: color.Surface.Container }}
@@ -32,9 +53,9 @@ export function RoomAvatar({ roomId, src, alt, renderFallback }: RoomAvatarProps
   return (
     <AvatarImage
       className={css.RoomAvatar}
-      src={src}
+      src={currentSrc}
       alt={alt}
-      onError={() => setError(true)}
+      onError={handleError}
       onLoad={handleLoad}
       draggable={false}
       decoding="async"
