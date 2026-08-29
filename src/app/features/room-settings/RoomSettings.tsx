@@ -7,6 +7,7 @@ import { ScreenSize, useScreenSizeContext } from '../../hooks/useScreenSize';
 import { useMatrixClient } from '../../hooks/useMatrixClient';
 import { mxcUrlToHttp } from '../../utils/matrix';
 import { useMediaAuthentication } from '../../hooks/useMediaAuthentication';
+import { useAuthenticatedMxcUrl } from '../../hooks/useAuthenticatedMxcUrl';
 import { useRoomAvatar, useRoomJoinRule, useRoomName } from '../../hooks/useRoomMeta';
 import { mDirectAtom } from '../../state/mDirectList';
 import { RoomAvatar, RoomIcon } from '../../components/room-avatar';
@@ -70,9 +71,11 @@ export function RoomSettings({ initialPage, requestClose }: RoomSettingsProps) {
   const roomName = useRoomName(room);
   const joinRuleContent = useRoomJoinRule(room);
 
-  const avatarUrl = roomAvatar
+  const directUrl = roomAvatar
     ? mxcUrlToHttp(mx, roomAvatar, useAuthentication, 96, 96, 'crop') ?? undefined
     : undefined;
+  const authUrl = useAuthenticatedMxcUrl(roomAvatar, 96, 96, 'crop');
+  const avatarUrl = useAuthentication ? authUrl : directUrl;
 
   const screenSize = useScreenSizeContext();
   const [activePage, setActivePage] = useState<RoomSettingsPage | undefined>(() => {

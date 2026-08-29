@@ -14,6 +14,7 @@ import {
   renderMatrixMention,
 } from '../../plugins/react-custom-html-parser';
 import { getMxIdLocalPart, mxcUrlToHttp } from '../../utils/matrix';
+import { useAuthenticatedMxcUrl } from '../../hooks/useAuthenticatedMxcUrl';
 import { useMatrixEventRenderer } from '../../hooks/useMatrixEventRenderer';
 import { GetContentCallback, MessageEvent, StateEvent } from '../../../types/matrix/room';
 import {
@@ -52,6 +53,37 @@ import {
 import { useRoomCreators } from '../../hooks/useRoomCreators';
 import { useRoomCreatorsTag } from '../../hooks/useRoomCreatorsTag';
 
+function SearchSenderAvatar({
+  room,
+  senderId,
+  displayName,
+}: {
+  room: Room;
+  senderId: string;
+  displayName: string;
+}) {
+  const mx = useMatrixClient();
+  const useAuthentication = useMediaAuthentication();
+  const senderAvatarMxc = getMemberAvatarMxc(room, senderId);
+  const directUrl = senderAvatarMxc
+    ? mxcUrlToHttp(mx, senderAvatarMxc, useAuthentication, 48, 48, 'crop') ?? undefined
+    : undefined;
+  const authUrl = useAuthenticatedMxcUrl(senderAvatarMxc, 48, 48, 'crop');
+  const avatarUrl = useAuthentication ? authUrl : directUrl;
+  return (
+    <AvatarBase>
+      <Avatar size="300">
+        <UserAvatar
+          userId={senderId}
+          src={avatarUrl}
+          alt={displayName}
+          renderFallback={() => <Icon size="200" src={Icons.User} filled />}
+        />
+      </Avatar>
+    </AvatarBase>
+  );
+}
+
 type SearchResultGroupProps = {
   room: Room;
   highlights: string[];
@@ -76,6 +108,12 @@ export function SearchResultGroup({
 }: SearchResultGroupProps) {
   const mx = useMatrixClient();
   const useAuthentication = useMediaAuthentication();
+  const roomAvatarMxc = room.getMxcAvatarUrl() ?? undefined;
+  const directRoomAvatarUrl = roomAvatarMxc
+    ? mxcUrlToHttp(mx, roomAvatarMxc, useAuthentication, 96, 96, 'crop') ?? undefined
+    : undefined;
+  const authRoomAvatarUrl = useAuthenticatedMxcUrl(roomAvatarMxc, 96, 96, 'crop');
+  const roomAvatarUrl = useAuthentication ? authRoomAvatarUrl : directRoomAvatarUrl;
   const highlightRegex = useMemo(() => makeHighlightRegex(highlights), [highlights]);
 
   const powerLevels = usePowerLevels(room);
@@ -198,9 +236,7 @@ export function SearchResultGroup({
       <Header size="300">
         <Box gap="200" grow="Yes">
           <Avatar size="200" radii="300">
-            <RoomAvatar
-              roomId={room.roomId}
-              src={getRoomAvatarUrl(mx, room, 96, useAuthentication)}
+            <RoomAvatar roomId={room.roomId} src={roomAvatarUrl}
               alt={room.name}
               renderFallback={() => (
                 <RoomIcon
@@ -225,7 +261,6 @@ export function SearchResultGroup({
             getMemberDisplayName(room, event.sender) ??
             getMxIdLocalPart(event.sender) ??
             event.sender;
-          const senderAvatarMxc = getMemberAvatarMxc(room, event.sender);
 
           const relation = event.content['m.relates_to'];
           const mainEventId =
@@ -257,27 +292,7 @@ export function SearchResultGroup({
             >
               <ModernLayout
                 before={
-                  <AvatarBase>
-                    <Avatar size="300">
-                      <UserAvatar
-                        userId={event.sender}
-                        src={
-                          senderAvatarMxc
-                            ? mxcUrlToHttp(
-                                mx,
-                                senderAvatarMxc,
-                                useAuthentication,
-                                48,
-                                48,
-                                'crop'
-                              ) ?? undefined
-                            : undefined
-                        }
-                        alt={displayName}
-                        renderFallback={() => <Icon size="200" src={Icons.User} filled />}
-                      />
-                    </Avatar>
-                  </AvatarBase>
+                  <SearchSenderAvatar room={room} senderId={event.sender} displayName={displayName} />
                 }
               >
                 <Box gap="300" justifyContent="SpaceBetween" alignItems="Center" grow="Yes">

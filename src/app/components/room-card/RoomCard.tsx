@@ -33,6 +33,7 @@ import { useElementSizeObserver } from '../../hooks/useElementSizeObserver';
 import { getRoomAvatarUrl, getStateEvent } from '../../utils/room';
 import { useStateEventCallback } from '../../hooks/useStateEventCallback';
 import { useMediaAuthentication } from '../../hooks/useMediaAuthentication';
+import { useAuthenticatedMxcUrl } from '../../hooks/useAuthenticatedMxcUrl';
 
 type GridColumnCount = '1' | '2' | '3';
 const getGridColumnCount = (gridWidth: number): GridColumnCount => {
@@ -172,9 +173,14 @@ export const RoomCard = as<'div', RoomCardProps>(
     const fallbackName = getMxIdLocalPart(roomIdOrAlias) ?? roomIdOrAlias;
     const fallbackTopic = roomIdOrAlias;
 
-    const avatar = joinedRoom
+    const directAvatar = joinedRoom
       ? getRoomAvatarUrl(mx, joinedRoom, 96, useAuthentication)
-      : avatarUrl && mxcUrlToHttp(mx, avatarUrl, useAuthentication, 96, 96, 'crop');
+      : avatarUrl
+        ? (mxcUrlToHttp(mx, avatarUrl, useAuthentication, 96, 96, 'crop') ?? undefined)
+        : undefined;
+    const avatarMxc = joinedRoom ? (joinedRoom.getMxcAvatarUrl() ?? undefined) : avatarUrl;
+    const authAvatar = useAuthenticatedMxcUrl(avatarMxc, 96, 96, 'crop');
+    const avatar = useAuthentication ? authAvatar : directAvatar;
 
     const roomName = joinedRoom?.name || name || fallbackName;
     const roomTopic =

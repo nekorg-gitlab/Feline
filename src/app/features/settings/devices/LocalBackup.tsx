@@ -113,7 +113,7 @@ function ExportKeys() {
         </Box>
         {exportState.status === AsyncStatus.Error && (
           <Text size="T200" style={{ color: color.Critical.Main }}>
-            <b>{exportState.error.message}</b>
+            <b>{(exportState.error as any).friendlyText || exportState.error.message}</b>
           </Text>
         )}
       </Box>
@@ -237,7 +237,7 @@ function ImportKeys({ file, onDone }: ImportKeysProps) {
         </Box>
         {decryptState.status === AsyncStatus.Error && (
           <Text size="T200" style={{ color: color.Critical.Main }}>
-            <b>{decryptState.error.message}</b>
+            <b>{(decryptState.error as any).friendlyText || decryptState.error.message}</b>
           </Text>
         )}
       </Box>

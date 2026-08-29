@@ -6,6 +6,7 @@ import { useMatrixClient } from '../../../hooks/useMatrixClient';
 import { getMxIdLocalPart, mxcUrlToHttp } from '../../../utils/matrix';
 import { nameInitials } from '../../../utils/common';
 import { useMediaAuthentication } from '../../../hooks/useMediaAuthentication';
+import { useAuthenticatedMxcUrl } from '../../../hooks/useAuthenticatedMxcUrl';
 import { Settings } from '../../../features/settings';
 import { useUserProfile } from '../../../hooks/useUserProfile';
 import { Modal500 } from '../../../components/Modal500';
@@ -19,9 +20,11 @@ export function SettingsTab() {
   const [settings, setSettings] = useState(false);
 
   const displayName = profile.displayName ?? getMxIdLocalPart(userId) ?? userId;
-  const avatarUrl = profile.avatarUrl
-    ? mxcUrlToHttp(mx, profile.avatarUrl, useAuthentication, 96, 96, 'crop') ?? undefined
+  const directAvatarUrl = profile.avatarUrl
+    ? (mxcUrlToHttp(mx, profile.avatarUrl, useAuthentication, 96, 96, 'crop') ?? undefined)
     : undefined;
+  const authAvatarUrl = useAuthenticatedMxcUrl(profile.avatarUrl, 96, 96, 'crop');
+  const avatarUrl = useAuthentication ? authAvatarUrl : directAvatarUrl;
 
   const openSettings = () => setSettings(true);
   const closeSettings = () => setSettings(false);

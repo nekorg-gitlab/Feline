@@ -38,6 +38,7 @@ import { getDirectRoomAvatarUrl, getRoomAvatarUrl } from '../../utils/room';
 import { ItemDraggableTarget, useDraggableItem } from './DnD';
 import { mxcUrlToHttp } from '../../utils/matrix';
 import { useMediaAuthentication } from '../../hooks/useMediaAuthentication';
+import { useAuthenticatedMxcUrl } from '../../hooks/useAuthenticatedMxcUrl';
 
 type RoomJoinButtonProps = {
   roomId: string;
@@ -321,6 +322,26 @@ export const RoomItemCard = as<'div', RoomItemCardProps>(
 
     const joined = room?.getMyMembership() === Membership.Join;
 
+    const roomAvatarMxcForAuth = dm
+      ? room?.getAvatarFallbackMember()?.getMxcAvatarUrl() ?? room?.getMxcAvatarUrl() ?? undefined
+      : room?.getMxcAvatarUrl() ?? undefined;
+    const directRoomAvatarUrl = dm
+      ? room
+        ? getDirectRoomAvatarUrl(mx, room, 96, useAuthentication)
+        : undefined
+      : room
+        ? getRoomAvatarUrl(mx, room, 96, useAuthentication)
+        : undefined;
+    const authRoomAvatarUrl = useAuthenticatedMxcUrl(roomAvatarMxcForAuth, 96, 96, 'crop');
+    const roomAvatarUrl = useAuthentication ? authRoomAvatarUrl : directRoomAvatarUrl;
+
+    const summaryAvatarMxc = summary?.avatar_url;
+    const directSummaryAvatarUrl = summaryAvatarMxc
+      ? mxcUrlToHttp(mx, summaryAvatarMxc, useAuthentication, 96, 96, 'crop') ?? undefined
+      : undefined;
+    const authSummaryAvatarUrl = useAuthenticatedMxcUrl(summaryAvatarMxc, 96, 96, 'crop');
+    const summaryAvatarUrl = useAuthentication ? authSummaryAvatarUrl : directSummaryAvatarUrl;
+
     return (
       <SequenceCard
         className={css.RoomItemCard}
@@ -341,11 +362,7 @@ export const RoomItemCard = as<'div', RoomItemCardProps>(
                   roomType={localSummary.roomType}
                   name={localSummary.name}
                   topic={localSummary.topic}
-                  avatarUrl={
-                    dm
-                      ? getDirectRoomAvatarUrl(mx, room, 96, useAuthentication)
-                      : getRoomAvatarUrl(mx, room, 96, useAuthentication)
-                  }
+                  avatarUrl={roomAvatarUrl}
                   memberCount={localSummary.memberCount}
                   suggested={content.suggested}
                   joinRule={localSummary.joinRule}
@@ -400,12 +417,7 @@ export const RoomItemCard = as<'div', RoomItemCardProps>(
                   roomType={summary.room_type}
                   name={summary.name || summary.canonical_alias || roomId}
                   topic={summary.topic}
-                  avatarUrl={
-                    summary?.avatar_url
-                      ? mxcUrlToHttp(mx, summary.avatar_url, useAuthentication, 96, 96, 'crop') ??
-                        undefined
-                      : undefined
-                  }
+                  avatarUrl={summaryAvatarUrl}
                   memberCount={summary.num_joined_members}
                   suggested={content.suggested}
                   joinRule={summary.join_rule}

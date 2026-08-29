@@ -43,6 +43,7 @@ import {
 import { UserAvatar } from '../../../components/user-avatar';
 import { getMxIdLocalPart, mxcUrlToHttp } from '../../../utils/matrix';
 import { useMatrixClient } from '../../../hooks/useMatrixClient';
+import { useAuthenticatedMxcUrl } from '../../../hooks/useAuthenticatedMxcUrl';
 import {
   getEditedEvent,
   getMemberAvatarMxc,
@@ -177,6 +178,11 @@ function PinnedMessage({
   const sender = pinnedEvent.getSender()!;
   const displayName = getMemberDisplayName(room, sender) ?? getMxIdLocalPart(sender) ?? sender;
   const senderAvatarMxc = getMemberAvatarMxc(room, sender);
+  const directUrl = senderAvatarMxc
+    ? mxcUrlToHttp(mx, senderAvatarMxc, useAuthentication, 48, 48, 'crop') ?? undefined
+    : undefined;
+  const authUrl = useAuthenticatedMxcUrl(senderAvatarMxc, 48, 48, 'crop');
+  const avatarUrl = useAuthentication ? authUrl : directUrl;
   const getContent = (() => pinnedEvent.getContent()) as GetContentCallback;
 
   const memberPowerTag = getMemberPowerTag(sender);
@@ -196,12 +202,7 @@ function PinnedMessage({
           <Avatar size="300">
             <UserAvatar
               userId={sender}
-              src={
-                senderAvatarMxc
-                  ? mxcUrlToHttp(mx, senderAvatarMxc, useAuthentication, 48, 48, 'crop') ??
-                    undefined
-                  : undefined
-              }
+              src={avatarUrl}
               alt={displayName}
               renderFallback={() => <Icon size="200" src={Icons.User} filled />}
             />

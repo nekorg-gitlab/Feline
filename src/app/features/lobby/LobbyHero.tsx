@@ -13,6 +13,7 @@ import { PageHero } from '../../components/page';
 import { onEnterOrSpace, stopPropagation } from '../../utils/keyboard';
 import { mxcUrlToHttp } from '../../utils/matrix';
 import { useMediaAuthentication } from '../../hooks/useMediaAuthentication';
+import { useAuthenticatedMxcUrl } from '../../hooks/useAuthenticatedMxcUrl';
 
 export function LobbyHero() {
   const mx = useMatrixClient();
@@ -22,7 +23,11 @@ export function LobbyHero() {
   const name = useRoomName(space);
   const topic = useRoomTopic(space);
   const avatarMxc = useRoomAvatar(space);
-  const avatarUrl = avatarMxc ? mxcUrlToHttp(mx, avatarMxc, useAuthentication, 96, 96, 'crop') ?? undefined : undefined;
+  const directUrl = avatarMxc
+    ? mxcUrlToHttp(mx, avatarMxc, useAuthentication, 96, 96, 'crop') ?? undefined
+    : undefined;
+  const authUrl = useAuthenticatedMxcUrl(avatarMxc, 96, 96, 'crop');
+  const avatarUrl = useAuthentication ? authUrl : directUrl;
 
   return (
     <PageHero

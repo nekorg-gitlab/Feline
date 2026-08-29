@@ -28,7 +28,6 @@ import { bytesToSize } from '../../../utils/common';
 import { FALLBACK_MIMETYPE } from '../../../utils/mimeTypes';
 import { stopPropagation } from '../../../utils/keyboard';
 import { decryptFile, downloadEncryptedMedia, mxcUrlToHttp } from '../../../utils/matrix';
-import { useMediaAuthentication } from '../../../hooks/useMediaAuthentication';
 import { ModalWide } from '../../../styles/Modal.css';
 import { validBlurHash } from '../../../utils/blurHash';
 
@@ -77,7 +76,9 @@ export const ImageContent = as<'div', ImageContentProps>(
     ref
   ) => {
     const mx = useMatrixClient();
-    const useAuthentication = useMediaAuthentication();
+    // For message media, always try authenticated v1 first (with manual Authorization fallback in downloadMedia)
+    // to avoid 404 on v3 for media that is only on v1 (matrix.org). See logs: v3 404 for EYHOlyrA...
+    const useAuthentication = true;
     const blurHash = validBlurHash(info?.[MATRIX_BLUR_HASH_PROPERTY_NAME]);
 
     const [load, setLoad] = useState(false);
@@ -90,9 +91,15 @@ export const ImageContent = as<'div', ImageContentProps>(
         const mediaUrl = mxcUrlToHttp(mx, url, useAuthentication);
         if (!mediaUrl) throw new Error('Invalid media URL');
         if (encInfo) {
-          const fileContent = await downloadEncryptedMedia(mediaUrl, (encBuf) =>
-            decryptFile(encBuf, mimeType ?? FALLBACK_MIMETYPE, encInfo)
+          const fileContent = await downloadEncryptedMedia(
+            mediaUrl,
+            (encBuf) => decryptFile(encBuf, mimeType ?? FALLBACK_MIMETYPE, encInfo),
+            mx
           );
+          return URL.createObjectURL(fileContent);
+        }
+        if (useAuthentication) {
+          const fileContent = await downloadMedia(mediaUrl, mx);
           return URL.createObjectURL(fileContent);
         }
         return mediaUrl;

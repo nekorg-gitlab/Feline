@@ -19,6 +19,7 @@ import { pushSessionToSW } from './sw-session';
 import { getFallbackSession } from './app/state/sessions';
 
 document.body.classList.add(configClass, varsClass);
+console.log('[Feline] build 2026-08-29-v2 media+sw fix');
 
 // Register Service Worker
 if ('serviceWorker' in navigator) {

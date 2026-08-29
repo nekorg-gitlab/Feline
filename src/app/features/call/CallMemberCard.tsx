@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { Avatar, Box, Icon, Icons, Text } from 'folds';
 import { useMatrixClient } from '../../hooks/useMatrixClient';
 import { useMediaAuthentication } from '../../hooks/useMediaAuthentication';
+import { useAuthenticatedMxcUrl } from '../../hooks/useAuthenticatedMxcUrl';
 import { useOpenUserRoomProfile } from '../../state/hooks/userRoomProfile';
 import { SequenceCard } from '../../components/sequence-card';
 import { getMemberAvatarMxc, getMemberDisplayName } from '../../utils/room';
@@ -27,9 +28,11 @@ export function CallMemberCard({ member }: CallMemberCardProps) {
 
   const name = getMemberDisplayName(room, userId) ?? getMxIdLocalPart(userId) ?? userId;
   const avatarMxc = getMemberAvatarMxc(room, userId);
-  const avatarUrl = avatarMxc
+  const directUrl = avatarMxc
     ? mxcUrlToHttp(mx, avatarMxc, useAuthentication, 96, 96) ?? undefined
     : undefined;
+  const authUrl = useAuthenticatedMxcUrl(avatarMxc, 96, 96);
+  const avatarUrl = useAuthentication ? authUrl : directUrl;
 
   const audioOnly = member.callIntent === 'audio';
 

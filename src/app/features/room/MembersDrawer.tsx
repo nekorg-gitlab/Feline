@@ -49,6 +49,7 @@ import { ScrollTopContainer } from '../../components/scroll-top-container';
 import { UserAvatar } from '../../components/user-avatar';
 import { useRoomTypingMember } from '../../hooks/useRoomTypingMembers';
 import { useMediaAuthentication } from '../../hooks/useMediaAuthentication';
+import { useAuthenticatedMxcUrl } from '../../hooks/useAuthenticatedMxcUrl';
 import { useMembershipFilter, useMembershipFilterMenu } from '../../hooks/useMemberFilter';
 import { useMemberPowerSort, useMemberSort, useMemberSortMenu } from '../../hooks/useMemberSort';
 import { useGetMemberPowerLevel, usePowerLevelsContext } from '../../hooks/usePowerLevels';
@@ -122,9 +123,11 @@ function MemberItem({
   const name =
     getMemberDisplayName(room, member.userId) ?? getMxIdLocalPart(member.userId) ?? member.userId;
   const avatarMxcUrl = member.getMxcAvatarUrl();
-  const avatarUrl = avatarMxcUrl
+  const directUrl = avatarMxcUrl
     ? mx.mxcUrlToHttp(avatarMxcUrl, 100, 100, 'crop', undefined, false, useAuthentication)
     : undefined;
+  const authUrl = useAuthenticatedMxcUrl(avatarMxcUrl, 100, 100, 'crop');
+  const avatarUrl = useAuthentication ? authUrl : directUrl;
 
   return (
     <MenuItem

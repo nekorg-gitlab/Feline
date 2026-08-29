@@ -33,6 +33,7 @@ import { useDraggableItem } from './DnD';
 import { stopPropagation } from '../../utils/keyboard';
 import { mxcUrlToHttp } from '../../utils/matrix';
 import { useMediaAuthentication } from '../../hooks/useMediaAuthentication';
+import { useAuthenticatedMxcUrl } from '../../hooks/useAuthenticatedMxcUrl';
 import { useOpenCreateRoomModal } from '../../state/hooks/createRoomModal';
 import { useOpenCreateSpaceModal } from '../../state/hooks/createSpaceModal';
 import { AddExistingModal } from '../add-existing';
@@ -432,6 +433,20 @@ export const SpaceItemCard = as<'div', SpaceItemCardProps>(
     const targetRef = useRef<HTMLDivElement>(null);
     useDraggableItem(item, targetRef, onDragging);
 
+    const spaceAvatarMxc = space?.getMxcAvatarUrl() ?? undefined;
+    const directSpaceAvatarUrl = spaceAvatarMxc
+      ? mxcUrlToHttp(mx, spaceAvatarMxc, useAuthentication, 96, 96, 'crop') ?? undefined
+      : undefined;
+    const authSpaceAvatarUrl = useAuthenticatedMxcUrl(spaceAvatarMxc, 96, 96, 'crop');
+    const spaceAvatarUrl = useAuthentication ? authSpaceAvatarUrl : directSpaceAvatarUrl;
+
+    const summaryAvatarMxc = summary?.avatar_url;
+    const directSummaryAvatarUrl = summaryAvatarMxc
+      ? mxcUrlToHttp(mx, summaryAvatarMxc, useAuthentication, 96, 96, 'crop') ?? undefined
+      : undefined;
+    const authSummaryAvatarUrl = useAuthenticatedMxcUrl(summaryAvatarMxc, 96, 96, 'crop');
+    const summaryAvatarUrl = useAuthentication ? authSummaryAvatarUrl : directSummaryAvatarUrl;
+
     return (
       <Box
         shrink="No"
@@ -451,7 +466,7 @@ export const SpaceItemCard = as<'div', SpaceItemCardProps>(
                     <SpaceProfile
                       roomId={roomId}
                       name={localSummary.name}
-                      avatarUrl={getRoomAvatarUrl(mx, space, 96, useAuthentication)}
+                      avatarUrl={spaceAvatarUrl}
                       suggested={content.suggested}
                       closed={closed}
                       categoryId={categoryId}
@@ -482,12 +497,7 @@ export const SpaceItemCard = as<'div', SpaceItemCardProps>(
                     roomId={roomId}
                     via={item.content.via}
                     name={summary.name || summary.canonical_alias || roomId}
-                    avatarUrl={
-                      summary?.avatar_url
-                        ? mxcUrlToHttp(mx, summary.avatar_url, useAuthentication, 96, 96, 'crop') ??
-                          undefined
-                        : undefined
-                    }
+                    avatarUrl={summaryAvatarUrl}
                     suggested={content.suggested}
                   />
                 )}

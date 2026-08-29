@@ -6,6 +6,7 @@ import { getMxIdServer, mxcUrlToHttp } from '../../utils/matrix';
 import { getMemberAvatarMxc, getMemberDisplayName } from '../../utils/room';
 import { useMatrixClient } from '../../hooks/useMatrixClient';
 import { useMediaAuthentication } from '../../hooks/useMediaAuthentication';
+import { useAuthenticatedMxcUrl } from '../../hooks/useAuthenticatedMxcUrl';
 import { usePowerLevels } from '../../hooks/usePowerLevels';
 import { useRoom } from '../../hooks/useRoom';
 import { useUserPresence } from '../../hooks/useUserPresence';
@@ -55,7 +56,9 @@ export function UserRoomProfile({ userId }: UserRoomProfileProps) {
   const server = getMxIdServer(userId);
   const displayName = getMemberDisplayName(room, userId);
   const avatarMxc = getMemberAvatarMxc(room, userId);
-  const avatarUrl = (avatarMxc && mxcUrlToHttp(mx, avatarMxc, useAuthentication)) ?? undefined;
+  const directAvatarUrl = (avatarMxc && mxcUrlToHttp(mx, avatarMxc, useAuthentication)) ?? undefined;
+  const authAvatarUrl = useAuthenticatedMxcUrl(avatarMxc);
+  const avatarUrl = useAuthentication ? authAvatarUrl : directAvatarUrl;
 
   const presence = useUserPresence(userId);
 

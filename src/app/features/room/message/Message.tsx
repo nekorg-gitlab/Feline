@@ -74,6 +74,7 @@ import { stopPropagation } from '../../../utils/keyboard';
 import { getMatrixToRoomEvent } from '../../../plugins/matrix-to';
 import { getViaServers } from '../../../plugins/via-servers';
 import { useMediaAuthentication } from '../../../hooks/useMediaAuthentication';
+import { useAuthenticatedMxcUrl } from '../../../hooks/useAuthenticatedMxcUrl';
 import { useRoomPinnedEvents } from '../../../hooks/useRoomPinnedEvents';
 import { MemberPowerTag, StateEvent } from '../../../../types/matrix/room';
 import { PowerIcon } from '../../../components/power';
@@ -731,6 +732,11 @@ export const Message = as<'div', MessageProps>(
     const senderDisplayName =
       getMemberDisplayName(room, senderId) ?? getMxIdLocalPart(senderId) ?? senderId;
     const senderAvatarMxc = getMemberAvatarMxc(room, senderId);
+    const directUrl = senderAvatarMxc
+      ? mxcUrlToHttp(mx, senderAvatarMxc, useAuthentication, 48, 48, 'crop') ?? undefined
+      : undefined;
+    const authUrl = useAuthenticatedMxcUrl(senderAvatarMxc, 48, 48, 'crop');
+    const avatarUrl = useAuthentication ? authUrl : directUrl;
 
     const tagColor = memberPowerTag?.color
       ? accessibleTagColors?.get(memberPowerTag.color)
@@ -801,11 +807,7 @@ export const Message = as<'div', MessageProps>(
         >
           <UserAvatar
             userId={senderId}
-            src={
-              senderAvatarMxc
-                ? mxcUrlToHttp(mx, senderAvatarMxc, useAuthentication, 48, 48, 'crop') ?? undefined
-                : undefined
-            }
+            src={avatarUrl}
             alt={senderDisplayName}
             renderFallback={() => <Icon size="200" src={Icons.User} filled />}
           />

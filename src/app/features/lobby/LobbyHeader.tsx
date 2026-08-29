@@ -34,6 +34,7 @@ import { ScreenSize, useScreenSizeContext } from '../../hooks/useScreenSize';
 import { BackRouteHandler } from '../../components/BackRouteHandler';
 import { mxcUrlToHttp } from '../../utils/matrix';
 import { useMediaAuthentication } from '../../hooks/useMediaAuthentication';
+import { useAuthenticatedMxcUrl } from '../../hooks/useAuthenticatedMxcUrl';
 import { useOpenSpaceSettings } from '../../state/hooks/spaceSettings';
 import { useRoomCreators } from '../../hooks/useRoomCreators';
 import { useRoomPermissions } from '../../hooks/useRoomPermissions';
@@ -149,9 +150,11 @@ export function LobbyHeader({ showProfile, powerLevels }: LobbyHeaderProps) {
 
   const name = useRoomName(space);
   const avatarMxc = useRoomAvatar(space);
-  const avatarUrl = avatarMxc
+  const directUrl = avatarMxc
     ? mxcUrlToHttp(mx, avatarMxc, useAuthentication, 96, 96, 'crop') ?? undefined
     : undefined;
+  const authUrl = useAuthenticatedMxcUrl(avatarMxc, 96, 96, 'crop');
+  const avatarUrl = useAuthentication ? authUrl : directUrl;
 
   const handleOpenMenu: MouseEventHandler<HTMLButtonElement> = (evt) => {
     setMenuAnchor(evt.currentTarget.getBoundingClientRect());

@@ -1,7 +1,5 @@
 // https://github.com/matrix-org/matrix-react-sdk/blob/e78a1adb6f1af2ea425b0bae9034fb7344a4b2e8/src/utils/MegolmExportEncryption.js
 
-const subtleCrypto = window.crypto.subtle || window.crypto.webkitSubtle;
-
 /**
  * Make an Error object which has a friendlyText property which is already
  * translated and suitable for showing to the user.
@@ -19,6 +17,27 @@ function friendlyError(msg, friendlyText) {
 function cryptoFailMsg() {
   return 'Your browser does not support the required cryptography extensions';
 }
+
+function getSubtleCrypto() {
+  const subtle =
+    globalThis.crypto?.subtle ||
+    globalThis.crypto?.webkitSubtle ||
+    (typeof window !== 'undefined' ? window.crypto?.subtle || window.crypto?.webkitSubtle : undefined);
+  if (!subtle) {
+    const friendly = 'Your browser does not support the required cryptography extensions. Please use a secure (HTTPS) context.';
+    throw friendlyError(friendly, friendly);
+  }
+  return subtle;
+}
+
+function getCrypto() {
+  const c = globalThis.crypto || (typeof window !== 'undefined' ? window.crypto : undefined);
+  if (!c) {
+    const friendly = 'Your browser does not support the required cryptography extensions. Please use a secure (HTTPS) context.';
+    throw friendlyError(friendly, friendly);
+  }
+  return c;
+}
 /**
  * Derive the AES and HMAC-SHA-256 keys for the file
  *
@@ -28,6 +47,7 @@ function cryptoFailMsg() {
  * @return {Promise<[CryptoKey, CryptoKey]>} promise for [aes key, hmac key]
  */
 async function deriveKeys(salt, iterations, password) {
+  const subtleCrypto = getSubtleCrypto();
   const start = new Date();
 
   let key;
@@ -40,6 +60,7 @@ async function deriveKeys(salt, iterations, password) {
       ['deriveBits'],
     );
   } catch (e) {
+    if (e.friendlyText) throw e;
     throw friendlyError(`subtleCrypto.importKey failed: ${e}`, cryptoFailMsg());
   }
 
@@ -56,6 +77,7 @@ async function deriveKeys(salt, iterations, password) {
       512,
     );
   } catch (e) {
+    if (e.friendlyText) throw e;
     throw friendlyError(`subtleCrypto.deriveBits failed: ${e}`, cryptoFailMsg());
   }
 
@@ -65,28 +87,37 @@ async function deriveKeys(salt, iterations, password) {
   const aesKey = keybits.slice(0, 32);
   const hmacKey = keybits.slice(32);
 
-  const aesProm = subtleCrypto.importKey(
-    'raw',
-    aesKey,
-    { name: 'AES-CTR' },
-    false,
-    ['encrypt', 'decrypt'],
-  ).catch((e) => {
-    throw friendlyError(`subtleCrypto.importKey failed for AES key: ${e}`, cryptoFailMsg());
-  });
+  let aesProm;
+  let hmacProm;
+  try {
+    aesProm = subtleCrypto.importKey(
+      'raw',
+      aesKey,
+      { name: 'AES-CTR' },
+      false,
+      ['encrypt', 'decrypt'],
+    ).catch((e) => {
+      if (e.friendlyText) throw e;
+      throw friendlyError(`subtleCrypto.importKey failed for AES key: ${e}`, cryptoFailMsg());
+    });
 
-  const hmacProm = subtleCrypto.importKey(
-    'raw',
-    hmacKey,
-    {
-      name: 'HMAC',
-      hash: { name: 'SHA-256' },
-    },
-    false,
-    ['sign', 'verify'],
-  ).catch((e) => {
-    throw friendlyError(`subtleCrypto.importKey failed for HMAC key: ${e}`, cryptoFailMsg());
-  });
+    hmacProm = subtleCrypto.importKey(
+      'raw',
+      hmacKey,
+      {
+        name: 'HMAC',
+        hash: { name: 'SHA-256' },
+      },
+      false,
+      ['sign', 'verify'],
+    ).catch((e) => {
+      if (e.friendlyText) throw e;
+      throw friendlyError(`subtleCrypto.importKey failed for HMAC key: ${e}`, cryptoFailMsg());
+    });
+  } catch (e) {
+    if (e.friendlyText) throw e;
+    throw friendlyError(`subtleCrypto.importKey failed: ${e}`, cryptoFailMsg());
+  }
 
   // eslint-disable-next-line no-return-await
   return await Promise.all([aesProm, hmacProm]);
@@ -232,6 +263,7 @@ export async function decryptMegolmKeyFile(data, password) {
   const [aesKey, hmacKey] = await deriveKeys(salt, iterations, password);
   const toVerify = body.subarray(0, -32);
 
+  const subtleCrypto = getSubtleCrypto();
   let isValid;
   try {
     isValid = await subtleCrypto.verify(
@@ -241,6 +273,7 @@ export async function decryptMegolmKeyFile(data, password) {
       toVerify,
     );
   } catch (e) {
+    if (e.friendlyText) throw e;
     throw friendlyError(`subtleCrypto.verify failed: ${e}`, cryptoFailMsg());
   }
   if (!isValid) {
@@ -259,6 +292,7 @@ export async function decryptMegolmKeyFile(data, password) {
       ciphertext,
     );
   } catch (e) {
+    if (e.friendlyText) throw e;
     throw friendlyError(`subtleCrypto.decrypt failed: ${e}`, cryptoFailMsg());
   }
 
@@ -279,11 +313,14 @@ export async function encryptMegolmKeyFile(data, password, options) {
   options = options || {};
   const kdfRounds = options.kdf_rounds || 500000;
 
+  const cryptoObj = getCrypto();
+  const subtleCrypto = getSubtleCrypto();
+
   const salt = new Uint8Array(16);
-  window.crypto.getRandomValues(salt);
+  cryptoObj.getRandomValues(salt);
 
   const iv = new Uint8Array(16);
-  window.crypto.getRandomValues(iv);
+  cryptoObj.getRandomValues(iv);
 
   // clear bit 63 of the IV to stop us hitting the 64-bit counter boundary
   // (which would mean we wouldn't be able to decrypt on Android). The loss

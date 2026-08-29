@@ -7,6 +7,7 @@ import * as css from './ImageViewer.css';
 import { useZoom } from '../../hooks/useZoom';
 import { usePan } from '../../hooks/usePan';
 import { downloadMedia } from '../../utils/matrix';
+import { useMatrixClient } from '../../hooks/useMatrixClient';
 
 export type ImageViewerProps = {
   alt: string;
@@ -18,9 +19,10 @@ export const ImageViewer = as<'div', ImageViewerProps>(
   ({ className, alt, src, requestClose, ...props }, ref) => {
     const { zoom, zoomIn, zoomOut, setZoom } = useZoom(0.2);
     const { pan, cursor, onMouseDown } = usePan(zoom !== 1);
+    const mx = useMatrixClient();
 
     const handleDownload = async () => {
-      const fileContent = await downloadMedia(src);
+      const fileContent = await downloadMedia(src, mx);
       FileSaver.saveAs(fileContent, alt);
     };
 

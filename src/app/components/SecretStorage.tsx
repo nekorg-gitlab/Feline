@@ -10,6 +10,34 @@ import { AsyncStatus, useAsyncCallback } from '../hooks/useAsyncCallback';
 import { useMatrixClient } from '../hooks/useMatrixClient';
 import { useAlive } from '../hooks/useAlive';
 
+function assertCryptoAvailable() {
+  if (!globalThis.crypto?.subtle) {
+    throw new Error(
+      'Your browser does not support the required cryptography extensions. Please use a secure (HTTPS) context. Crypto.subtle is not available: insecure context?'
+    );
+  }
+}
+
+function toFriendlyError(e: unknown): Error {
+  // preserve friendlyText if present (from cryptE2ERoomKeys friendlyError)
+  if (e instanceof Error && (e as any).friendlyText) {
+    return new Error((e as any).friendlyText);
+  }
+  const msg = e instanceof Error ? e.message : String(e);
+  if (
+    msg.includes('importKey') ||
+    msg.includes('subtle') ||
+    msg.includes('insecure context') ||
+    msg.includes('Crypto.subtle is not available') ||
+    msg.includes('subtleCrypto is unavailable')
+  ) {
+    return new Error(
+      'Your browser does not support the required cryptography extensions. Please use a secure (HTTPS) context.'
+    );
+  }
+  return e instanceof Error ? e : new Error(String(e));
+}
+
 type SecretStorageRecoveryPassphraseProps = {
   processing?: boolean;
   keyContent: SecretStorageKeyContent;
@@ -32,20 +60,25 @@ export function SecretStorageRecoveryPassphrase({
   >(
     useCallback(
       async (passphrase, salt, iterations, bits) => {
-        const decodedRecoveryKey = await deriveRecoveryKeyFromPassphrase(
-          passphrase,
-          salt,
-          iterations,
-          bits
-        );
+        try {
+          assertCryptoAvailable();
+          const decodedRecoveryKey = await deriveRecoveryKeyFromPassphrase(
+            passphrase,
+            salt,
+            iterations,
+            bits
+          );
 
-        const match = await mx.secretStorage.checkKey(decodedRecoveryKey, keyContent as any);
+          const match = await mx.secretStorage.checkKey(decodedRecoveryKey, keyContent as any);
 
-        if (!match) {
-          throw new Error('Invalid recovery passphrase.');
+          if (!match) {
+            throw new Error('Invalid recovery passphrase.');
+          }
+
+          return decodedRecoveryKey;
+        } catch (e) {
+          throw toFriendlyError(e);
         }
-
-        return decodedRecoveryKey;
       },
       [mx, keyContent]
     )
@@ -106,7 +139,7 @@ export function SecretStorageRecoveryPassphrase({
       </Box>
       {driveKeyState.status === AsyncStatus.Error && (
         <Text size="T200" style={{ color: color.Critical.Main }}>
-          <b>{driveKeyState.error.message}</b>
+          <b>{(driveKeyState.error as any).friendlyText || driveKeyState.error.message}</b>
         </Text>
       )}
     </Box>
@@ -129,15 +162,20 @@ export function SecretStorageRecoveryKey({
   const [driveKeyState, submitRecoveryKey] = useAsyncCallback<Uint8Array, Error, [string]>(
     useCallback(
       async (recoveryKey) => {
-        const decodedRecoveryKey = decodeRecoveryKey(recoveryKey);
+        try {
+          assertCryptoAvailable();
+          const decodedRecoveryKey = decodeRecoveryKey(recoveryKey);
 
-        const match = await mx.secretStorage.checkKey(decodedRecoveryKey, keyContent as any);
+          const match = await mx.secretStorage.checkKey(decodedRecoveryKey, keyContent as any);
 
-        if (!match) {
-          throw new Error('Invalid recovery key.');
+          if (!match) {
+            throw new Error('Invalid recovery key.');
+          }
+
+          return decodedRecoveryKey;
+        } catch (e) {
+          throw toFriendlyError(e);
         }
-
-        return decodedRecoveryKey;
       },
       [mx, keyContent]
     )
@@ -196,7 +234,7 @@ export function SecretStorageRecoveryKey({
       </Box>
       {driveKeyState.status === AsyncStatus.Error && (
         <Text size="T200" style={{ color: color.Critical.Main }}>
-          <b>{driveKeyState.error.message}</b>
+          <b>{(driveKeyState.error as any).friendlyText || driveKeyState.error.message}</b>
         </Text>
       )}
     </Box>

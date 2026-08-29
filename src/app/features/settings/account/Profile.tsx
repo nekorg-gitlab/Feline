@@ -33,6 +33,7 @@ import { UserProfile, useUserProfile } from '../../../hooks/useUserProfile';
 import { getMxIdLocalPart, mxcUrlToHttp } from '../../../utils/matrix';
 import { UserAvatar } from '../../../components/user-avatar';
 import { useMediaAuthentication } from '../../../hooks/useMediaAuthentication';
+import { useAuthenticatedMxcUrl } from '../../../hooks/useAuthenticatedMxcUrl';
 import { nameInitials } from '../../../utils/common';
 import { AsyncStatus, useAsyncCallback } from '../../../hooks/useAsyncCallback';
 import { useFilePicker } from '../../../hooks/useFilePicker';
@@ -56,9 +57,11 @@ function ProfileAvatar({ profile, userId }: ProfileProps) {
   const disableSetAvatar = capabilities['m.set_avatar_url']?.enabled === false;
 
   const defaultDisplayName = profile.displayName ?? getMxIdLocalPart(userId) ?? userId;
-  const avatarUrl = profile.avatarUrl
+  const directUrl = profile.avatarUrl
     ? mxcUrlToHttp(mx, profile.avatarUrl, useAuthentication, 96, 96, 'crop') ?? undefined
     : undefined;
+  const authUrl = useAuthenticatedMxcUrl(profile.avatarUrl, 96, 96, 'crop');
+  const avatarUrl = useAuthentication ? authUrl : directUrl;
 
   const [imageFile, setImageFile] = useState<File>();
   const imageFileURL = useObjectURL(imageFile);

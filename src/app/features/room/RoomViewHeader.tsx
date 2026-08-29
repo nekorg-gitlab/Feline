@@ -38,6 +38,7 @@ import { settingsAtom } from '../../state/settings';
 import { useSpaceOptionally } from '../../hooks/useSpace';
 import { getHomeSearchPath, getSpaceSearchPath, withSearchParam } from '../../pages/pathUtils';
 import { getCanonicalAliasOrRoomId, isRoomAlias, mxcUrlToHttp } from '../../utils/matrix';
+import { useAuthenticatedMxcUrl } from '../../hooks/useAuthenticatedMxcUrl';
 import { _SearchPathSearchParams } from '../../pages/paths';
 import * as css from './RoomViewHeader.css';
 import { useRoomUnread } from '../../state/hooks/unread';
@@ -411,9 +412,11 @@ export function RoomViewHeader({ callView }: { callView?: boolean }) {
   const avatarMxc = useRoomAvatar(room, direct);
   const name = useRoomName(room);
   const topic = useRoomTopic(room);
-  const avatarUrl = avatarMxc
+  const directUrl = avatarMxc
     ? mxcUrlToHttp(mx, avatarMxc, useAuthentication, 96, 96, 'crop') ?? undefined
     : undefined;
+  const authUrl = useAuthenticatedMxcUrl(avatarMxc, 96, 96, 'crop');
+  const avatarUrl = useAuthentication ? authUrl : directUrl;
 
   const [peopleDrawer, setPeopleDrawer] = useSetting(settingsAtom, 'isPeopleDrawer');
 

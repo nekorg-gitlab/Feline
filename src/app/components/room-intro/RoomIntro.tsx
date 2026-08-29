@@ -14,6 +14,7 @@ import { nameInitials } from '../../utils/common';
 import { useRoomAvatar, useRoomName, useRoomTopic } from '../../hooks/useRoomMeta';
 import { mDirectAtom } from '../../state/mDirectList';
 import { useMediaAuthentication } from '../../hooks/useMediaAuthentication';
+import { useAuthenticatedMxcUrl } from '../../hooks/useAuthenticatedMxcUrl';
 import { useSetting } from '../../state/hooks/settings';
 import { settingsAtom } from '../../state/settings';
 import { InviteUserPrompt } from '../invite-user-prompt';
@@ -33,7 +34,9 @@ export const RoomIntro = as<'div', RoomIntroProps>(({ room, ...props }, ref) => 
   const avatarMxc = useRoomAvatar(room, mDirects.has(room.roomId));
   const name = useRoomName(room);
   const topic = useRoomTopic(room);
-  const avatarHttpUrl = avatarMxc ? mxcUrlToHttp(mx, avatarMxc, useAuthentication) : undefined;
+  const directAvatarUrl = avatarMxc ? mxcUrlToHttp(mx, avatarMxc, useAuthentication) : undefined;
+  const authAvatarUrl = useAuthenticatedMxcUrl(avatarMxc);
+  const avatarHttpUrl = useAuthentication ? authAvatarUrl : directAvatarUrl;
 
   const createContent = createEvent?.getContent<IRoomCreateContent>();
   const ts = createEvent?.getTs();

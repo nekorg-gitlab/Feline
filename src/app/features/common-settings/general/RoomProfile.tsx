@@ -32,6 +32,7 @@ import { RoomAvatar, RoomIcon } from '../../../components/room-avatar';
 import { mxcUrlToHttp } from '../../../utils/matrix';
 import { useMatrixClient } from '../../../hooks/useMatrixClient';
 import { useMediaAuthentication } from '../../../hooks/useMediaAuthentication';
+import { useAuthenticatedMxcUrl } from '../../../hooks/useAuthenticatedMxcUrl';
 import { StateEvent } from '../../../../types/matrix/room';
 import { CompactUploadCardRenderer } from '../../../components/upload-card';
 import { useObjectURL } from '../../../hooks/useObjectURL';
@@ -66,9 +67,11 @@ export function RoomProfileEdit({
   const joinRule = useRoomJoinRule(room);
   const [roomAvatar, setRoomAvatar] = useState(avatar);
 
-  const avatarUrl = roomAvatar
-    ? mxcUrlToHttp(mx, roomAvatar, useAuthentication) ?? undefined
+  const directAvatarUrl = roomAvatar
+    ? (mxcUrlToHttp(mx, roomAvatar, useAuthentication) ?? undefined)
     : undefined;
+  const authAvatarUrl = useAuthenticatedMxcUrl(roomAvatar);
+  const avatarUrl = useAuthentication ? authAvatarUrl : directAvatarUrl;
 
   const [imageFile, setImageFile] = useState<File>();
   const avatarFileUrl = useObjectURL(imageFile);
@@ -279,9 +282,11 @@ export function RoomProfile({ permissions }: RoomProfileProps) {
   const canEditTopic = permissions.stateEvent(StateEvent.RoomTopic, mx.getSafeUserId());
   const canEdit = canEditAvatar || canEditName || canEditTopic;
 
-  const avatarUrl = avatar
-    ? mxcUrlToHttp(mx, avatar, useAuthentication, 96, 96, 'crop') ?? undefined
+  const directAvatarUrl = avatar
+    ? (mxcUrlToHttp(mx, avatar, useAuthentication, 96, 96, 'crop') ?? undefined)
     : undefined;
+  const authAvatarUrl = useAuthenticatedMxcUrl(avatar, 96, 96, 'crop');
+  const avatarUrl = useAuthentication ? authAvatarUrl : directAvatarUrl;
 
   const [edit, setEdit] = useState(false);
 

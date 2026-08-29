@@ -83,6 +83,7 @@ import { useSpoilerClickHandler } from '../../../hooks/useSpoilerClickHandler';
 import { ScreenSize, useScreenSizeContext } from '../../../hooks/useScreenSize';
 import { BackRouteHandler } from '../../../components/BackRouteHandler';
 import { useMediaAuthentication } from '../../../hooks/useMediaAuthentication';
+import { useAuthenticatedMxcUrl } from '../../../hooks/useAuthenticatedMxcUrl';
 import { allRoomsAtom } from '../../../state/room-list/roomList';
 import { usePowerLevels } from '../../../hooks/usePowerLevels';
 import { usePowerLevelTags } from '../../../hooks/usePowerLevelTags';
@@ -97,6 +98,37 @@ import {
 } from '../../../hooks/useMemberPowerTag';
 import { useRoomCreatorsTag } from '../../../hooks/useRoomCreatorsTag';
 import { useRoomCreators } from '../../../hooks/useRoomCreators';
+
+function NotificationSenderAvatar({
+  room,
+  senderId,
+  displayName,
+}: {
+  room: Room;
+  senderId: string;
+  displayName: string;
+}) {
+  const mx = useMatrixClient();
+  const useAuthentication = useMediaAuthentication();
+  const senderAvatarMxc = getMemberAvatarMxc(room, senderId);
+  const directUrl = senderAvatarMxc
+    ? mxcUrlToHttp(mx, senderAvatarMxc, useAuthentication, 48, 48, 'crop') ?? undefined
+    : undefined;
+  const authUrl = useAuthenticatedMxcUrl(senderAvatarMxc, 48, 48, 'crop');
+  const avatarUrl = useAuthentication ? authUrl : directUrl;
+  return (
+    <AvatarBase>
+      <Avatar size="300">
+        <UserAvatar
+          userId={senderId}
+          src={avatarUrl}
+          alt={displayName}
+          renderFallback={() => <Icon size="200" src={Icons.User} filled />}
+        />
+      </Avatar>
+    </AvatarBase>
+  );
+}
 
 type RoomNotificationsGroup = {
   roomId: string;
@@ -407,14 +439,19 @@ function RoomNotificationsGroupComp({
     markAsRead(mx, room.roomId, hideActivity);
   };
 
+  const roomAvatarMxc = room.getMxcAvatarUrl() ?? undefined;
+  const directRoomAvatarUrl = roomAvatarMxc
+    ? mxcUrlToHttp(mx, roomAvatarMxc, useAuthentication, 96, 96, 'crop') ?? undefined
+    : undefined;
+  const authRoomAvatarUrl = useAuthenticatedMxcUrl(roomAvatarMxc, 96, 96, 'crop');
+  const roomAvatarUrl = useAuthentication ? authRoomAvatarUrl : directRoomAvatarUrl;
+
   return (
     <Box direction="Column" gap="200">
       <Header size="300">
         <Box gap="200" grow="Yes">
           <Avatar size="200" radii="300">
-            <RoomAvatar
-              roomId={room.roomId}
-              src={getRoomAvatarUrl(mx, room, 96, useAuthentication)}
+            <RoomAvatar roomId={room.roomId} src={roomAvatarUrl}
               alt={room.name}
               renderFallback={() => (
                 <RoomIcon
@@ -451,7 +488,6 @@ function RoomNotificationsGroupComp({
             getMemberDisplayName(room, event.sender) ??
             getMxIdLocalPart(event.sender) ??
             event.sender;
-          const senderAvatarMxc = getMemberAvatarMxc(room, event.sender);
           const getContent = (() => event.content) as GetContentCallback;
 
           const relation = event.content['m.relates_to'];
@@ -478,27 +514,11 @@ function RoomNotificationsGroupComp({
             >
               <ModernLayout
                 before={
-                  <AvatarBase>
-                    <Avatar size="300">
-                      <UserAvatar
-                        userId={event.sender}
-                        src={
-                          senderAvatarMxc
-                            ? mxcUrlToHttp(
-                                mx,
-                                senderAvatarMxc,
-                                useAuthentication,
-                                48,
-                                48,
-                                'crop'
-                              ) ?? undefined
-                            : undefined
-                        }
-                        alt={displayName}
-                        renderFallback={() => <Icon size="200" src={Icons.User} filled />}
-                      />
-                    </Avatar>
-                  </AvatarBase>
+                  <NotificationSenderAvatar
+                    room={room}
+                    senderId={event.sender}
+                    displayName={displayName}
+                  />
                 }
               >
                 <Box gap="300" justifyContent="SpaceBetween" alignItems="Center" grow="Yes">

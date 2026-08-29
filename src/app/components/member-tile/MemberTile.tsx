@@ -4,6 +4,7 @@ import { MatrixClient, Room, RoomMember } from 'matrix-js-sdk';
 import { getMemberDisplayName } from '../../utils/room';
 import { getMxIdLocalPart } from '../../utils/matrix';
 import { UserAvatar } from '../user-avatar';
+import { useAuthenticatedMxcUrl } from '../../hooks/useAuthenticatedMxcUrl';
 import * as css from './style.css';
 
 const getName = (room: Room, member: RoomMember) =>
@@ -22,9 +23,11 @@ export const MemberTile = as<'button', MemberTileProps>(
     const username = getMxIdLocalPart(member.userId);
 
     const avatarMxcUrl = member.getMxcAvatarUrl();
-    const avatarUrl = avatarMxcUrl
+    const directUrl = avatarMxcUrl
       ? mx.mxcUrlToHttp(avatarMxcUrl, 100, 100, 'crop', undefined, false, useAuthentication)
       : undefined;
+    const authUrl = useAuthenticatedMxcUrl(avatarMxcUrl, 100, 100, 'crop');
+    const avatarUrl = useAuthentication ? authUrl : directUrl;
 
     return (
       <AsMemberTile className={css.MemberTile} {...props} ref={ref}>

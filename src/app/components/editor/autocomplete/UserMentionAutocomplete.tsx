@@ -19,6 +19,7 @@ import { getMxIdLocalPart, getMxIdServer, isUserId } from '../../../utils/matrix
 import { getMemberDisplayName, getMemberSearchStr } from '../../../utils/room';
 import { UserAvatar } from '../../user-avatar';
 import { useMediaAuthentication } from '../../../hooks/useMediaAuthentication';
+import { useAuthenticatedMxcUrl } from '../../../hooks/useAuthenticatedMxcUrl';
 import { Membership } from '../../../../types/matrix/room';
 
 type MentionAutoCompleteHandler = (userId: string, name: string) => void;
@@ -56,6 +57,56 @@ function UnknownMentionItem({
     >
       <Text style={{ flexGrow: 1 }} size="B400">
         {name}
+      </Text>
+    </MenuItem>
+  );
+}
+
+function MemberMentionItem({
+  room,
+  member,
+  handleAutocomplete,
+  getName,
+}: {
+  room: Room;
+  member: RoomMember;
+  handleAutocomplete: MentionAutoCompleteHandler;
+  getName: (m: RoomMember) => string;
+}) {
+  const mx = useMatrixClient();
+  const useAuthentication = useMediaAuthentication();
+  const avatarMxcUrl = member.getMxcAvatarUrl();
+  const directUrl = avatarMxcUrl
+    ? mx.mxcUrlToHttp(avatarMxcUrl, 32, 32, 'crop', undefined, false, useAuthentication)
+    : undefined;
+  const authUrl = useAuthenticatedMxcUrl(avatarMxcUrl, 32, 32, 'crop');
+  const avatarUrl = useAuthentication ? authUrl : directUrl;
+  return (
+    <MenuItem
+      as="button"
+      radii="300"
+      onKeyDown={(evt: ReactKeyboardEvent<HTMLButtonElement>) =>
+        onTabPress(evt, () => handleAutocomplete(member.userId, getName(member)))
+      }
+      onClick={() => handleAutocomplete(member.userId, getName(member))}
+      after={
+        <Text size="T200" priority="300" truncate>
+          {member.userId}
+        </Text>
+      }
+      before={
+        <Avatar size="200">
+          <UserAvatar
+            userId={member.userId}
+            src={avatarUrl ?? undefined}
+            alt={getName(member)}
+            renderFallback={() => <Icon size="50" src={Icons.User} filled />}
+          />
+        </Avatar>
+      }
+    >
+      <Text style={{ flexGrow: 1 }} size="B400" truncate>
+        {getName(member)}
       </Text>
     </MenuItem>
   );
@@ -152,42 +203,15 @@ export function UserMentionAutocomplete({
           handleAutocomplete={handleAutocomplete}
         />
       ) : (
-        autoCompleteMembers.map((roomMember) => {
-          const avatarMxcUrl = roomMember.getMxcAvatarUrl();
-          const avatarUrl = avatarMxcUrl
-            ? mx.mxcUrlToHttp(avatarMxcUrl, 32, 32, 'crop', undefined, false, useAuthentication)
-            : undefined;
-          return (
-            <MenuItem
-              key={roomMember.userId}
-              as="button"
-              radii="300"
-              onKeyDown={(evt: ReactKeyboardEvent<HTMLButtonElement>) =>
-                onTabPress(evt, () => handleAutocomplete(roomMember.userId, getName(roomMember)))
-              }
-              onClick={() => handleAutocomplete(roomMember.userId, getName(roomMember))}
-              after={
-                <Text size="T200" priority="300" truncate>
-                  {roomMember.userId}
-                </Text>
-              }
-              before={
-                <Avatar size="200">
-                  <UserAvatar
-                    userId={roomMember.userId}
-                    src={avatarUrl ?? undefined}
-                    alt={getName(roomMember)}
-                    renderFallback={() => <Icon size="50" src={Icons.User} filled />}
-                  />
-                </Avatar>
-              }
-            >
-              <Text style={{ flexGrow: 1 }} size="B400" truncate>
-                {getName(roomMember)}
-              </Text>
-            </MenuItem>
-          );
-        })
+        autoCompleteMembers.map((roomMember) => (
+          <MemberMentionItem
+            key={roomMember.userId}
+            room={room}
+            member={roomMember}
+            handleAutocomplete={handleAutocomplete}
+            getName={getName}
+          />
+        ))
       )}
     </AutocompleteMenu>
   );

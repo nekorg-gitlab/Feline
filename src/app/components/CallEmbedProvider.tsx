@@ -46,6 +46,7 @@ import { useRoomAvatar, useRoomName } from '../hooks/useRoomMeta';
 import { mDirectAtom } from '../state/mDirectList';
 import { useMediaAuthentication } from '../hooks/useMediaAuthentication';
 import { mxcUrlToHttp } from '../utils/matrix';
+import { useAuthenticatedMxcUrl } from '../hooks/useAuthenticatedMxcUrl';
 import { RoomAvatar, RoomIcon } from './room-avatar';
 import { useRoomNavigate } from '../hooks/useRoomNavigate';
 import { getStateEvent } from '../utils/room';
@@ -85,9 +86,11 @@ function IncomingCall({ dm, info, onIgnore, onAnswer, onReject }: IncomingCallPr
 
   const roomName = useRoomName(room);
   const roomAvatar = useRoomAvatar(room, dm);
-  const avatarUrl = roomAvatar
+  const directUrl = roomAvatar
     ? mxcUrlToHttp(mx, roomAvatar, useAuthentication, 96, 96, 'crop') ?? undefined
     : undefined;
+  const authUrl = useAuthenticatedMxcUrl(roomAvatar, 96, 96, 'crop');
+  const avatarUrl = useAuthentication ? authUrl : directUrl;
 
   const session = useCallSession(room);
   useCallMembersChange(

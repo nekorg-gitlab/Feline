@@ -24,9 +24,50 @@ import { getMemberAvatarMxc, getMemberDisplayName } from '../../utils/room';
 import { getMxIdLocalPart, mxcUrlToHttp } from '../../utils/matrix';
 import { useMatrixClient } from '../../hooks/useMatrixClient';
 import { useMediaAuthentication } from '../../hooks/useMediaAuthentication';
+import { useAuthenticatedMxcUrl } from '../../hooks/useAuthenticatedMxcUrl';
 import { UserAvatar } from '../../components/user-avatar';
 import { useOpenUserRoomProfile } from '../../state/hooks/userRoomProfile';
 import { getMouseEventCords } from '../../utils/dom';
+
+function LiveChipMemberItem({ room, callMember }: { room: Room; callMember: CallMembership }) {
+  const mx = useMatrixClient();
+  const useAuthentication = useMediaAuthentication();
+  const openUserProfile = useOpenUserRoomProfile();
+  const userId = callMember.sender;
+  if (!userId) return null;
+  const name = getMemberDisplayName(room, userId) ?? getMxIdLocalPart(userId) ?? userId;
+  const avatarMxc = getMemberAvatarMxc(room, userId);
+  const directUrl = avatarMxc ? mxcUrlToHttp(mx, avatarMxc, useAuthentication, 96, 96) ?? undefined : undefined;
+  const authUrl = useAuthenticatedMxcUrl(avatarMxc, 96, 96);
+  const avatarUrl = useAuthentication ? authUrl : directUrl;
+
+  return (
+    <MenuItem
+      key={callMember.memberId}
+      size="400"
+      variant="Surface"
+      radii="300"
+      style={{ paddingLeft: config.space.S200 }}
+      onClick={(evt) =>
+        openUserProfile(room.roomId, undefined, userId, getMouseEventCords(evt.nativeEvent), 'Right')
+      }
+      before={
+        <Avatar size="200" radii="400">
+          <UserAvatar
+            userId={userId}
+            src={avatarUrl}
+            alt={name}
+            renderFallback={() => <Icon size="50" src={Icons.User} filled />}
+          />
+        </Avatar>
+      }
+    >
+      <Text size="T300" truncate>
+        {name}
+      </Text>
+    </MenuItem>
+  );
+}
 
 type LiveChipProps = {
   room: Room;
@@ -34,10 +75,6 @@ type LiveChipProps = {
   count: number;
 };
 export function LiveChip({ count, room, members }: LiveChipProps) {
-  const mx = useMatrixClient();
-  const useAuthentication = useMediaAuthentication();
-  const openUserProfile = useOpenUserRoomProfile();
-
   const [cords, setCords] = useState<RectCords>();
 
   const handleOpenMenu: MouseEventHandler<HTMLButtonElement> = (evt) => {
@@ -70,49 +107,9 @@ export function LiveChip({ count, room, members }: LiveChipProps) {
             <Box grow="Yes">
               <Scroll size="0" hideTrack visibility="Hover">
                 <Box direction="Column" style={{ padding: config.space.S100 }}>
-                  {members.map((callMember) => {
-                    const userId = callMember.sender;
-                    if (!userId) return null;
-                    const name =
-                      getMemberDisplayName(room, userId) ?? getMxIdLocalPart(userId) ?? userId;
-                    const avatarMxc = getMemberAvatarMxc(room, userId);
-                    const avatarUrl = avatarMxc
-                      ? mxcUrlToHttp(mx, avatarMxc, useAuthentication, 96, 96) ?? undefined
-                      : undefined;
-
-                    return (
-                      <MenuItem
-                        key={callMember.memberId}
-                        size="400"
-                        variant="Surface"
-                        radii="300"
-                        style={{ paddingLeft: config.space.S200 }}
-                        onClick={(evt) =>
-                          openUserProfile(
-                            room.roomId,
-                            undefined,
-                            userId,
-                            getMouseEventCords(evt.nativeEvent),
-                            'Right'
-                          )
-                        }
-                        before={
-                          <Avatar size="200" radii="400">
-                            <UserAvatar
-                              userId={userId}
-                              src={avatarUrl}
-                              alt={name}
-                              renderFallback={() => <Icon size="50" src={Icons.User} filled />}
-                            />
-                          </Avatar>
-                        }
-                      >
-                        <Text size="T300" truncate>
-                          {name}
-                        </Text>
-                      </MenuItem>
-                    );
-                  })}
+                  {members.map((callMember) => (
+                    <LiveChipMemberItem key={callMember.memberId} room={room} callMember={callMember} />
+                  ))}
                 </Box>
               </Scroll>
             </Box>

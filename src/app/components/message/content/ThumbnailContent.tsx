@@ -2,8 +2,7 @@ import { ReactNode, useCallback, useEffect } from 'react';
 import { IThumbnailContent } from '../../../../types/matrix/common';
 import { useMatrixClient } from '../../../hooks/useMatrixClient';
 import { AsyncStatus, useAsyncCallback } from '../../../hooks/useAsyncCallback';
-import { decryptFile, downloadEncryptedMedia, mxcUrlToHttp } from '../../../utils/matrix';
-import { useMediaAuthentication } from '../../../hooks/useMediaAuthentication';
+import { decryptFile, downloadEncryptedMedia, downloadMedia, mxcUrlToHttp } from '../../../utils/matrix';
 import { FALLBACK_MIMETYPE } from '../../../utils/mimeTypes';
 
 export type ThumbnailContentProps = {
@@ -12,7 +11,7 @@ export type ThumbnailContentProps = {
 };
 export function ThumbnailContent({ info, renderImage }: ThumbnailContentProps) {
   const mx = useMatrixClient();
-  const useAuthentication = useMediaAuthentication();
+  const useAuthentication = true;
 
   const [thumbSrcState, loadThumbSrc] = useAsyncCallback(
     useCallback(async () => {
@@ -26,9 +25,15 @@ export function ThumbnailContent({ info, renderImage }: ThumbnailContentProps) {
       const mediaUrl = mxcUrlToHttp(mx, thumbMxcUrl, useAuthentication);
       if (!mediaUrl) throw new Error('Invalid media URL');
       if (encInfo) {
-        const fileContent = await downloadEncryptedMedia(mediaUrl, (encBuf) =>
-          decryptFile(encBuf, thumbInfo.mimetype ?? FALLBACK_MIMETYPE, encInfo)
+        const fileContent = await downloadEncryptedMedia(
+          mediaUrl,
+          (encBuf) => decryptFile(encBuf, thumbInfo.mimetype ?? FALLBACK_MIMETYPE, encInfo),
+          mx
         );
+        return URL.createObjectURL(fileContent);
+      }
+      if (useAuthentication) {
+        const fileContent = await downloadMedia(mediaUrl, mx);
         return URL.createObjectURL(fileContent);
       }
 

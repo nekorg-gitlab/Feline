@@ -33,6 +33,7 @@ import { SequenceCardStyle } from '../styles.css';
 import { useMatrixClient } from '../../../hooks/useMatrixClient';
 import { mxcUrlToHttp } from '../../../utils/matrix';
 import { useMediaAuthentication } from '../../../hooks/useMediaAuthentication';
+import { useAuthenticatedMxcUrl } from '../../../hooks/useAuthenticatedMxcUrl';
 import { usePowerLevels } from '../../../hooks/usePowerLevels';
 import { StateEvent } from '../../../../types/matrix/room';
 import { suffixRename } from '../../../utils/common';
@@ -138,12 +139,30 @@ function CreatePackTile({ packs, roomId }: CreatePackTileProps) {
   );
 }
 
+function PackAvatar({ avatarMxc }: { avatarMxc?: string }) {
+  const mx = useMatrixClient();
+  const useAuthentication = useMediaAuthentication();
+  const directUrl = avatarMxc ? mxcUrlToHttp(mx, avatarMxc, useAuthentication) : undefined;
+  const authUrl = useAuthenticatedMxcUrl(avatarMxc);
+  const avatarUrl = useAuthentication ? authUrl : directUrl;
+  return (
+    <Avatar size="300" radii="300">
+      {avatarUrl ? (
+        <AvatarImage style={{ objectFit: 'contain' }} src={avatarUrl} />
+      ) : (
+        <AvatarFallback>
+          <Icon size="400" src={Icons.Sticker} filled />
+        </AvatarFallback>
+      )}
+    </Avatar>
+  );
+}
+
 type RoomPacksProps = {
   onViewPack: (imagePack: ImagePack) => void;
 };
 export function RoomPacks({ onViewPack }: RoomPacksProps) {
   const mx = useMatrixClient();
-  const useAuthentication = useMediaAuthentication();
   const room = useRoom();
   const alive = useAlive();
 
@@ -190,7 +209,6 @@ export function RoomPacks({ onViewPack }: RoomPacksProps) {
 
   const renderPack = (pack: ImagePack) => {
     const avatarMxc = pack.getAvatarUrl(ImageUsage.Emoticon);
-    const avatarUrl = avatarMxc ? mxcUrlToHttp(mx, avatarMxc, useAuthentication) : undefined;
     const { address } = pack;
     if (!address) return null;
     const removed = !!removedPacks.find((addr) => packAddressEqual(addr, address));
@@ -234,15 +252,7 @@ export function RoomPacks({ onViewPack }: RoomPacksProps) {
                     <Icon src={Icons.Cross} size="100" />
                   </IconButton>
                 ))}
-              <Avatar size="300" radii="300">
-                {avatarUrl ? (
-                  <AvatarImage style={{ objectFit: 'contain' }} src={avatarUrl} />
-                ) : (
-                  <AvatarFallback>
-                    <Icon size="400" src={Icons.Sticker} filled />
-                  </AvatarFallback>
-                )}
-              </Avatar>
+              <PackAvatar avatarMxc={avatarMxc} />
             </Box>
           }
           after={

@@ -8,6 +8,7 @@ import { ImagePack, ImageUsage } from '../../../plugins/custom-emoji';
 import { useMatrixClient } from '../../../hooks/useMatrixClient';
 import { mxcUrlToHttp } from '../../../utils/matrix';
 import { useMediaAuthentication } from '../../../hooks/useMediaAuthentication';
+import { useAuthenticatedMxcUrl } from '../../../hooks/useAuthenticatedMxcUrl';
 
 type UserPackProps = {
   onViewPack: (imagePack: ImagePack) => void;
@@ -18,7 +19,9 @@ export function UserPack({ onViewPack }: UserPackProps) {
 
   const userPack = useUserImagePack();
   const avatarMxc = userPack?.getAvatarUrl(ImageUsage.Emoticon);
-  const avatarUrl = avatarMxc ? mxcUrlToHttp(mx, avatarMxc, useAuthentication) : undefined;
+  const directUrl = avatarMxc ? mxcUrlToHttp(mx, avatarMxc, useAuthentication) ?? undefined : undefined;
+  const authUrl = useAuthenticatedMxcUrl(avatarMxc);
+  const avatarUrl = useAuthentication ? authUrl : directUrl;
 
   const handleView = () => {
     if (userPack) {

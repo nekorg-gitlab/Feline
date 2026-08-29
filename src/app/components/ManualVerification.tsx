@@ -131,17 +131,43 @@ export function ManualVerificationTile({
 
   const verifyAndRestoreBackup = useCallback(
     async (recoveryKey: Uint8Array) => {
-      const crypto = mx.getCrypto();
-      if (!crypto) {
-        throw new Error('Unexpected Error! Crypto object not found.');
+      try {
+        const crypto = mx.getCrypto();
+        if (!crypto) {
+          throw new Error('Unexpected Error! Crypto object not found.');
+        }
+
+        // Pre-check for subtle availability to give friendly error before bootstrap
+        if (!globalThis.crypto?.subtle) {
+          throw new Error(
+            'Your browser does not support the required cryptography extensions. Please use a secure (HTTPS) context.'
+          );
+        }
+
+        storePrivateKey(secretStorageKeyId, recoveryKey);
+
+        await crypto.bootstrapCrossSigning({});
+        await crypto.bootstrapSecretStorage({});
+
+        await crypto.loadSessionBackupPrivateKeyFromSecretStorage();
+      } catch (e) {
+        if ((e as any)?.friendlyText) {
+          throw new Error((e as any).friendlyText);
+        }
+        const msg = e instanceof Error ? e.message : String(e);
+        if (
+          msg.includes('importKey') ||
+          msg.includes('subtle') ||
+          msg.includes('insecure context') ||
+          msg.includes('Crypto.subtle is not available') ||
+          msg.includes('subtleCrypto is unavailable')
+        ) {
+          throw new Error(
+            'Your browser does not support the required cryptography extensions. Please use a secure (HTTPS) context.'
+          );
+        }
+        throw e;
       }
-
-      storePrivateKey(secretStorageKeyId, recoveryKey);
-
-      await crypto.bootstrapCrossSigning({});
-      await crypto.bootstrapSecretStorage({});
-
-      await crypto.loadSessionBackupPrivateKeyFromSecretStorage();
     },
     [mx, secretStorageKeyId]
   );
@@ -151,8 +177,18 @@ export function ManualVerificationTile({
   );
   const verifying = verifyState.status === AsyncStatus.Loading;
 
+  const insecureContext = typeof globalThis !== 'undefined' && !globalThis.crypto?.subtle;
+
   return (
     <Box direction="Column" gap="200">
+      {insecureContext && (
+        <Text size="T200" style={{ color: color.Critical.Main }}>
+          <b>
+            Cryptography unavailable: this page is not in a secure (HTTPS) context. Please access via
+            HTTPS to verify your session.
+          </b>
+        </Text>
+      )}
       <SettingTile
         title="Verify Manually"
         description={hasPassphrase ? 'Select a verification method.' : 'Provide recovery key.'}
@@ -189,7 +225,7 @@ export function ManualVerificationTile({
             )}
           {verifyState.status === AsyncStatus.Error && (
             <Text size="T200" style={{ color: color.Critical.Main }}>
-              <b>{verifyState.error.message}</b>
+              <b>{(verifyState.error as any).friendlyText || verifyState.error.message}</b>
             </Text>
           )}
         </Box>

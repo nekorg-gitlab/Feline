@@ -296,18 +296,35 @@ export const mxcUrlToHttp = (
     useAuthentication
   );
 
-export const downloadMedia = async (src: string): Promise<Blob> => {
-  // this request is authenticated by service worker
-  const res = await fetch(src, { method: 'GET' });
-  const blob = await res.blob();
-  return blob;
+export const downloadMedia = async (src: string, mx?: MatrixClient): Promise<Blob> => {
+  if (src.startsWith('blob:') || src.startsWith('data:')) {
+    const res = await fetch(src);
+    if (!res.ok) throw new Error(`Failed to fetch media: ${res.status} ${res.statusText}`);
+    return res.blob();
+  }
+  let token: string | undefined;
+  if (mx) {
+    try {
+      token = mx.getAccessToken();
+    } catch {}
+  }
+  if (!token) {
+    try {
+      token = localStorage.getItem('feline_access_token') ?? undefined;
+    } catch {}
+  }
+  const headers = token ? { Authorization: `Bearer ${token}` } : undefined;
+  const res = await fetch(src, { method: 'GET', headers });
+  if (!res.ok) throw new Error(`Failed to fetch media: ${res.status} ${res.statusText}`);
+  return res.blob();
 };
 
 export const downloadEncryptedMedia = async (
   src: string,
-  decryptContent: (buf: ArrayBuffer) => Promise<Blob>
+  decryptContent: (buf: ArrayBuffer) => Promise<Blob>,
+  mx?: MatrixClient
 ): Promise<Blob> => {
-  const encryptedContent = await downloadMedia(src);
+  const encryptedContent = await downloadMedia(src, mx);
   const decryptedContent = await decryptContent(await encryptedContent.arrayBuffer());
 
   return decryptedContent;

@@ -4,7 +4,6 @@ import { EncryptedAttachmentInfo } from 'browser-encrypt-attachment';
 import FileSaver from 'file-saver';
 import { mimeTypeToExt } from '../../utils/mimeTypes';
 import { useMatrixClient } from '../../hooks/useMatrixClient';
-import { useMediaAuthentication } from '../../hooks/useMediaAuthentication';
 import { AsyncStatus, useAsyncCallback } from '../../hooks/useAsyncCallback';
 import {
   decryptFile,
@@ -23,15 +22,15 @@ type FileDownloadButtonProps = {
 };
 export function FileDownloadButton({ filename, url, mimeType, encInfo }: FileDownloadButtonProps) {
   const mx = useMatrixClient();
-  const useAuthentication = useMediaAuthentication();
+  const useAuthentication = true;
 
   const [downloadState, download] = useAsyncCallback(
     useCallback(async () => {
       const mediaUrl = mxcUrlToHttp(mx, url, useAuthentication);
       if (!mediaUrl) throw new Error('Invalid media URL');
       const fileContent = encInfo
-        ? await downloadEncryptedMedia(mediaUrl, (encBuf) => decryptFile(encBuf, mimeType, encInfo))
-        : await downloadMedia(mediaUrl);
+        ? await downloadEncryptedMedia(mediaUrl, (encBuf) => decryptFile(encBuf, mimeType, encInfo), mx)
+        : await downloadMedia(mediaUrl, mx);
 
       const fileURL = URL.createObjectURL(fileContent);
       FileSaver.saveAs(fileURL, filename);

@@ -24,6 +24,7 @@ import { useObjectURL } from '../../hooks/useObjectURL';
 import { createUploadAtom, UploadSuccess } from '../../state/upload';
 import { CompactUploadCardRenderer } from '../upload-card';
 import { useMediaAuthentication } from '../../hooks/useMediaAuthentication';
+import { useAuthenticatedMxcUrl } from '../../hooks/useAuthenticatedMxcUrl';
 import { PackMetaReader } from '../../plugins/custom-emoji';
 
 type ImagePackAvatarProps = {
@@ -52,9 +53,11 @@ type ImagePackProfileProps = {
 export function ImagePackProfile({ meta, canEdit, onEdit }: ImagePackProfileProps) {
   const mx = useMatrixClient();
   const useAuthentication = useMediaAuthentication();
-  const avatarUrl = meta.avatar
-    ? mxcUrlToHttp(mx, meta.avatar, useAuthentication) ?? undefined
+  const directAvatarUrl = meta.avatar
+    ? (mxcUrlToHttp(mx, meta.avatar, useAuthentication) ?? undefined)
     : undefined;
+  const authAvatarUrl = useAuthenticatedMxcUrl(meta.avatar);
+  const avatarUrl = useAuthentication ? authAvatarUrl : directAvatarUrl;
 
   return (
     <Box gap="400">
@@ -101,7 +104,9 @@ export function ImagePackProfileEdit({ meta, onCancel, onSave }: ImagePackProfil
   const useAuthentication = useMediaAuthentication();
   const [avatar, setAvatar] = useState(meta.avatar);
 
-  const avatarUrl = avatar ? mxcUrlToHttp(mx, avatar, useAuthentication) ?? undefined : undefined;
+  const directAvatarUrl = avatar ? (mxcUrlToHttp(mx, avatar, useAuthentication) ?? undefined) : undefined;
+  const authAvatarUrl = useAuthenticatedMxcUrl(avatar);
+  const avatarUrl = useAuthentication ? authAvatarUrl : directAvatarUrl;
 
   const [imageFile, setImageFile] = useState<File>();
   const avatarFileUrl = useObjectURL(imageFile);

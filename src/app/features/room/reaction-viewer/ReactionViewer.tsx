@@ -25,9 +25,61 @@ import { Reaction } from '../../../components/message';
 import { getHexcodeForEmoji, getShortcodeFor } from '../../../plugins/emoji';
 import { UserAvatar } from '../../../components/user-avatar';
 import { useMediaAuthentication } from '../../../hooks/useMediaAuthentication';
+import { useAuthenticatedMxcUrl } from '../../../hooks/useAuthenticatedMxcUrl';
 import { useOpenUserRoomProfile } from '../../../state/hooks/userRoomProfile';
 import { useSpaceOptionally } from '../../../hooks/useSpace';
 import { getMouseEventCords } from '../../../utils/dom';
+
+function ReactionMemberItem({
+  room,
+  senderId,
+  member,
+  getName,
+}: {
+  room: Room;
+  senderId: string;
+  member: RoomMember | undefined;
+  getName: (m: RoomMember) => string;
+}) {
+  const mx = useMatrixClient();
+  const useAuthentication = useMediaAuthentication();
+  const openProfile = useOpenUserRoomProfile();
+  const space = useSpaceOptionally();
+  const name = (member ? getName(member) : getMxIdLocalPart(senderId)) ?? senderId;
+  const avatarMxcUrl = member?.getMxcAvatarUrl();
+  const directUrl = avatarMxcUrl
+    ? mx.mxcUrlToHttp(avatarMxcUrl, 100, 100, 'crop', undefined, false, useAuthentication)
+    : undefined;
+  const authUrl = useAuthenticatedMxcUrl(avatarMxcUrl, 100, 100, 'crop');
+  const avatarUrl = useAuthentication ? authUrl : directUrl;
+
+  return (
+    <MenuItem
+      key={senderId}
+      style={{ padding: `0 ${config.space.S200}` }}
+      radii="400"
+      onClick={(event) => {
+        openProfile(room.roomId, space?.roomId, senderId, getMouseEventCords(event.nativeEvent), 'Bottom');
+      }}
+      before={
+        <Avatar size="200">
+          <UserAvatar
+            userId={senderId}
+            src={avatarUrl ?? undefined}
+            alt={name}
+            renderFallback={() => <Icon size="50" src={Icons.User} filled />}
+          />
+        </Avatar>
+      }
+    >
+      <Box grow="Yes">
+        <Text size="T400" truncate>
+          {name}
+        </Text>
+      </Box>
+    </MenuItem>
+  );
+}
 
 export type ReactionViewerProps = {
   room: Room;
@@ -112,52 +164,14 @@ export const ReactionViewer = as<'div', ReactionViewerProps>(
                   const senderId = mEvent.getSender();
                   if (!senderId) return null;
                   const member = room.getMember(senderId);
-                  const name = (member ? getName(member) : getMxIdLocalPart(senderId)) ?? senderId;
-
-                  const avatarMxcUrl = member?.getMxcAvatarUrl();
-                  const avatarUrl = avatarMxcUrl
-                    ? mx.mxcUrlToHttp(
-                        avatarMxcUrl,
-                        100,
-                        100,
-                        'crop',
-                        undefined,
-                        false,
-                        useAuthentication
-                      )
-                    : undefined;
-
                   return (
-                    <MenuItem
+                    <ReactionMemberItem
                       key={senderId}
-                      style={{ padding: `0 ${config.space.S200}` }}
-                      radii="400"
-                      onClick={(event) => {
-                        openProfile(
-                          room.roomId,
-                          space?.roomId,
-                          senderId,
-                          getMouseEventCords(event.nativeEvent),
-                          'Bottom'
-                        );
-                      }}
-                      before={
-                        <Avatar size="200">
-                          <UserAvatar
-                            userId={senderId}
-                            src={avatarUrl ?? undefined}
-                            alt={name}
-                            renderFallback={() => <Icon size="50" src={Icons.User} filled />}
-                          />
-                        </Avatar>
-                      }
-                    >
-                      <Box grow="Yes">
-                        <Text size="T400" truncate>
-                          {name}
-                        </Text>
-                      </Box>
-                    </MenuItem>
+                      room={room}
+                      senderId={senderId}
+                      member={member}
+                      getName={getName}
+                    />
                   );
                 })}
               </Box>
