@@ -11,10 +11,12 @@ import {
 import { useSetting } from '../state/hooks/settings';
 import { settingsAtom } from '../state/settings';
 import { applyThemeOverrides } from '../utils/themeOverride';
+import { applyRoundness } from '../utils/roundness';
 
 export function UnAuthRouteThemeManager() {
   const systemThemeKind = useSystemThemeKind();
   const [customThemeColors] = useSetting(settingsAtom, 'customThemeColors');
+  const [roundness] = useSetting(settingsAtom, 'roundness');
 
   useEffect(() => {
     document.body.className = '';
@@ -26,7 +28,8 @@ export function UnAuthRouteThemeManager() {
       document.body.classList.add(...LightTheme.classNames);
     }
     applyThemeOverrides(customThemeColors);
-  }, [systemThemeKind, customThemeColors]);
+    applyRoundness(roundness ?? 50);
+  }, [systemThemeKind, customThemeColors, roundness]);
 
   return null;
 }
@@ -35,6 +38,7 @@ export function AuthRouteThemeManager({ children }: { children: ReactNode }) {
   const activeTheme = useActiveTheme();
   const [monochromeMode] = useSetting(settingsAtom, 'monochromeMode');
   const [customThemeColors] = useSetting(settingsAtom, 'customThemeColors');
+  const [roundness] = useSetting(settingsAtom, 'roundness');
 
   useEffect(() => {
     document.body.className = '';
@@ -48,7 +52,8 @@ export function AuthRouteThemeManager({ children }: { children: ReactNode }) {
       document.body.style.filter = '';
     }
     applyThemeOverrides(customThemeColors);
-  }, [activeTheme, monochromeMode, customThemeColors]);
+    applyRoundness(roundness ?? 50);
+  }, [activeTheme, monochromeMode, customThemeColors, roundness]);
 
   return <ThemeContextProvider value={activeTheme}>{children}</ThemeContextProvider>;
 }

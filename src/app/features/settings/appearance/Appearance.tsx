@@ -9,6 +9,7 @@ import {
   Box,
   Button,
   Chip,
+  color,
   config,
   Header,
   Icon,
@@ -44,6 +45,13 @@ import {
 import { HexColorPicker } from 'react-colorful';
 import { HexColorPickerPopOut } from '../../../components/HexColorPickerPopOut';
 import { applyThemeOverrides, toHex, rgbParts, hslParts } from '../../../utils/themeOverride';
+import {
+  applyRoundness,
+  DEFAULT_ROUNDNESS,
+  MAX_ROUNDNESS,
+  MIN_ROUNDNESS,
+  toDisplayRoundness,
+} from '../../../utils/roundness';
 import { CustomThemeColorGroup } from '../../../state/settings';
 import { SequenceCardStyle } from '../styles.css';
 
@@ -251,6 +259,227 @@ function SystemThemePreferences() {
           </FocusTrap>
         }
       />
+    </Box>
+  );
+}
+
+function RoundnessControl() {
+  const [roundness, setRoundness] = useSetting(settingsAtom, 'roundness');
+  const raw = typeof roundness === 'number' ? roundness : DEFAULT_ROUNDNESS;
+  const value = Math.max(MIN_ROUNDNESS, Math.min(MAX_ROUNDNESS, Math.round(raw)));
+  const displayValue = toDisplayRoundness(value);
+  const displayPercent = (value / MAX_ROUNDNESS) * 100;
+
+  const handleChange = (v: number) => {
+    const clamped = Math.max(MIN_ROUNDNESS, Math.min(MAX_ROUNDNESS, Math.round(v)));
+    setRoundness(clamped);
+    applyRoundness(clamped);
+  };
+
+  const handleReset = () => handleChange(DEFAULT_ROUNDNESS);
+
+  const label =
+    value === MIN_ROUNDNESS
+      ? 'Square'
+      : value === MAX_ROUNDNESS
+        ? 'Circle'
+        : value < 50
+          ? 'Sharp'
+          : value === 50
+            ? 'Default'
+            : 'Rounded';
+  const previewRadius = `${(value / MAX_ROUNDNESS) * 50}%`;
+
+  return (
+    <Box direction="Column" gap="400">
+      <SettingTile
+        title="Roundness"
+        description="Control how rounded the interface feels — 0 is sharp squares, 100 is fully circular."
+        after={
+          <Button
+            size="300"
+            variant="Secondary"
+            fill="Soft"
+            radii="300"
+            onClick={handleReset}
+            disabled={value === DEFAULT_ROUNDNESS}
+          >
+            <Text size="B300">Reset</Text>
+          </Button>
+        }
+      />
+      <Box
+        style={{
+          padding: config.space.S300,
+          borderRadius: config.radii.R400,
+          background: color.Surface.Container,
+          border: `1px solid ${color.Surface.ContainerLine}`,
+        }}
+        direction="Column"
+        gap="300"
+      >
+        <Box gap="300" alignItems="Center" justifyContent="SpaceBetween" wrap="Wrap">
+          <Box gap="200" alignItems="Center">
+            <Box
+              aria-hidden
+              style={{
+                width: toRem(36),
+                height: toRem(36),
+                background: color.Primary.Container,
+                border: `1px solid ${color.Primary.ContainerLine}`,
+                borderRadius: previewRadius,
+                transition: 'border-radius 160ms ease',
+                flexShrink: 0,
+              }}
+            />
+            <Box
+              aria-hidden
+              style={{
+                width: toRem(72),
+                height: toRem(36),
+                background: color.Secondary.Container,
+                border: `1px solid ${color.Secondary.ContainerLine}`,
+                borderRadius: previewRadius,
+                transition: 'border-radius 160ms ease',
+                flexShrink: 0,
+              }}
+            />
+            <Box
+              aria-hidden
+              style={{
+                width: toRem(42),
+                height: toRem(42),
+                background: color.SurfaceVariant.Container,
+                border: `1px solid ${color.SurfaceVariant.ContainerLine}`,
+                borderRadius: previewRadius,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                transition: 'border-radius 160ms ease',
+                flexShrink: 0,
+                color: color.SurfaceVariant.OnContainer,
+              }}
+            >
+              <Icon src={Icons.User} size="200" />
+            </Box>
+          </Box>
+          <Box direction="Column" alignItems="End" gap="100" style={{ minWidth: toRem(80) }}>
+            <Box
+              style={{
+                minWidth: toRem(48),
+                height: toRem(28),
+                padding: `0 ${config.space.S200}`,
+                borderRadius: config.radii.Pill,
+                background: color.Primary.Main,
+                color: color.Primary.OnMain,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              <Text size="B400" style={{ color: 'inherit', fontVariantNumeric: 'tabular-nums' }}>
+                {displayValue}
+              </Text>
+            </Box>
+            <Text size="T200" priority="300">
+              {label}
+            </Text>
+          </Box>
+        </Box>
+        <Box direction="Column" gap="200">
+          <Box style={{ padding: `0 ${toRem(2)}` }}>
+            <Box
+              style={{
+                position: 'relative',
+                height: toRem(24),
+                display: 'flex',
+                alignItems: 'center',
+              }}
+            >
+              <input
+                className="roundness-slider"
+                type="range"
+                min={MIN_ROUNDNESS}
+                max={MAX_ROUNDNESS}
+                step={1}
+                value={value}
+                onChange={(e) => handleChange(Number(e.target.value))}
+                aria-label="Roundness"
+                style={{
+                  WebkitAppearance: 'none',
+                  appearance: 'none',
+                  width: '100%',
+                  height: toRem(8),
+                  borderRadius: '9999px',
+                  background: `linear-gradient(to right, ${color.Primary.Main} 0%, ${color.Primary.Main} ${displayPercent}%, ${color.Background.Container} ${displayPercent}%, ${color.Background.Container} 100%)`,
+                  border: `1px solid ${color.SurfaceVariant.ContainerLine}`,
+                  outline: 'none',
+                  cursor: 'pointer',
+                  margin: 0,
+                  padding: 0,
+                }}
+              />
+              <style>{`
+                .roundness-slider::-webkit-slider-thumb {
+                  -webkit-appearance: none;
+                  appearance: none;
+                  width: ${toRem(22)};
+                  height: ${toRem(22)};
+                  border-radius: 50%;
+                  background: #fff;
+                  border: 2px solid ${color.Primary.Main};
+                  box-shadow: 0 1px 6px rgba(0,0,0,0.22), 0 1px 2px rgba(0,0,0,0.14);
+                  cursor: pointer;
+                  transition: transform 100ms ease, box-shadow 100ms ease;
+                  margin-top: -${toRem(7)};
+                }
+                .roundness-slider::-webkit-slider-thumb:active {
+                  transform: scale(1.08);
+                  box-shadow: 0 2px 10px rgba(0,0,0,0.28);
+                }
+                .roundness-slider::-moz-range-thumb {
+                  width: ${toRem(22)};
+                  height: ${toRem(22)};
+                  border-radius: 50%;
+                  background: #fff;
+                  border: 2px solid ${color.Primary.Main};
+                  box-shadow: 0 1px 6px rgba(0,0,0,0.22), 0 1px 2px rgba(0,0,0,0.14);
+                  cursor: pointer;
+                  transition: transform 100ms ease;
+                }
+                .roundness-slider::-moz-range-thumb:active {
+                  transform: scale(1.08);
+                }
+                .roundness-slider::-webkit-slider-runnable-track {
+                  height: ${toRem(8)};
+                  border-radius: 9999px;
+                  background: transparent;
+                }
+                .roundness-slider::-moz-range-track {
+                  height: ${toRem(8)};
+                  border-radius: 9999px;
+                  background: transparent;
+                  border: none;
+                }
+                .roundness-slider:focus-visible::-webkit-slider-thumb {
+                  box-shadow: 0 0 0 3px ${color.Primary.Container}, 0 1px 6px rgba(0,0,0,0.22);
+                }
+                .roundness-slider:focus-visible::-moz-range-thumb {
+                  box-shadow: 0 0 0 3px ${color.Primary.Container}, 0 1px 6px rgba(0,0,0,0.22);
+                }
+              `}</style>
+            </Box>
+          </Box>
+          <Box direction="Row" justifyContent="SpaceBetween" alignItems="Center">
+            <Text size="T200" priority="300">
+              Square
+            </Text>
+            <Text size="T200" priority="300">
+              Circle
+            </Text>
+          </Box>
+        </Box>
+      </Box>
     </Box>
   );
 }
@@ -593,6 +822,10 @@ export function Appearance() {
           title="Twitter Emoji"
           after={<Switch variant="Primary" value={twitterEmoji} onChange={setTwitterEmoji} />}
         />
+      </SequenceCard>
+
+      <SequenceCard className={SequenceCardStyle} variant="SurfaceVariant" direction="Column" gap="400">
+        <RoundnessControl />
       </SequenceCard>
 
       <SequenceCard className={SequenceCardStyle} variant="SurfaceVariant" direction="Column">

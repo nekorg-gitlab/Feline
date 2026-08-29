@@ -11,6 +11,7 @@ enableMapSet();
 import './index.css';
 
 import { trimTrailingSlash } from './app/utils/common';
+import { applyRoundness } from './app/utils/roundness';
 import App from './app/pages/App';
 
 // import i18n (needs to be bundled ;))
@@ -19,6 +20,12 @@ import { pushSessionToSW } from './sw-session';
 import { getFallbackSession } from './app/state/sessions';
 
 document.body.classList.add(configClass, varsClass);
+try {
+  const raw = localStorage.getItem('settings');
+  const parsed = raw ? JSON.parse(raw) : {};
+  const r = typeof parsed.roundness === 'number' ? parsed.roundness : 50;
+  applyRoundness(r);
+} catch {}
 console.log('[Feline] build 2026-08-29-v2 media+sw fix');
 
 // Register Service Worker

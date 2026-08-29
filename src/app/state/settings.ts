@@ -33,6 +33,7 @@ export interface Settings {
   editorToolbar: boolean;
   twitterEmoji: boolean;
   pageZoom: number;
+  roundness: number;
   hideActivity: boolean;
 
   isPeopleDrawer: boolean;
@@ -68,6 +69,7 @@ const defaultSettings: Settings = {
   editorToolbar: false,
   twitterEmoji: false,
   pageZoom: 100,
+  roundness: 50,
   hideActivity: false,
 
   isPeopleDrawer: true,
@@ -95,9 +97,13 @@ const defaultSettings: Settings = {
 export const getSettings = () => {
   const settings = localStorage.getItem(STORAGE_KEY);
   if (settings === null) return defaultSettings;
+  const parsed = JSON.parse(settings) as Settings;
+  if (typeof parsed.roundness === 'number') {
+    parsed.roundness = Math.max(0, Math.min(90, Math.round(parsed.roundness)));
+  }
   return {
     ...defaultSettings,
-    ...(JSON.parse(settings) as Settings),
+    ...parsed,
   };
 };
 
