@@ -67,7 +67,7 @@ export function About({ requestClose, onSupportClick }: AboutProps) {
                   <Box gap="200" wrap="Wrap">
                     <Button
                       as="a"
-                      href="https://github.com/felineapp/feline"
+                      href="https://gitlab.com/nekorg/feline"
                       rel="noreferrer noopener"
                       target="_blank"
                       variant="Secondary"

@@ -36,7 +36,7 @@ export function WelcomePage() {
               <Box grow="Yes" style={{ maxWidth: toRem(300) }} direction="Column" gap="300">
                 <Button
                   as="a"
-                  href="https://github.com/felineapp/feline"
+                  href="https://gitlab.com/nekorg/feline"
                   target="_blank"
                   rel="noreferrer noopener"
                   before={<Icon size="200" src={Icons.Code} />}
