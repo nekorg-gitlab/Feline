@@ -1647,7 +1647,9 @@ export function RoomTimeline({ room, eventId, roomInputRef, editor }: RoomTimeli
       dayDivider = prevEvent ? !inSameDay(prevEvent.getTs(), mEvent.getTs()) : false;
     }
 
+    const isReply = !!(mEvent as any).replyEventId;
     const collapsed =
+      !isReply &&
       isPrevRendered &&
       !dayDivider &&
       (!newDivider || eventSender === mx.getUserId()) &&
