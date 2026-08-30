@@ -422,7 +422,12 @@ export const RoomInput = forwardRef<HTMLDivElement, RoomInputProps>(
 
     const handleCloseAutocomplete = useCallback(() => {
       setAutocompleteQuery(undefined);
-      ReactEditor.focus(editor);
+      // Defer focus to allow Slate DOM to sync after mention insertion
+      setTimeout(() => {
+        try {
+          ReactEditor.focus(editor);
+        } catch {}
+      }, 0);
     }, [editor]);
 
     const handleEmoticonSelect = (key: string, shortcode: string) => {

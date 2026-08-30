@@ -42,6 +42,7 @@ function UnknownMentionItem({
     <MenuItem
       as="button"
       radii="300"
+      onMouseDown={(evt) => evt.preventDefault()}
       onKeyDown={(evt: ReactKeyboardEvent<HTMLButtonElement>) =>
         onTabPress(evt, () => handleAutocomplete(userId, name))
       }
@@ -85,6 +86,7 @@ function MemberMentionItem({
     <MenuItem
       as="button"
       radii="300"
+      onMouseDown={(evt) => evt.preventDefault()}
       onKeyDown={(evt: ReactKeyboardEvent<HTMLButtonElement>) =>
         onTabPress(evt, () => handleAutocomplete(member.userId, getName(member)))
       }

@@ -42,6 +42,7 @@ function UnknownRoomMentionItem({
     <MenuItem
       as="button"
       radii="300"
+      onMouseDown={(evt) => evt.preventDefault()}
       onKeyDown={(evt: ReactKeyboardEvent<HTMLButtonElement>) => onTabPress(evt, handleSelect)}
       onClick={handleSelect}
       before={
@@ -149,6 +150,7 @@ export function RoomMentionAutocomplete({
               key={rId}
               as="button"
               radii="300"
+              onMouseDown={(evt) => evt.preventDefault()}
               onKeyDown={(evt: ReactKeyboardEvent<HTMLButtonElement>) =>
                 onTabPress(evt, handleSelect)
               }

@@ -17,8 +17,14 @@ export function AutocompleteMenu({ headerContent, requestClose, children }: Auto
 
   const handleDeactivate = () => {
     if (alive()) {
-      // The component is unmounted so we will not call for `requestClose`
-      requestClose();
+      // Defer to avoid colliding with Slate's DOM sync after mention insertion
+      setTimeout(() => {
+        if (alive()) {
+          try {
+            requestClose();
+          } catch {}
+        }
+      }, 0);
     }
   };
 

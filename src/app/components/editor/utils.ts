@@ -202,8 +202,21 @@ export const replaceWithElement = (editor: Editor, selectRange: BaseRange, eleme
 };
 
 export const moveCursor = (editor: Editor, withSpace?: boolean) => {
-  Transforms.move(editor);
-  if (withSpace) editor.insertText(' ');
+  try {
+    Transforms.collapse(editor, { edge: 'end' });
+  } catch {}
+  try {
+    Transforms.move(editor, { distance: 1, unit: 'offset' });
+  } catch {}
+  if (withSpace) {
+    try {
+      Transforms.insertText(editor, ' ');
+    } catch {
+      try {
+        editor.insertText(' ');
+      } catch {}
+    }
+  }
 };
 
 interface PointUntilCharOptions {
