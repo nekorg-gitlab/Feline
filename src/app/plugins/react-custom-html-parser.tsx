@@ -59,7 +59,7 @@ export const LINKIFY_OPTS: LinkifyOpts = {
 
 export const makeMentionCustomProps = (
   handleMentionClick?: ReactEventHandler<HTMLElement>,
-  content?: string
+  content?: string,
 ): ComponentPropsWithoutRef<'a'> => ({
   style: { cursor: 'pointer' },
   target: '_blank',
@@ -75,7 +75,7 @@ export const renderMatrixMention = (
   mx: MatrixClient,
   currentRoomId: string | undefined,
   href: string,
-  customProps: ComponentPropsWithoutRef<'a'>
+  customProps: ComponentPropsWithoutRef<'a'>,
 ) => {
   const userId = parseMatrixToUser(href);
   if (userId) {
@@ -99,7 +99,7 @@ export const renderMatrixMention = (
   if (matrixToRoom) {
     const { roomIdOrAlias, viaServers } = matrixToRoom;
     const mentionRoom = mx.getRoom(
-      isRoomAlias(roomIdOrAlias) ? getCanonicalAliasRoomId(mx, roomIdOrAlias) : roomIdOrAlias
+      isRoomAlias(roomIdOrAlias) ? getCanonicalAliasRoomId(mx, roomIdOrAlias) : roomIdOrAlias,
     );
 
     const fallbackContent = mentionRoom ? `#${mentionRoom.name}` : roomIdOrAlias;
@@ -123,7 +123,7 @@ export const renderMatrixMention = (
   if (matrixToRoomEvent) {
     const { roomIdOrAlias, eventId, viaServers } = matrixToRoomEvent;
     const mentionRoom = mx.getRoom(
-      isRoomAlias(roomIdOrAlias) ? getCanonicalAliasRoomId(mx, roomIdOrAlias) : roomIdOrAlias
+      isRoomAlias(roomIdOrAlias) ? getCanonicalAliasRoomId(mx, roomIdOrAlias) : roomIdOrAlias,
     );
 
     return (
@@ -148,7 +148,7 @@ export const renderMatrixMention = (
 };
 
 export const factoryRenderLinkifyWithMention = (
-  mentionRender: (href: string) => JSX.Element | undefined
+  mentionRender: (href: string) => JSX.Element | undefined,
 ): OptFn<(ir: IntermediateRepresentation) => any> => {
   const render: OptFn<(ir: IntermediateRepresentation) => any> = ({
     tagName,
@@ -176,7 +176,7 @@ export const scaleSystemEmoji = (text: string): (string | JSX.Element)[] =>
         </span>
       </span>
     ),
-    (txt) => txt
+    (txt) => txt,
   );
 
 export const makeHighlightRegex = (highlights: string[]): RegExp | undefined => {
@@ -187,7 +187,7 @@ export const makeHighlightRegex = (highlights: string[]): RegExp | undefined => 
 
 export const highlightText = (
   regex: RegExp,
-  data: (string | JSX.Element)[]
+  data: (string | JSX.Element)[],
 ): (string | JSX.Element)[] =>
   data.flatMap((text) => {
     if (typeof text !== 'string') return text;
@@ -200,7 +200,7 @@ export const highlightText = (
           {match[0]}
         </span>
       ),
-      (txt) => txt
+      (txt) => txt,
     );
   });
 
@@ -243,7 +243,7 @@ export function CodeBlock({
   const LINE_LIMIT = 14;
   const largeCodeBlock = useMemo(
     () => extractTextFromChildren(children).split('\n').length > LINE_LIMIT,
-    [children]
+    [children],
   );
 
   const [expanded, setExpand] = useState(false);
@@ -319,7 +319,7 @@ export const getReactCustomHtmlParser = (
     handleSpoilerClick?: ReactEventHandler<HTMLElement>;
     handleMentionClick?: ReactEventHandler<HTMLElement>;
     useAuthentication?: boolean;
-  }
+  },
 ): HTMLReactParserOptions => {
   const opts: HTMLReactParserOptions = {
     replace: (domNode) => {
@@ -450,7 +450,7 @@ export const getReactCustomHtmlParser = (
             mx,
             roomId,
             tryDecodeURIComponent(props.href),
-            makeMentionCustomProps(params.handleMentionClick, content)
+            makeMentionCustomProps(params.handleMentionClick, content),
           );
 
           if (mention) return mention;

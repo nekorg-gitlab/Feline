@@ -9,7 +9,7 @@ import { AsyncStatus, useAsyncCallback } from '../../../hooks/useAsyncCallback';
 export function ContactInformation() {
   const mx = useMatrixClient();
   const [threePIdsState, loadThreePIds] = useAsyncCallback(
-    useCallback(() => mx.getThreePids(), [mx])
+    useCallback(() => mx.getThreePids(), [mx]),
   );
   const threePIds =
     threePIdsState.status === AsyncStatus.Success ? threePIdsState.data.threepids : undefined;

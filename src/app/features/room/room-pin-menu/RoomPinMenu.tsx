@@ -125,7 +125,7 @@ function PinnedMessage({
       };
 
       return mx.sendStateEvent(room.roomId, StateEvent.RoomPinnedEvents as any, newContent);
-    }, [room, eventId, mx])
+    }, [room, eventId, mx]),
   );
 
   const handleOpenClick: MouseEventHandler = (evt) => {
@@ -179,7 +179,7 @@ function PinnedMessage({
   const displayName = getMemberDisplayName(room, sender) ?? getMxIdLocalPart(sender) ?? sender;
   const senderAvatarMxc = getMemberAvatarMxc(room, sender);
   const directUrl = senderAvatarMxc
-    ? mxcUrlToHttp(mx, senderAvatarMxc, useAuthentication, 48, 48, 'crop') ?? undefined
+    ? (mxcUrlToHttp(mx, senderAvatarMxc, useAuthentication, 48, 48, 'crop') ?? undefined)
     : undefined;
   const authUrl = useAuthenticatedMxcUrl(senderAvatarMxc, 48, 48, 'crop');
   const avatarUrl = useAuthentication ? authUrl : directUrl;
@@ -266,7 +266,7 @@ export const RoomPinMenu = forwardRef<HTMLDivElement, RoomPinMenuProps>(
     const accessibleTagColors = useAccessiblePowerTagColors(
       theme.kind,
       creatorsTag,
-      powerLevelTags
+      powerLevelTags,
     );
 
     const pinnedEvents = useRoomPinnedEvents(room);
@@ -298,10 +298,10 @@ export const RoomPinMenu = forwardRef<HTMLDivElement, RoomPinMenuProps>(
       () => ({
         ...LINKIFY_OPTS,
         render: factoryRenderLinkifyWithMention((href) =>
-          renderMatrixMention(mx, room.roomId, href, makeMentionCustomProps(mentionClickHandler))
+          renderMatrixMention(mx, room.roomId, href, makeMentionCustomProps(mentionClickHandler)),
         ),
       }),
-      [mx, room, mentionClickHandler]
+      [mx, room, mentionClickHandler],
     );
     const htmlReactParserOptions = useMemo<HTMLReactParserOptions>(
       () =>
@@ -311,7 +311,7 @@ export const RoomPinMenu = forwardRef<HTMLDivElement, RoomPinMenuProps>(
           handleSpoilerClick: spoilerClickHandler,
           handleMentionClick: mentionClickHandler,
         }),
-      [mx, room, linkifyOpts, mentionClickHandler, spoilerClickHandler, useAuthentication]
+      [mx, room, linkifyOpts, mentionClickHandler, spoilerClickHandler, useAuthentication],
     );
 
     const renderMatrixEvent = useMatrixEventRenderer<[MatrixEvent, string, GetContentCallback]>(
@@ -442,7 +442,7 @@ export const RoomPinMenu = forwardRef<HTMLDivElement, RoomPinMenuProps>(
             </Text>
           </Box>
         );
-      }
+      },
     );
 
     const handleOpen = (roomId: string, eventId: string) => {
@@ -542,5 +542,5 @@ export const RoomPinMenu = forwardRef<HTMLDivElement, RoomPinMenuProps>(
         </Box>
       </Menu>
     );
-  }
+  },
 );

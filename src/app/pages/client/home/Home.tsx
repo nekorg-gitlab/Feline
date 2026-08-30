@@ -219,14 +219,11 @@ export function Home() {
   const searchSelected = useHomeSearchSelected();
   const noRoomToDisplay = rooms.length === 0 && directs.length === 0;
 
-  const sortedRooms = useMemo(
-    () => Array.from(rooms).sort(factoryRoomIdByAtoZ(mx)),
-    [mx, rooms]
-  );
+  const sortedRooms = useMemo(() => Array.from(rooms).sort(factoryRoomIdByAtoZ(mx)), [mx, rooms]);
 
   const sortedDirects = useMemo(
     () => Array.from(directs).sort(factoryRoomIdByActivity(mx)),
-    [mx, directs]
+    [mx, directs],
   );
 
   const roomVirtualizer = useVirtualizer({
@@ -314,7 +311,7 @@ export function Home() {
                               ? withSearchParam<_RoomSearchParams>(path, {
                                   viaServers: encodeSearchParamValueArray(viaServers),
                                 })
-                              : path
+                              : path,
                           );
                         }}
                       />
@@ -372,7 +369,7 @@ export function Home() {
                           linkPath={getHomeRoomPath(getCanonicalAliasOrRoomId(mx, roomId))}
                           notificationMode={getRoomNotificationMode(
                             notificationPreferences,
-                            room.roomId
+                            room.roomId,
                           )}
                         />
                       </VirtualTile>
@@ -412,7 +409,7 @@ export function Home() {
                           linkPath={getHomeRoomPath(getCanonicalAliasOrRoomId(mx, roomId))}
                           notificationMode={getRoomNotificationMode(
                             notificationPreferences,
-                            room.roomId
+                            room.roomId,
                           )}
                         />
                       </VirtualTile>

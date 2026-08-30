@@ -303,7 +303,7 @@ const CallMenu = forwardRef<HTMLDivElement, CallMenuProps>(
         </Box>
       </Menu>
     );
-  }
+  },
 );
 
 function CallButton() {
@@ -397,7 +397,7 @@ export function RoomViewHeader({ callView }: { callView?: boolean }) {
 
   const hasCallPermission = permissions.stateEvent(
     StateEvent.GroupCallMemberPrefix,
-    mx.getSafeUserId()
+    mx.getSafeUserId(),
   );
   const livekitSupported = useLivekitSupport();
   const rtcSupported = webRTCSupported();
@@ -413,7 +413,7 @@ export function RoomViewHeader({ callView }: { callView?: boolean }) {
   const name = useRoomName(room);
   const topic = useRoomTopic(room);
   const directUrl = avatarMxc
-    ? mxcUrlToHttp(mx, avatarMxc, useAuthentication, 96, 96, 'crop') ?? undefined
+    ? (mxcUrlToHttp(mx, avatarMxc, useAuthentication, 96, 96, 'crop') ?? undefined)
     : undefined;
   const authUrl = useAuthenticatedMxcUrl(avatarMxc, 96, 96, 'crop');
   const avatarUrl = useAuthentication ? authUrl : directUrl;

@@ -55,7 +55,7 @@ const useServerSearchParams = (searchParams: URLSearchParams): ExploreServerPath
       type: searchParams.get('type') ?? undefined,
       instance: searchParams.get('instance') ?? undefined,
     }),
-    [searchParams]
+    [searchParams],
   );
 
 type RoomTypeFilter = {
@@ -78,7 +78,7 @@ const useRoomTypeFilters = (): RoomTypeFilter[] =>
         value: 'null',
       },
     ],
-    []
+    [],
   );
 
 const FALLBACK_ROOMS_LIMIT = 24;
@@ -341,7 +341,8 @@ function LimitButton({ limit, onLimitChange }: LimitButtonProps) {
 }
 
 export function PublicRooms() {
-  const { server } = useParams();
+  const { server: rawServer } = useParams();
+  const server = rawServer ? (globalThis as any).decodeURIComponent(rawServer) : undefined;
   const mx = useMatrixClient();
   const userId = mx.getUserId();
   const userServer = userId && getMxIdServer(userId);
@@ -390,7 +391,7 @@ export function PublicRooms() {
           room_types: roomType !== undefined ? [roomType] : undefined,
         },
         third_party_instance_id: serverSearchParams.instance,
-      }
+      },
     );
   }, [mx, server, serverSearchParams]);
 

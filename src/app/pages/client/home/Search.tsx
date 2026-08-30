@@ -26,8 +26,8 @@ export function HomeSearch() {
           navigate(getHomePath());
         }
       },
-      [navigate]
-    )
+      [navigate],
+    ),
   );
 
   return (

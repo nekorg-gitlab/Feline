@@ -15,7 +15,10 @@ export function RouteSpaceProvider({ children }: RouteSpaceProviderProps) {
   const mx = useMatrixClient();
   const joinedSpaces = useSpaces(mx, allRoomsAtom);
 
-  const { spaceIdOrAlias } = useParams();
+  const { spaceIdOrAlias: rawSpaceIdOrAlias } = useParams();
+  const spaceIdOrAlias = rawSpaceIdOrAlias
+    ? (globalThis as any).decodeURIComponent(rawSpaceIdOrAlias)
+    : undefined;
   const viaServers = useSearchParamsViaServers();
 
   const selectedSpaceId = useSelectedSpace();

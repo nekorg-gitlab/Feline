@@ -9,7 +9,7 @@ import topLevelAwait from 'vite-plugin-top-level-await';
 import { VitePWA } from 'vite-plugin-pwa';
 import fs from 'fs';
 import path from 'path';
-import buildConfig from './build.config';
+import buildConfig from './build.config.ts';
 
 const copyFiles = {
   targets: [
@@ -53,7 +53,7 @@ function serverMatrixSdkCryptoWasm(wasmFilePath) {
         if (req.url === wasmFilePath) {
           const resolvedPath = path.join(
             path.resolve(),
-            '/node_modules/@matrix-org/matrix-sdk-crypto-wasm/pkg/matrix_sdk_crypto_wasm_bg.wasm'
+            '/node_modules/@matrix-org/matrix-sdk-crypto-wasm/pkg/matrix_sdk_crypto_wasm_bg.wasm',
           );
 
           if (fs.existsSync(resolvedPath)) {
@@ -98,7 +98,7 @@ function securityHeaders() {
       server.middlewares.use((req, res, next) => {
         res.setHeader(
           'Permissions-Policy',
-          'camera=(), microphone=(), geolocation=(), payment=(), usb=()'
+          'camera=(), microphone=(), geolocation=(), payment=(), usb=()',
         );
         next();
       });
@@ -107,7 +107,7 @@ function securityHeaders() {
       if (!html.includes('Permissions-Policy')) {
         return html.replace(
           '</head>',
-          '  <meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=(), payment=(), usb=()" />\n  </head>'
+          '  <meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=(), payment=(), usb=()" />\n  </head>',
         );
       }
       return html;
@@ -117,7 +117,7 @@ function securityHeaders() {
 
 export default defineConfig({
   appType: 'spa',
-  publicDir: false,
+  publicDir: 'public',
   base: buildConfig.base,
   server: {
     port: 8080,
@@ -150,18 +150,13 @@ export default defineConfig({
         injectionPoint: undefined,
       },
       devOptions: {
-        enabled: true,
-        type: 'module',
+        enabled: false,
       },
     }),
   ],
   optimizeDeps: {
-    esbuildOptions: {
-      define: {
-        global: 'globalThis',
-      },
+    rolldownOptions: {
       plugins: [
-        // Enable esbuild polyfill plugins
         NodeGlobalsPolyfillPlugin({
           process: false,
           buffer: true,
@@ -170,17 +165,39 @@ export default defineConfig({
     },
   },
   build: {
+    target: 'esnext',
     outDir: 'dist',
     sourcemap: false,
     copyPublicDir: false,
     rollupOptions: {
       plugins: [inject({ Buffer: ['buffer', 'Buffer'] })],
       output: {
-        manualChunks: {
-          vendor: ['react', 'react-dom', 'react-router-dom'],
-          matrix: ['matrix-js-sdk', 'matrix-widget-api'],
-          ui: ['folds', '@vanilla-extract/css', 'classnames'],
-          editor: ['slate', 'slate-react', 'slate-history', 'slate-dom'],
+        manualChunks: (id) => {
+          if (
+            id.includes('node_modules/react/') ||
+            id.includes('node_modules/react-dom/') ||
+            id.includes('node_modules/react-router-dom/')
+          )
+            return 'vendor';
+          if (
+            id.includes('node_modules/matrix-js-sdk/') ||
+            id.includes('node_modules/matrix-widget-api/')
+          )
+            return 'matrix';
+          if (
+            id.includes('node_modules/folds/') ||
+            id.includes('node_modules/@vanilla-extract/css/') ||
+            id.includes('node_modules/classnames/')
+          )
+            return 'ui';
+          if (
+            id.includes('node_modules/slate/') ||
+            id.includes('node_modules/slate-react/') ||
+            id.includes('node_modules/slate-history/') ||
+            id.includes('node_modules/slate-dom/')
+          )
+            return 'editor';
+          return undefined;
         },
       },
     },

@@ -1,5 +1,7 @@
 import { ReactNode, useCallback, useMemo } from 'react';
-import { Capabilities, validateAuthMetadata, ValidatedAuthMetadata } from 'matrix-js-sdk';
+import type { Capabilities } from 'matrix-js-sdk/lib/serverCapabilities.js';
+import type { ValidatedAuthMetadata } from 'matrix-js-sdk/lib/oauth/discover.js';
+import { isValidAuthMetadata } from 'matrix-js-sdk/lib/oauth/discover.js';
 import { AsyncStatus, useAsyncCallbackValue } from '../hooks/useAsyncCallback';
 import { useMatrixClient } from '../hooks/useMatrixClient';
 import { MediaConfig } from '../hooks/useMediaConfig';
@@ -32,7 +34,11 @@ export function ServerConfigsLoader({ children }: ServerConfigsLoaderProps) {
       let validatedAuthMetadata: ValidatedAuthMetadata | undefined;
 
       try {
-        validatedAuthMetadata = validateAuthMetadata(authMetadata);
+        if (isValidAuthMetadata(authMetadata)) {
+          validatedAuthMetadata = authMetadata;
+        } else {
+          throw new Error('Invalid auth metadata');
+        }
       } catch (e) {
         if (import.meta.env.DEV) console.error(e);
       }
@@ -42,7 +48,7 @@ export function ServerConfigsLoader({ children }: ServerConfigsLoaderProps) {
         mediaConfig,
         authMetadata: validatedAuthMetadata,
       };
-    }, [mx])
+    }, [mx]),
   );
 
   const configs: ServerConfigs =

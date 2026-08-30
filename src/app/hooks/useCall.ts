@@ -36,7 +36,7 @@ export const useCallSession = (room: Room): MatrixRTCSession => {
 
 export const useCallMembersChange = (
   session: MatrixRTCSession,
-  callback: (members: CallMembership[]) => void
+  callback: (members: CallMembership[]) => void,
 ): void => {
   useEffect(() => {
     const handleMembershipsChange: MatrixRTCSessionEventHandlerMap[MatrixRTCSessionEvent.MembershipsChanged] =

@@ -79,7 +79,7 @@ export const createRouter = (clientConfig: ClientConfig, screenSize: ScreenSize)
   const mobile = screenSize === ScreenSize.Mobile;
 
   const routes = createRoutesFromElements(
-    <Route>
+    <Route HydrateFallback={() => <div style={{ padding: 24 }}>Loading...</div>}>
       <Route
         index
         loader={() => {
@@ -115,7 +115,7 @@ export const createRouter = (clientConfig: ClientConfig, screenSize: ScreenSize)
           if (!session) {
             const afterLoginPath = getAppPathFromHref(
               getOriginBaseUrl(hashRouter),
-              window.location.href
+              window.location.href,
             );
             if (afterLoginPath) setAfterLoginRedirectPath(afterLoginPath);
             return redirect(getLoginPath());
@@ -284,7 +284,7 @@ export const createRouter = (clientConfig: ClientConfig, screenSize: ScreenSize)
         </Route>
       </Route>
       <Route path="/*" element={<p>Page not found</p>} />
-    </Route>
+    </Route>,
   );
 
   if (hashRouter?.enabled) {

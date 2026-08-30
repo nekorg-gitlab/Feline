@@ -52,5 +52,5 @@ export const MemberTile = as<'button', MemberTileProps>(
         {after}
       </AsMemberTile>
     );
-  }
+  },
 );

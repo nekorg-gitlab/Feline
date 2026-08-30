@@ -53,7 +53,7 @@ export const PageNavHeader = as<'header', css.PageNavHeaderVariants>(
       {...props}
       ref={ref}
     />
-  )
+  ),
 );
 
 export function PageNavContent({
@@ -98,7 +98,7 @@ export const PageHeader = as<'div', css.PageHeaderVariants>(
       {...props}
       ref={ref}
     />
-  )
+  ),
 );
 
 export const PageContent = as<'div'>(({ className, ...props }, ref) => (
@@ -127,7 +127,7 @@ export const PageHeroSection = as<'div', ComponentProps<typeof Box>>(
       {...props}
       ref={ref}
     />
-  )
+  ),
 );
 
 export function PageHero({

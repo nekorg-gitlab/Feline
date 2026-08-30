@@ -104,7 +104,9 @@ export function ImagePackProfileEdit({ meta, onCancel, onSave }: ImagePackProfil
   const useAuthentication = useMediaAuthentication();
   const [avatar, setAvatar] = useState(meta.avatar);
 
-  const directAvatarUrl = avatar ? (mxcUrlToHttp(mx, avatar, useAuthentication) ?? undefined) : undefined;
+  const directAvatarUrl = avatar
+    ? (mxcUrlToHttp(mx, avatar, useAuthentication) ?? undefined)
+    : undefined;
   const authAvatarUrl = useAuthenticatedMxcUrl(avatar);
   const avatarUrl = useAuthentication ? authAvatarUrl : directAvatarUrl;
 

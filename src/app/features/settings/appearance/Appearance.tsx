@@ -78,7 +78,7 @@ const ThemeSelector = as<'div', ThemeSelectorProps>(
         ))}
       </Box>
     </Menu>
-  )
+  ),
 );
 
 function SelectTheme({ disabled }: { disabled?: boolean }) {
@@ -537,10 +537,7 @@ const CUSTOM_THEME_GROUPS: { group: CustomThemeColorGroup; label: string }[] = [
 ];
 
 function CustomColorTile({ group, label }: { group: CustomThemeColorGroup; label: string }) {
-  const [customThemeColors, setCustomThemeColors] = useSetting(
-    settingsAtom,
-    'customThemeColors',
-  );
+  const [customThemeColors, setCustomThemeColors] = useSetting(settingsAtom, 'customThemeColors');
   const value = customThemeColors?.[group];
   const initRgb = value ? rgbParts(value) : null;
   const initHsl = value ? hslParts(value) : null;
@@ -785,7 +782,12 @@ export function Appearance() {
         />
       </SequenceCard>
 
-      <SequenceCard className={SequenceCardStyle} variant="SurfaceVariant" direction="Column" gap="400">
+      <SequenceCard
+        className={SequenceCardStyle}
+        variant="SurfaceVariant"
+        direction="Column"
+        gap="400"
+      >
         <SettingTile
           title="Custom Theme"
           description="Override individual theme colors. Pick a base color for each element; the rest of its shades are derived automatically."
@@ -824,15 +826,17 @@ export function Appearance() {
         />
       </SequenceCard>
 
-      <SequenceCard className={SequenceCardStyle} variant="SurfaceVariant" direction="Column" gap="400">
+      <SequenceCard
+        className={SequenceCardStyle}
+        variant="SurfaceVariant"
+        direction="Column"
+        gap="400"
+      >
         <RoundnessControl />
       </SequenceCard>
 
       <SequenceCard className={SequenceCardStyle} variant="SurfaceVariant" direction="Column">
-        <SettingTile
-          title="Page Zoom"
-          after={<PageZoomInput />}
-        />
+        <SettingTile title="Page Zoom" after={<PageZoomInput />} />
       </SequenceCard>
     </Box>
   );

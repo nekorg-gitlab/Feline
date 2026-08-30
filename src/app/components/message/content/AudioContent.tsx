@@ -56,10 +56,14 @@ export function AudioContent({
       const mediaUrl = mxcUrlToHttp(mx, url, useAuthentication);
       if (!mediaUrl) throw new Error('Invalid media URL');
       const fileContent = encInfo
-        ? await downloadEncryptedMedia(mediaUrl, (encBuf) => decryptFile(encBuf, mimeType, encInfo), mx)
+        ? await downloadEncryptedMedia(
+            mediaUrl,
+            (encBuf) => decryptFile(encBuf, mimeType, encInfo),
+            mx,
+          )
         : await downloadMedia(mediaUrl, mx);
       return URL.createObjectURL(fileContent);
-    }, [mx, url, useAuthentication, mimeType, encInfo])
+    }, [mx, url, useAuthentication, mimeType, encInfo]),
   );
 
   const audioRef = useRef<HTMLAudioElement | null>(null);
@@ -80,7 +84,7 @@ export function AudioContent({
   }, []);
   useMediaPlayTimeCallback(
     getAudioRef,
-    useThrottle(handlePlayTimeCallback, PLAY_TIME_THROTTLE_OPS)
+    useThrottle(handlePlayTimeCallback, PLAY_TIME_THROTTLE_OPS),
   );
 
   const handlePlay = () => {
@@ -148,7 +152,7 @@ export function AudioContent({
         </Chip>
 
         <Text size="T200">{`${secondsToMinutesAndSeconds(
-          currentTime
+          currentTime,
         )} / ${secondsToMinutesAndSeconds(duration)}`}</Text>
       </>
     ),

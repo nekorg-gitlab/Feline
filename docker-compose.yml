@@ -4,8 +4,8 @@ services:
     image: feline:latest
     container_name: feline
     ports:
-      - "80:80"
-      - "443:443"
+      - '80:80'
+      - '443:443'
     restart: unless-stopped
     # volumes:
     #   - ./config.json:/app/config.json:ro

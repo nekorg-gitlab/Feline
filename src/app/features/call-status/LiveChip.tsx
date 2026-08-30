@@ -37,7 +37,9 @@ function LiveChipMemberItem({ room, callMember }: { room: Room; callMember: Call
   if (!userId) return null;
   const name = getMemberDisplayName(room, userId) ?? getMxIdLocalPart(userId) ?? userId;
   const avatarMxc = getMemberAvatarMxc(room, userId);
-  const directUrl = avatarMxc ? mxcUrlToHttp(mx, avatarMxc, useAuthentication, 96, 96) ?? undefined : undefined;
+  const directUrl = avatarMxc
+    ? (mxcUrlToHttp(mx, avatarMxc, useAuthentication, 96, 96) ?? undefined)
+    : undefined;
   const authUrl = useAuthenticatedMxcUrl(avatarMxc, 96, 96);
   const avatarUrl = useAuthentication ? authUrl : directUrl;
 
@@ -49,7 +51,13 @@ function LiveChipMemberItem({ room, callMember }: { room: Room; callMember: Call
       radii="300"
       style={{ paddingLeft: config.space.S200 }}
       onClick={(evt) =>
-        openUserProfile(room.roomId, undefined, userId, getMouseEventCords(evt.nativeEvent), 'Right')
+        openUserProfile(
+          room.roomId,
+          undefined,
+          userId,
+          getMouseEventCords(evt.nativeEvent),
+          'Right',
+        )
       }
       before={
         <Avatar size="200" radii="400">
@@ -108,7 +116,11 @@ export function LiveChip({ count, room, members }: LiveChipProps) {
               <Scroll size="0" hideTrack visibility="Hover">
                 <Box direction="Column" style={{ padding: config.space.S100 }}>
                   {members.map((callMember) => (
-                    <LiveChipMemberItem key={callMember.memberId} room={room} callMember={callMember} />
+                    <LiveChipMemberItem
+                      key={callMember.memberId}
+                      room={room}
+                      callMember={callMember}
+                    />
                   ))}
                 </Box>
               </Scroll>

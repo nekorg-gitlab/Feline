@@ -107,8 +107,8 @@ export function RoomProfileEdit({
           await mx.sendStateEvent(room.roomId, StateEvent.RoomTopic as any, { topic: roomTopic });
         }
       },
-      [mx, room.roomId]
-    )
+      [mx, room.roomId],
+    ),
   );
   const submitting = submitState.status === AsyncStatus.Loading;
 
@@ -131,7 +131,7 @@ export function RoomProfileEdit({
     submit(
       roomAvatar === avatar ? undefined : roomAvatar || null,
       roomName === name ? undefined : roomName,
-      roomTopic === topic ? undefined : roomTopic
+      roomTopic === topic ? undefined : roomTopic,
     ).then(() => {
       if (alive()) {
         onClose();

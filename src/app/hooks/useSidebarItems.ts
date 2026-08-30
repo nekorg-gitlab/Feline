@@ -22,7 +22,7 @@ export type InFelineSpacesContent = {
 export const parseSidebar = (
   mx: MatrixClient,
   orphanSpaces: string[],
-  content?: InFelineSpacesContent
+  content?: InFelineSpacesContent,
 ) => {
   const sidebar = content?.sidebar ?? content?.shortcut ?? [];
   const orphans = new Set(orphanSpaces);
@@ -64,14 +64,14 @@ export const parseSidebar = (
 };
 
 export const useSidebarItems = (
-  orphanSpaces: string[]
+  orphanSpaces: string[],
 ): [SidebarItems, Dispatch<SetStateAction<SidebarItems>>] => {
   const mx = useMatrixClient();
 
   const [sidebarItems, setSidebarItems] = useState(() => {
     const inFelineSpacesContent = getAccountData(
       mx,
-      AccountDataEvent.FelineSpaces
+      AccountDataEvent.FelineSpaces,
     )?.getContent<InFelineSpacesContent>();
     return parseSidebar(mx, orphanSpaces, inFelineSpacesContent);
   });
@@ -79,7 +79,7 @@ export const useSidebarItems = (
   useEffect(() => {
     const inFelineSpacesContent = getAccountData(
       mx,
-      AccountDataEvent.FelineSpaces
+      AccountDataEvent.FelineSpaces,
     )?.getContent<InFelineSpacesContent>();
     setSidebarItems(parseSidebar(mx, orphanSpaces, inFelineSpacesContent));
   }, [mx, orphanSpaces]);
@@ -93,8 +93,8 @@ export const useSidebarItems = (
           setSidebarItems(parseSidebar(mx, orphanSpaces, newContent));
         }
       },
-      [mx, orphanSpaces]
-    )
+      [mx, orphanSpaces],
+    ),
   );
 
   return [sidebarItems, setSidebarItems];
@@ -124,7 +124,7 @@ export const sidebarItemWithout = (items: SidebarItems, roomId: string) => {
 
 export const makeFelineSpacesContent = (
   mx: MatrixClient,
-  items: SidebarItems
+  items: SidebarItems,
 ): InFelineSpacesContent => {
   const currentInSpaces =
     getAccountData(mx, AccountDataEvent.FelineSpaces)?.getContent<InFelineSpacesContent>() ?? {};

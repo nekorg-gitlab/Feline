@@ -17,5 +17,5 @@ export const PowerColorBadge = as<'span', PowerColorBadgeProps>(
       {...props}
       ref={ref}
     />
-  )
+  ),
 );

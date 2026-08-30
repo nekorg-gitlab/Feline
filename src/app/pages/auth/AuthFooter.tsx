@@ -14,7 +14,13 @@ export function AuthFooter() {
       >
         v4.12.6
       </Text>
-      <Text as="a" size="T300" href="https://twitter.com/felineapp" target="_blank" rel="noreferrer">
+      <Text
+        as="a"
+        size="T300"
+        href="https://twitter.com/felineapp"
+        target="_blank"
+        rel="noreferrer"
+      >
         Twitter
       </Text>
       <Text as="a" size="T300" href="https://matrix.org" target="_blank" rel="noreferrer">

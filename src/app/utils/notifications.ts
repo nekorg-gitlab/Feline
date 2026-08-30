@@ -21,6 +21,6 @@ export async function markAsRead(mx: MatrixClient, roomId: string, privateReceip
 
   await mx.sendReadReceipt(
     latestEvent,
-    privateReceipt ? ReceiptType.ReadPrivate : ReceiptType.Read
+    privateReceipt ? ReceiptType.ReadPrivate : ReceiptType.Read,
   );
 }

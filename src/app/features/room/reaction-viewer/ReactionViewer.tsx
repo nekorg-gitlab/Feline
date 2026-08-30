@@ -59,7 +59,13 @@ function ReactionMemberItem({
       style={{ padding: `0 ${config.space.S200}` }}
       radii="400"
       onClick={(event) => {
-        openProfile(room.roomId, space?.roomId, senderId, getMouseEventCords(event.nativeEvent), 'Bottom');
+        openProfile(
+          room.roomId,
+          space?.roomId,
+          senderId,
+          getMouseEventCords(event.nativeEvent),
+          'Bottom',
+        );
       }}
       before={
         <Avatar size="200">
@@ -93,7 +99,7 @@ export const ReactionViewer = as<'div', ReactionViewerProps>(
     const useAuthentication = useMediaAuthentication();
     const reactions = useRelations(
       relations,
-      useCallback((rel) => [...(rel.getSortedAnnotationsByKey() ?? [])], [])
+      useCallback((rel) => [...(rel.getSortedAnnotationsByKey() ?? [])], []),
     );
     const space = useSpaceOptionally();
     const openProfile = useOpenUserRoomProfile();
@@ -180,5 +186,5 @@ export const ReactionViewer = as<'div', ReactionViewerProps>(
         </Box>
       </Box>
     );
-  }
+  },
 );

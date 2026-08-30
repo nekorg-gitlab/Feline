@@ -126,7 +126,7 @@ export function ManualVerificationTile({
   const [method, setMethod] = useState(
     hasPassphrase
       ? ManualVerificationMethod.RecoveryPassphrase
-      : ManualVerificationMethod.RecoveryKey
+      : ManualVerificationMethod.RecoveryKey,
   );
 
   const verifyAndRestoreBackup = useCallback(
@@ -140,7 +140,7 @@ export function ManualVerificationTile({
         // Pre-check for subtle availability to give friendly error before bootstrap
         if (!globalThis.crypto?.subtle) {
           throw new Error(
-            'Your browser does not support the required cryptography extensions. Please use a secure (HTTPS) context.'
+            'Your browser does not support the required cryptography extensions. Please use a secure (HTTPS) context.',
           );
         }
 
@@ -163,17 +163,17 @@ export function ManualVerificationTile({
           msg.includes('subtleCrypto is unavailable')
         ) {
           throw new Error(
-            'Your browser does not support the required cryptography extensions. Please use a secure (HTTPS) context.'
+            'Your browser does not support the required cryptography extensions. Please use a secure (HTTPS) context.',
           );
         }
         throw e;
       }
     },
-    [mx, secretStorageKeyId]
+    [mx, secretStorageKeyId],
   );
 
   const [verifyState, handleDecodedRecoveryKey] = useAsyncCallback<void, Error, [Uint8Array]>(
-    verifyAndRestoreBackup
+    verifyAndRestoreBackup,
   );
   const verifying = verifyState.status === AsyncStatus.Loading;
 
@@ -184,8 +184,8 @@ export function ManualVerificationTile({
       {insecureContext && (
         <Text size="T200" style={{ color: color.Critical.Main }}>
           <b>
-            Cryptography unavailable: this page is not in a secure (HTTPS) context. Please access via
-            HTTPS to verify your session.
+            Cryptography unavailable: this page is not in a secure (HTTPS) context. Please access
+            via HTTPS to verify your session.
           </b>
         </Text>
       )}

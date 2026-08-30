@@ -1,4 +1,4 @@
-import produce from 'immer';
+import { produce } from 'immer';
 import { atom, useSetAtom } from 'jotai';
 import {
   IRoomTimelineData,
@@ -53,7 +53,7 @@ export const unreadInfoToUnread = (unreadInfo: UnreadInfo): Unread => ({
 const putUnreadInfo = (
   roomToUnread: RoomToUnread,
   allParents: Set<string>,
-  unreadInfo: UnreadInfo
+  unreadInfo: UnreadInfo,
 ) => {
   const oldUnread = roomToUnread.get(unreadInfo.roomId) ?? { highlight: 0, total: 0, from: null };
   roomToUnread.set(unreadInfo.roomId, unreadInfoToUnread(unreadInfo));
@@ -131,7 +131,7 @@ export const roomToUnreadAtom = atom<RoomToUnread, [RoomToUnreadAction], undefin
         putUnreadInfo(
           draftRoomToUnread,
           getAllParents(get(roomToParentsAtom), unreadInfo.roomId),
-          unreadInfo
+          unreadInfo,
         );
       });
       set(baseRoomToUnread, draftRoomToUnread);
@@ -151,9 +151,9 @@ export const roomToUnreadAtom = atom<RoomToUnread, [RoomToUnreadAction], undefin
           putUnreadInfo(
             draftRoomToUnread,
             getAllParents(get(roomToParentsAtom), unreadInfo.roomId),
-            unreadInfo
-          )
-        )
+            unreadInfo,
+          ),
+        ),
       );
       return;
     }
@@ -164,12 +164,12 @@ export const roomToUnreadAtom = atom<RoomToUnread, [RoomToUnreadAction], undefin
           deleteUnreadInfo(
             draftRoomToUnread,
             getAllParents(get(roomToParentsAtom), action.roomId),
-            action.roomId
-          )
-        )
+            action.roomId,
+          ),
+        ),
       );
     }
-  }
+  },
 );
 
 export const useBindRoomToUnreadAtom = (mx: MatrixClient, unreadAtom: typeof roomToUnreadAtom) => {
@@ -197,8 +197,8 @@ export const useBindRoomToUnreadAtom = (mx: MatrixClient, unreadAtom: typeof roo
           });
         }
       },
-      [mx, setUnreadAtom]
-    )
+      [mx, setUnreadAtom],
+    ),
   );
 
   useEffect(() => {
@@ -207,7 +207,7 @@ export const useBindRoomToUnreadAtom = (mx: MatrixClient, unreadAtom: typeof roo
       room: Room | undefined,
       toStartOfTimeline: boolean | undefined,
       removed: boolean,
-      data: IRoomTimelineData
+      data: IRoomTimelineData,
     ) => {
       if (!room || !data.liveEvent || room.isSpaceRoom() || !isNotificationEvent(mEvent)) return;
       if (getNotificationType(mx, room.roomId) === NotificationType.Mute) {
@@ -236,8 +236,8 @@ export const useBindRoomToUnreadAtom = (mx: MatrixClient, unreadAtom: typeof roo
 
       const isMyReceipt = Object.keys(content).find((eventId) =>
         (Object.keys(content[eventId]) as ReceiptType[]).find(
-          (receiptType) => content[eventId][receiptType][myUserId]
-        )
+          (receiptType) => content[eventId][receiptType][myUserId],
+        ),
       );
       if (isMyReceipt) {
         setUnreadAtom({ type: 'DELETE', roomId: room.roomId });
@@ -282,7 +282,7 @@ export const useBindRoomToUnreadAtom = (mx: MatrixClient, unreadAtom: typeof roo
           });
         }
       },
-      [mx, setUnreadAtom]
-    )
+      [mx, setUnreadAtom],
+    ),
   );
 };

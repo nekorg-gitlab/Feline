@@ -48,7 +48,7 @@ function RoomJoinButton({ roomId, via }: RoomJoinButtonProps) {
   const mx = useMatrixClient();
 
   const [joinState, join] = useAsyncCallback<Room, MatrixError, []>(
-    useCallback(() => mx.joinRoom(roomId, { viaServers: via }), [mx, roomId, via])
+    useCallback(() => mx.joinRoom(roomId, { viaServers: via }), [mx, roomId, via]),
   );
 
   const canJoin = joinState.status === AsyncStatus.Idle || joinState.status === AsyncStatus.Error;
@@ -310,7 +310,7 @@ export const RoomItemCard = as<'div', RoomItemCardProps>(
       getRoom,
       ...props
     },
-    ref
+    ref,
   ) => {
     const mx = useMatrixClient();
     const useAuthentication = useMediaAuthentication();
@@ -323,8 +323,8 @@ export const RoomItemCard = as<'div', RoomItemCardProps>(
     const joined = room?.getMyMembership() === Membership.Join;
 
     const roomAvatarMxcForAuth = dm
-      ? room?.getAvatarFallbackMember()?.getMxcAvatarUrl() ?? room?.getMxcAvatarUrl() ?? undefined
-      : room?.getMxcAvatarUrl() ?? undefined;
+      ? (room?.getAvatarFallbackMember()?.getMxcAvatarUrl() ?? room?.getMxcAvatarUrl() ?? undefined)
+      : (room?.getMxcAvatarUrl() ?? undefined);
     const directRoomAvatarUrl = dm
       ? room
         ? getDirectRoomAvatarUrl(mx, room, 96, useAuthentication)
@@ -337,7 +337,7 @@ export const RoomItemCard = as<'div', RoomItemCardProps>(
 
     const summaryAvatarMxc = summary?.avatar_url;
     const directSummaryAvatarUrl = summaryAvatarMxc
-      ? mxcUrlToHttp(mx, summaryAvatarMxc, useAuthentication, 96, 96, 'crop') ?? undefined
+      ? (mxcUrlToHttp(mx, summaryAvatarMxc, useAuthentication, 96, 96, 'crop') ?? undefined)
       : undefined;
     const authSummaryAvatarUrl = useAuthenticatedMxcUrl(summaryAvatarMxc, 96, 96, 'crop');
     const summaryAvatarUrl = useAuthentication ? authSummaryAvatarUrl : directSummaryAvatarUrl;
@@ -431,5 +431,5 @@ export const RoomItemCard = as<'div', RoomItemCardProps>(
         {after}
       </SequenceCard>
     );
-  }
+  },
 );

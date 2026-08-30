@@ -34,7 +34,13 @@ export function Support({ requestClose }: SupportProps) {
           </Box>
           {requestClose && (
             <Box shrink="No">
-              <Button onClick={requestClose} variant="Surface" size="300" radii="300" aria-label="Close">
+              <Button
+                onClick={requestClose}
+                variant="Surface"
+                size="300"
+                radii="300"
+                aria-label="Close"
+              >
                 <Icon src={Icons.Cross} size="100" />
               </Button>
             </Box>
@@ -83,7 +89,8 @@ export function Support({ requestClose }: SupportProps) {
                       felipefmavelar@gmail.com
                     </Text>
                     <Text size="T200" priority="300">
-                      Direct PayPal transfer - open PayPal and send to this email, or use the button below.
+                      Direct PayPal transfer - open PayPal and send to this email, or use the button
+                      below.
                     </Text>
                   </Box>
                   <Box gap="200" wrap="Wrap">

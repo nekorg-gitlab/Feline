@@ -18,7 +18,7 @@ export function setFallbackSession(
   accessToken: string,
   deviceId: string,
   userId: string,
-  baseUrl: string
+  baseUrl: string,
 ) {
   localStorage.setItem('feline_access_token', accessToken);
   localStorage.setItem('feline_device_id', deviceId);

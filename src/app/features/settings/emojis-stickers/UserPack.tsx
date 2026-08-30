@@ -19,7 +19,9 @@ export function UserPack({ onViewPack }: UserPackProps) {
 
   const userPack = useUserImagePack();
   const avatarMxc = userPack?.getAvatarUrl(ImageUsage.Emoticon);
-  const directUrl = avatarMxc ? mxcUrlToHttp(mx, avatarMxc, useAuthentication) ?? undefined : undefined;
+  const directUrl = avatarMxc
+    ? (mxcUrlToHttp(mx, avatarMxc, useAuthentication) ?? undefined)
+    : undefined;
   const authUrl = useAuthenticatedMxcUrl(avatarMxc);
   const avatarUrl = useAuthentication ? authUrl : directUrl;
 

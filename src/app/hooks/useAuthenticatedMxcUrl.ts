@@ -8,7 +8,7 @@ export function useAuthenticatedMxcUrl(
   mxcUrl: string | undefined | null,
   width?: number,
   height?: number,
-  resizeMethod?: string
+  resizeMethod?: string,
 ): string | undefined {
   const mx = useMatrixClient();
   const { versions, unstable_features: unstableFeatures } = useSpecVersions();
@@ -93,7 +93,7 @@ export function useAuthenticatedMxcUrls(
   mxcUrls: (string | undefined | null)[],
   width?: number,
   height?: number,
-  resizeMethod?: string
+  resizeMethod?: string,
 ): (string | undefined)[] {
   const mx = useMatrixClient();
   const { versions, unstable_features: unstableFeatures } = useSpecVersions();
@@ -101,7 +101,11 @@ export function useAuthenticatedMxcUrls(
     unstableFeatures?.['org.matrix.msc3916.stable'] || versions.includes('v1.11');
 
   const [urls, setUrls] = useState<(string | undefined)[]>(() =>
-    mxcUrls.map((u) => (u && !useAuthentication ? mxcUrlToHttp(mx, u, false, width, height, resizeMethod) ?? undefined : undefined))
+    mxcUrls.map((u) =>
+      u && !useAuthentication
+        ? (mxcUrlToHttp(mx, u, false, width, height, resizeMethod) ?? undefined)
+        : undefined,
+    ),
   );
 
   useEffect(() => {
@@ -126,13 +130,14 @@ export function useAuthenticatedMxcUrls(
                   const blob = await downloadMedia(fallbackUrl, mx);
                   return URL.createObjectURL(blob);
                 } catch (fallbackErr) {
-                  if (import.meta.env.DEV) console.debug('[mxc] batch fallback failed', fallbackErr);
+                  if (import.meta.env.DEV)
+                    console.debug('[mxc] batch fallback failed', fallbackErr);
                 }
               }
             }
             return undefined;
           }
-        })
+        }),
       );
       if (!cancelled) {
         setUrls((prev) => {
@@ -142,7 +147,12 @@ export function useAuthenticatedMxcUrls(
       }
     };
     if (useAuthentication) loadAll();
-    else setUrls(mxcUrls.map((u) => (u ? mxcUrlToHttp(mx, u, false, width, height, resizeMethod) ?? undefined : undefined)));
+    else
+      setUrls(
+        mxcUrls.map((u) =>
+          u ? (mxcUrlToHttp(mx, u, false, width, height, resizeMethod) ?? undefined) : undefined,
+        ),
+      );
     return () => {
       cancelled = true;
     };

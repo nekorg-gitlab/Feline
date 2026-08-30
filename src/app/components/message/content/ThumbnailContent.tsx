@@ -2,7 +2,12 @@ import { ReactNode, useCallback, useEffect } from 'react';
 import { IThumbnailContent } from '../../../../types/matrix/common';
 import { useMatrixClient } from '../../../hooks/useMatrixClient';
 import { AsyncStatus, useAsyncCallback } from '../../../hooks/useAsyncCallback';
-import { decryptFile, downloadEncryptedMedia, downloadMedia, mxcUrlToHttp } from '../../../utils/matrix';
+import {
+  decryptFile,
+  downloadEncryptedMedia,
+  downloadMedia,
+  mxcUrlToHttp,
+} from '../../../utils/matrix';
 import { FALLBACK_MIMETYPE } from '../../../utils/mimeTypes';
 
 export type ThumbnailContentProps = {
@@ -28,7 +33,7 @@ export function ThumbnailContent({ info, renderImage }: ThumbnailContentProps) {
         const fileContent = await downloadEncryptedMedia(
           mediaUrl,
           (encBuf) => decryptFile(encBuf, thumbInfo.mimetype ?? FALLBACK_MIMETYPE, encInfo),
-          mx
+          mx,
         );
         return URL.createObjectURL(fileContent);
       }
@@ -38,7 +43,7 @@ export function ThumbnailContent({ info, renderImage }: ThumbnailContentProps) {
       }
 
       return mediaUrl;
-    }, [mx, info, useAuthentication])
+    }, [mx, info, useAuthentication]),
   );
 
   useEffect(() => {

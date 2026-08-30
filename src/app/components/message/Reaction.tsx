@@ -29,8 +29,7 @@ export const Reaction = as<
       {reaction.startsWith('mxc://') ? (
         <img
           className={css.ReactionImg}
-          src={mxcUrlToHttp(mx, reaction, useAuthentication) ?? reaction
-          }
+          src={mxcUrlToHttp(mx, reaction, useAuthentication) ?? reaction}
           alt={reaction}
         />
       ) : (
@@ -61,7 +60,7 @@ export function ReactionTooltipMsg({ room, reaction, events }: ReactionTooltipMs
     (ev: MatrixEvent) =>
       getMemberDisplayName(room, ev.getSender() ?? 'Unknown') ??
       getMxIdLocalPart(ev.getSender() ?? 'Unknown') ??
-      'Unknown'
+      'Unknown',
   );
 
   return (

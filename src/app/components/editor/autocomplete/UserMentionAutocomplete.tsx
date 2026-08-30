@@ -149,7 +149,7 @@ export function UserMentionAutocomplete({
 
   const [result, search, resetSearch] = useAsyncSearch(members, getRoomMemberStr, SEARCH_OPTIONS);
   const autoCompleteMembers = (result ? result.items.slice(0, 20) : members.slice(0, 20)).filter(
-    withAllowedMembership
+    withAllowedMembership,
   );
 
   useEffect(() => {
@@ -161,7 +161,7 @@ export function UserMentionAutocomplete({
     const mentionEl = createMentionElement(
       uId,
       name.startsWith('@') ? name : `@${name}`,
-      mx.getUserId() === uId || roomAliasOrId === uId
+      mx.getUserId() === uId || roomAliasOrId === uId,
     );
     replaceWithElement(editor, query.range, mentionEl);
     moveCursor(editor, true);

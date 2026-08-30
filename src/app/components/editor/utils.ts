@@ -160,7 +160,7 @@ export const createMentionElement = (
   name: string,
   highlight: boolean,
   eventId?: string,
-  viaServers?: string[]
+  viaServers?: string[],
 ): MentionElement => ({
   type: BlockType.Mention,
   id,
@@ -180,7 +180,7 @@ export const createEmoticonElement = (key: string, shortcode: string): EmoticonE
 
 export const createLinkElement = (
   href: string,
-  children: string | FormattedText[]
+  children: string | FormattedText[],
 ): LinkElement => ({
   type: BlockType.Link,
   href,
@@ -213,7 +213,7 @@ interface PointUntilCharOptions {
 export const getPointUntilChar = (
   editor: Editor,
   cursorPoint: BasePoint,
-  options: PointUntilCharOptions
+  options: PointUntilCharOptions,
 ): BasePoint | undefined => {
   let targetPoint: BasePoint | undefined;
   let prevPoint: BasePoint | undefined;

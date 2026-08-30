@@ -95,5 +95,5 @@ export const ImageViewer = as<'div', ImageViewerProps>(
         </Box>
       </Box>
     );
-  }
+  },
 );

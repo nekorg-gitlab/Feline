@@ -29,7 +29,7 @@ export function CallMemberCard({ member }: CallMemberCardProps) {
   const name = getMemberDisplayName(room, userId) ?? getMxIdLocalPart(userId) ?? userId;
   const avatarMxc = getMemberAvatarMxc(room, userId);
   const directUrl = avatarMxc
-    ? mxcUrlToHttp(mx, avatarMxc, useAuthentication, 96, 96) ?? undefined
+    ? (mxcUrlToHttp(mx, avatarMxc, useAuthentication, 96, 96) ?? undefined)
     : undefined;
   const authUrl = useAuthenticatedMxcUrl(avatarMxc, 96, 96);
   const avatarUrl = useAuthentication ? authUrl : directUrl;
@@ -49,7 +49,7 @@ export function CallMemberCard({ member }: CallMemberCardProps) {
           undefined,
           userId,
           getMouseEventCords(evt.nativeEvent),
-          'Right'
+          'Right',
         )
       }
     >

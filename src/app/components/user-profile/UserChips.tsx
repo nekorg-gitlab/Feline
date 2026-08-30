@@ -459,7 +459,7 @@ export function OptionsChip({ userId }: { userId: string }) {
       const users = ignoredUsers.filter((u) => u !== userId);
       if (!ignored) users.push(userId);
       await mx.setIgnoredUsers(users);
-    }, [mx, ignoredUsers, userId, ignored])
+    }, [mx, ignoredUsers, userId, ignored]),
   );
   const ignoring = ignoreState.status === AsyncStatus.Loading;
 

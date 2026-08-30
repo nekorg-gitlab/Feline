@@ -75,7 +75,7 @@ export function UserBanAlert({ userId, reason, canUnban, bannedBy, ts }: UserBan
   const [unbanState, unban] = useAsyncCallback<undefined, Error, []>(
     useCallback(async () => {
       await mx.unban(room.roomId, userId);
-    }, [mx, room, userId])
+    }, [mx, room, userId]),
   );
   const banning = unbanState.status === AsyncStatus.Loading;
   const error = unbanState.status === AsyncStatus.Error;
@@ -150,7 +150,7 @@ export function UserInviteAlert({ userId, reason, canKick, invitedBy, ts }: User
   const [kickState, kick] = useAsyncCallback<undefined, Error, []>(
     useCallback(async () => {
       await mx.kick(room.roomId, userId);
-    }, [mx, room, userId])
+    }, [mx, room, userId]),
   );
   const kicking = kickState.status === AsyncStatus.Loading;
   const error = kickState.status === AsyncStatus.Error;
@@ -230,19 +230,19 @@ export function UserModeration({ userId, canKick, canBan, canInvite }: UserModer
   const [kickState, kick] = useAsyncCallback<undefined, Error, []>(
     useCallback(async () => {
       await mx.kick(room.roomId, userId, getReason());
-    }, [mx, room, userId, getReason])
+    }, [mx, room, userId, getReason]),
   );
 
   const [banState, ban] = useAsyncCallback<undefined, Error, []>(
     useCallback(async () => {
       await mx.ban(room.roomId, userId, getReason());
-    }, [mx, room, userId, getReason])
+    }, [mx, room, userId, getReason]),
   );
 
   const [inviteState, invite] = useAsyncCallback<undefined, Error, []>(
     useCallback(async () => {
       await mx.invite(room.roomId, userId, getReason());
-    }, [mx, room, userId, getReason])
+    }, [mx, room, userId, getReason]),
   );
 
   const disabled =

@@ -24,7 +24,7 @@ export const UrlPreviewCard = as<'div', { url: string; ts: number }>(
     const useAuthentication = useMediaAuthentication();
     const [viewer, setViewer] = useState(false);
     const [previewStatus, loadPreview] = useAsyncCallback(
-      useCallback(() => mx.getUrlPreview(url, ts), [url, ts, mx])
+      useCallback(() => mx.getUrlPreview(url, ts), [url, ts, mx]),
     );
 
     useEffect(() => {
@@ -41,7 +41,7 @@ export const UrlPreviewCard = as<'div', { url: string; ts: number }>(
         256,
         256,
         'scale',
-        false
+        false,
       );
 
       const imgUrl = mxcUrlToHttp(mx, prev['og:image'] || '', useAuthentication);
@@ -105,7 +105,7 @@ export const UrlPreviewCard = as<'div', { url: string; ts: number }>(
         )}
       </UrlPreview>
     );
-  }
+  },
 );
 
 export const UrlPreviewHolder = as<'div'>(({ children, ...props }, ref) => {
@@ -133,8 +133,8 @@ export const UrlPreviewHolder = as<'div'>(({ children, ...props }, ref) => {
         root: scrollRef.current,
         rootMargin: '10px',
       }),
-      []
-    )
+      [],
+    ),
   );
 
   useEffect(() => {

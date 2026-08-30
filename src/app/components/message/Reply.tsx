@@ -34,7 +34,7 @@ export const ReplyLayout = as<'div', ReplyLayoutProps>(
         {children}
       </Box>
     </Box>
-  )
+  ),
 );
 
 export const ThreadIndicator = as<'div'>(({ ...props }, ref) => (
@@ -75,12 +75,12 @@ export const Reply = as<'div', ReplyProps>(
       legacyUsernameColor,
       ...props
     },
-    ref
+    ref,
   ) => {
     const placeholderWidth = useMemo(() => randomNumberBetween(40, 400), []);
     const getFromLocalTimeline = useCallback(
       () => timelineSet?.findEventById(replyEventId),
-      [timelineSet, replyEventId]
+      [timelineSet, replyEventId],
     );
     const replyEvent = useRoomEvent(room, replyEventId, getFromLocalTimeline);
 
@@ -134,5 +134,5 @@ export const Reply = as<'div', ReplyProps>(
         </ReplyLayout>
       </Box>
     );
-  }
+  },
 );

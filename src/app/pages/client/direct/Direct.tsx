@@ -199,7 +199,7 @@ export function Direct() {
   });
 
   const handleCategoryClick = useCategoryHandler(setClosedCategories, (categoryId) =>
-    closedCategories.has(categoryId)
+    closedCategories.has(categoryId),
   );
 
   return (
@@ -264,7 +264,7 @@ export function Direct() {
                         linkPath={getDirectRoomPath(getCanonicalAliasOrRoomId(mx, roomId))}
                         notificationMode={getRoomNotificationMode(
                           notificationPreferences,
-                          room.roomId
+                          room.roomId,
                         )}
                       />
                     </VirtualTile>

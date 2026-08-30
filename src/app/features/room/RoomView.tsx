@@ -86,8 +86,8 @@ export function RoomView({ eventId }: { eventId?: string }) {
           ReactEditor.focus(editor);
         }
       },
-      [editor]
-    )
+      [editor],
+    ),
   );
 
   return (

@@ -66,7 +66,7 @@ function SearchSenderAvatar({
   const useAuthentication = useMediaAuthentication();
   const senderAvatarMxc = getMemberAvatarMxc(room, senderId);
   const directUrl = senderAvatarMxc
-    ? mxcUrlToHttp(mx, senderAvatarMxc, useAuthentication, 48, 48, 'crop') ?? undefined
+    ? (mxcUrlToHttp(mx, senderAvatarMxc, useAuthentication, 48, 48, 'crop') ?? undefined)
     : undefined;
   const authUrl = useAuthenticatedMxcUrl(senderAvatarMxc, 48, 48, 'crop');
   const avatarUrl = useAuthentication ? authUrl : directUrl;
@@ -110,7 +110,7 @@ export function SearchResultGroup({
   const useAuthentication = useMediaAuthentication();
   const roomAvatarMxc = room.getMxcAvatarUrl() ?? undefined;
   const directRoomAvatarUrl = roomAvatarMxc
-    ? mxcUrlToHttp(mx, roomAvatarMxc, useAuthentication, 96, 96, 'crop') ?? undefined
+    ? (mxcUrlToHttp(mx, roomAvatarMxc, useAuthentication, 96, 96, 'crop') ?? undefined)
     : undefined;
   const authRoomAvatarUrl = useAuthenticatedMxcUrl(roomAvatarMxc, 96, 96, 'crop');
   const roomAvatarUrl = useAuthentication ? authRoomAvatarUrl : directRoomAvatarUrl;
@@ -133,10 +133,10 @@ export function SearchResultGroup({
     () => ({
       ...LINKIFY_OPTS,
       render: factoryRenderLinkifyWithMention((href) =>
-        renderMatrixMention(mx, room.roomId, href, makeMentionCustomProps(mentionClickHandler))
+        renderMatrixMention(mx, room.roomId, href, makeMentionCustomProps(mentionClickHandler)),
       ),
     }),
-    [mx, room, mentionClickHandler]
+    [mx, room, mentionClickHandler],
   );
   const htmlReactParserOptions = useMemo<HTMLReactParserOptions>(
     () =>
@@ -155,7 +155,7 @@ export function SearchResultGroup({
       mentionClickHandler,
       spoilerClickHandler,
       useAuthentication,
-    ]
+    ],
   );
 
   const renderMatrixEvent = useMatrixEventRenderer<[IEventWithRoomId, string, GetContentCallback]>(
@@ -222,7 +222,7 @@ export function SearchResultGroup({
           </Text>
         </Box>
       );
-    }
+    },
   );
 
   const handleOpenClick: MouseEventHandler = (evt) => {
@@ -236,7 +236,9 @@ export function SearchResultGroup({
       <Header size="300">
         <Box gap="200" grow="Yes">
           <Avatar size="200" radii="300">
-            <RoomAvatar roomId={room.roomId} src={roomAvatarUrl}
+            <RoomAvatar
+              roomId={room.roomId}
+              src={roomAvatarUrl}
               alt={room.name}
               renderFallback={() => (
                 <RoomIcon
@@ -292,7 +294,11 @@ export function SearchResultGroup({
             >
               <ModernLayout
                 before={
-                  <SearchSenderAvatar room={room} senderId={event.sender} displayName={displayName} />
+                  <SearchSenderAvatar
+                    room={room}
+                    senderId={event.sender}
+                    displayName={displayName}
+                  />
                 }
               >
                 <Box gap="300" justifyContent="SpaceBetween" alignItems="Center" grow="Yes">

@@ -114,7 +114,7 @@ function UnjoinedSpaceProfile({
   const mx = useMatrixClient();
 
   const [joinState, join] = useAsyncCallback<Room, MatrixError, []>(
-    useCallback(() => mx.joinRoom(roomId, { viaServers: via }), [mx, roomId, via])
+    useCallback(() => mx.joinRoom(roomId, { viaServers: via }), [mx, roomId, via]),
   );
 
   const canJoin = joinState.status === AsyncStatus.Idle || joinState.status === AsyncStatus.Error;
@@ -424,7 +424,7 @@ export const SpaceItemCard = as<'div', SpaceItemCardProps>(
       getRoom,
       ...props
     },
-    ref
+    ref,
   ) => {
     const mx = useMatrixClient();
     const useAuthentication = useMediaAuthentication();
@@ -435,14 +435,14 @@ export const SpaceItemCard = as<'div', SpaceItemCardProps>(
 
     const spaceAvatarMxc = space?.getMxcAvatarUrl() ?? undefined;
     const directSpaceAvatarUrl = spaceAvatarMxc
-      ? mxcUrlToHttp(mx, spaceAvatarMxc, useAuthentication, 96, 96, 'crop') ?? undefined
+      ? (mxcUrlToHttp(mx, spaceAvatarMxc, useAuthentication, 96, 96, 'crop') ?? undefined)
       : undefined;
     const authSpaceAvatarUrl = useAuthenticatedMxcUrl(spaceAvatarMxc, 96, 96, 'crop');
     const spaceAvatarUrl = useAuthentication ? authSpaceAvatarUrl : directSpaceAvatarUrl;
 
     const summaryAvatarMxc = summary?.avatar_url;
     const directSummaryAvatarUrl = summaryAvatarMxc
-      ? mxcUrlToHttp(mx, summaryAvatarMxc, useAuthentication, 96, 96, 'crop') ?? undefined
+      ? (mxcUrlToHttp(mx, summaryAvatarMxc, useAuthentication, 96, 96, 'crop') ?? undefined)
       : undefined;
     const authSummaryAvatarUrl = useAuthenticatedMxcUrl(summaryAvatarMxc, 96, 96, 'crop');
     const summaryAvatarUrl = useAuthentication ? authSummaryAvatarUrl : directSummaryAvatarUrl;
@@ -515,5 +515,5 @@ export const SpaceItemCard = as<'div', SpaceItemCardProps>(
         {after}
       </Box>
     );
-  }
+  },
 );

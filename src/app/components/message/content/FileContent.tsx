@@ -88,13 +88,17 @@ export function ReadTextFile({ body, mimeType, url, encInfo, renderViewer }: Rea
       const mediaUrl = mxcUrlToHttp(mx, url, useAuthentication);
       if (!mediaUrl) throw new Error('Invalid media URL');
       const fileContent = encInfo
-        ? await downloadEncryptedMedia(mediaUrl, (encBuf) => decryptFile(encBuf, mimeType, encInfo), mx)
+        ? await downloadEncryptedMedia(
+            mediaUrl,
+            (encBuf) => decryptFile(encBuf, mimeType, encInfo),
+            mx,
+          )
         : await downloadMedia(mediaUrl, mx);
 
       const text = fileContent.text();
       setTextViewer(true);
       return text;
-    }, [mx, useAuthentication, mimeType, encInfo, url])
+    }, [mx, useAuthentication, mimeType, encInfo, url]),
   );
 
   return (
@@ -179,11 +183,15 @@ export function ReadPdfFile({ body, mimeType, url, encInfo, renderViewer }: Read
       const mediaUrl = mxcUrlToHttp(mx, url, useAuthentication);
       if (!mediaUrl) throw new Error('Invalid media URL');
       const fileContent = encInfo
-        ? await downloadEncryptedMedia(mediaUrl, (encBuf) => decryptFile(encBuf, mimeType, encInfo), mx)
+        ? await downloadEncryptedMedia(
+            mediaUrl,
+            (encBuf) => decryptFile(encBuf, mimeType, encInfo),
+            mx,
+          )
         : await downloadMedia(mediaUrl, mx);
       setPdfViewer(true);
       return URL.createObjectURL(fileContent);
-    }, [mx, url, useAuthentication, mimeType, encInfo])
+    }, [mx, url, useAuthentication, mimeType, encInfo]),
   );
 
   return (
@@ -257,13 +265,17 @@ export function DownloadFile({ body, mimeType, url, info, encInfo }: DownloadFil
       const mediaUrl = mxcUrlToHttp(mx, url, useAuthentication);
       if (!mediaUrl) throw new Error('Invalid media URL');
       const fileContent = encInfo
-        ? await downloadEncryptedMedia(mediaUrl, (encBuf) => decryptFile(encBuf, mimeType, encInfo), mx)
+        ? await downloadEncryptedMedia(
+            mediaUrl,
+            (encBuf) => decryptFile(encBuf, mimeType, encInfo),
+            mx,
+          )
         : await downloadMedia(mediaUrl, mx);
 
       const fileURL = URL.createObjectURL(fileContent);
       FileSaver.saveAs(fileURL, body);
       return fileURL;
-    }, [mx, url, useAuthentication, mimeType, encInfo, body])
+    }, [mx, url, useAuthentication, mimeType, encInfo, body]),
   );
 
   return downloadState.status === AsyncStatus.Error ? (
@@ -308,5 +320,5 @@ export const FileContent = as<'div', FileContentProps>(
       {mimeType === 'application/pdf' && renderAsPdfFile()}
       {children}
     </Box>
-  )
+  ),
 );

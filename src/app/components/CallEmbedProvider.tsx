@@ -87,7 +87,7 @@ function IncomingCall({ dm, info, onIgnore, onAnswer, onReject }: IncomingCallPr
   const roomName = useRoomName(room);
   const roomAvatar = useRoomAvatar(room, dm);
   const directUrl = roomAvatar
-    ? mxcUrlToHttp(mx, roomAvatar, useAuthentication, 96, 96, 'crop') ?? undefined
+    ? (mxcUrlToHttp(mx, roomAvatar, useAuthentication, 96, 96, 'crop') ?? undefined)
     : undefined;
   const authUrl = useAuthenticatedMxcUrl(roomAvatar, 96, 96, 'crop');
   const avatarUrl = useAuthentication ? authUrl : directUrl;
@@ -101,8 +101,8 @@ function IncomingCall({ dm, info, onIgnore, onAnswer, onReject }: IncomingCallPr
           onIgnore();
         }
       },
-      [onIgnore]
-    )
+      [onIgnore],
+    ),
   );
 
   const playSound = useCallback(() => {
@@ -284,7 +284,7 @@ function IncomingCallListener({ callEmbed, joined }: IncomingCallListenerProps) 
 
       const hasCallPermission = permissions.stateEvent(
         StateEvent.GroupCallMemberPrefix,
-        mx.getSafeUserId()
+        mx.getSafeUserId(),
       );
       if (!hasCallPermission) return;
 
@@ -303,7 +303,7 @@ function IncomingCallListener({ callEmbed, joined }: IncomingCallListenerProps) 
 
       setCallInfo(info);
     },
-    [mx]
+    [mx],
   );
 
   useEffect(() => {
@@ -327,7 +327,7 @@ function IncomingCallListener({ callEmbed, joined }: IncomingCallListenerProps) 
       });
       setCallInfo(undefined);
     },
-    [mx]
+    [mx],
   );
 
   const handleAnswer = useCallback(
@@ -336,7 +336,7 @@ function IncomingCallListener({ callEmbed, joined }: IncomingCallListenerProps) 
       setCallInfo(undefined);
       navigateRoom(room.roomId);
     },
-    [startCall, navigateRoom]
+    [startCall, navigateRoom],
   );
 
   if (callInfo && callEmbed?.roomId === callInfo.room.roomId) {
@@ -362,7 +362,7 @@ function CallUtils({ embed }: { embed: CallEmbed }) {
     embed,
     useCallback(() => {
       setCallEmbed(undefined);
-    }, [setCallEmbed])
+    }, [setCallEmbed]),
   );
 
   return null;

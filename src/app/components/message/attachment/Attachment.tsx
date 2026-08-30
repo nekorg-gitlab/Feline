@@ -12,7 +12,7 @@ export const Attachment = as<'div', css.AttachmentVariants>(
       {...props}
       ref={ref}
     />
-  )
+  ),
 );
 
 export const AttachmentHeader = as<'div'>(({ className, ...props }, ref) => (

@@ -22,7 +22,11 @@ export function SpaceRouteRoomProvider({ children }: { children: ReactNode }) {
   const mDirects = useAtomValue(mDirectAtom);
   const allRooms = useAtomValue(allRoomsAtom);
 
-  const { roomIdOrAlias, eventId } = useParams();
+  const { roomIdOrAlias: rawRoomIdOrAlias, eventId: rawEventId } = useParams();
+  const roomIdOrAlias = rawRoomIdOrAlias
+    ? (globalThis as any).decodeURIComponent(rawRoomIdOrAlias)
+    : undefined;
+  const eventId = rawEventId ? (globalThis as any).decodeURIComponent(rawEventId) : undefined;
   const viaServers = useSearchParamsViaServers();
   const roomId = useSelectedRoom();
   const room = mx.getRoom(roomId);

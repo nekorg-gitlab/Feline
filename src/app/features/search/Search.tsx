@@ -77,7 +77,7 @@ const useTopActiveRooms = (
   searchRoomType: SearchRoomType | undefined,
   rooms: string[],
   directs: string[],
-  spaces: string[]
+  spaces: string[],
 ) => {
   const mx = useMatrixClient();
 
@@ -98,7 +98,7 @@ const useTopActiveRooms = (
 const getDmUserId = (
   roomId: string,
   getRoom: (roomId: string) => Room | undefined,
-  myUserId: string
+  myUserId: string,
 ): string | undefined => {
   const room = getRoom(roomId);
   const targetUserId = room && guessDmRoomUserId(room, myUserId);
@@ -109,7 +109,7 @@ const useSearchTargetRooms = (
   searchRoomType: SearchRoomType | undefined,
   rooms: string[],
   directs: string[],
-  spaces: string[]
+  spaces: string[],
 ) =>
   useMemo(() => {
     if (searchRoomType === undefined) {
@@ -167,7 +167,7 @@ export function Search({ requestClose }: SearchProps) {
       }
       return roomName;
     },
-    [getRoom, mDirects, mx]
+    [getRoom, mDirects, mx],
   );
 
   const [result, search, resetSearch] = useAsyncSearch(targetRooms, getTargetStr, SEARCH_OPTIONS);
@@ -441,8 +441,8 @@ export function SearchModalRenderer() {
           setOpen(true);
         }
       },
-      [opened, setOpen]
-    )
+      [opened, setOpen],
+    ),
   );
 
   return opened && <Search requestClose={() => setOpen(false)} />;

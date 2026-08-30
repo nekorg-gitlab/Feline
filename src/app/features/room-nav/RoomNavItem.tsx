@@ -216,7 +216,7 @@ const RoomNavItemMenu = forwardRef<HTMLDivElement, RoomNavItemMenuProps>(
         </Box>
       </Menu>
     );
-  }
+  },
 );
 
 function CallChatToggle() {
@@ -261,7 +261,7 @@ export function RoomNavItem({
   const [menuAnchor, setMenuAnchor] = useState<RectCords>();
   const unread = useRoomUnread(room.roomId, roomToUnreadAtom);
   const typingMember = useRoomTypingMember(room.roomId).filter(
-    (receipt) => receipt.userId !== mx.getUserId()
+    (receipt) => receipt.userId !== mx.getUserId(),
   );
 
   const roomName = useRoomName(room);
@@ -296,7 +296,7 @@ export function RoomNavItem({
 
     const hasCallPermission = permissions.stateEvent(
       StateEvent.GroupCallMemberPrefix,
-      mx.getSafeUserId()
+      mx.getSafeUserId(),
     );
 
     // Do not join if missing permissions or no livekit support or no webRTC support

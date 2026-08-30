@@ -108,7 +108,7 @@ export const useMessageSearch = (params: MessageSearchParams) => {
       });
       return parseSearchResult(r);
     },
-    [mx, term, order, rooms, senders]
+    [mx, term, order, rooms, senders],
   );
 
   return searchMessages;

@@ -112,7 +112,7 @@ function RegisterUIAFlow({
         initial_device_display_name: 'Feline Web',
       });
     },
-    [onRegister, formData]
+    [onRegister, formData],
   );
 
   const handleCancel = useCallback(() => {

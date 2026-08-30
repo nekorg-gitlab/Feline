@@ -69,7 +69,7 @@ type StickerGroupItem = {
 
 const useGroups = (
   tab: EmojiBoardTab,
-  imagePacks: ImagePack[]
+  imagePacks: ImagePack[],
 ): [EmojiGroupItem[], StickerGroupItem[]] => {
   const mx = useMatrixClient();
 
@@ -307,7 +307,7 @@ function EmojiGroupHolder({
         shortcode: emojiInfo.shortcode,
       });
     },
-    [setPreviewData]
+    [setPreviewData],
   );
 
   const throttleEmojiHover = useThrottle(handleEmojiPreview, {
@@ -383,7 +383,7 @@ export function EmojiBoard({
 
   const previewAtom = useMemo(
     () => createPreviewDataAtom(emojiTab ? DefaultEmojiPreview : undefined),
-    [emojiTab]
+    [emojiTab],
   );
   const activeGroupIdAtom = useMemo(() => atom<string | undefined>(undefined), []);
   const setActiveGroupId = useSetAtom(activeGroupIdAtom);
@@ -402,7 +402,7 @@ export function EmojiBoard({
   const [result, search, resetSearch] = useAsyncSearch(
     searchList,
     getEmoticonSearchStr,
-    SEARCH_OPTIONS
+    SEARCH_OPTIONS,
   );
 
   const searchedItems = result?.items.slice(0, 100);
@@ -414,9 +414,9 @@ export function EmojiBoard({
         if (term) search(term);
         else resetSearch();
       },
-      [search, resetSearch]
+      [search, resetSearch],
     ),
-    { wait: 200 }
+    { wait: 200 },
   );
 
   const contentScrollRef = useRef<HTMLDivElement>(null);

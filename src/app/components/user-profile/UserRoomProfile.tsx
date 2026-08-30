@@ -56,7 +56,8 @@ export function UserRoomProfile({ userId }: UserRoomProfileProps) {
   const server = getMxIdServer(userId);
   const displayName = getMemberDisplayName(room, userId);
   const avatarMxc = getMemberAvatarMxc(room, userId);
-  const directAvatarUrl = (avatarMxc && mxcUrlToHttp(mx, avatarMxc, useAuthentication)) ?? undefined;
+  const directAvatarUrl =
+    (avatarMxc && mxcUrlToHttp(mx, avatarMxc, useAuthentication)) ?? undefined;
   const authAvatarUrl = useAuthenticatedMxcUrl(avatarMxc);
   const avatarUrl = useAuthentication ? authAvatarUrl : directAvatarUrl;
 

@@ -13,7 +13,7 @@ import { useAlive } from '../hooks/useAlive';
 function assertCryptoAvailable() {
   if (!globalThis.crypto?.subtle) {
     throw new Error(
-      'Your browser does not support the required cryptography extensions. Please use a secure (HTTPS) context. Crypto.subtle is not available: insecure context?'
+      'Your browser does not support the required cryptography extensions. Please use a secure (HTTPS) context. Crypto.subtle is not available: insecure context?',
     );
   }
 }
@@ -32,7 +32,7 @@ function toFriendlyError(e: unknown): Error {
     msg.includes('subtleCrypto is unavailable')
   ) {
     return new Error(
-      'Your browser does not support the required cryptography extensions. Please use a secure (HTTPS) context.'
+      'Your browser does not support the required cryptography extensions. Please use a secure (HTTPS) context.',
     );
   }
   return e instanceof Error ? e : new Error(String(e));
@@ -66,7 +66,7 @@ export function SecretStorageRecoveryPassphrase({
             passphrase,
             salt,
             iterations,
-            bits
+            bits,
           );
 
           const match = await mx.secretStorage.checkKey(decodedRecoveryKey, keyContent as any);
@@ -80,8 +80,8 @@ export function SecretStorageRecoveryPassphrase({
           throw toFriendlyError(e);
         }
       },
-      [mx, keyContent]
-    )
+      [mx, keyContent],
+    ),
   );
 
   const drivingKey = driveKeyState.status === AsyncStatus.Loading;
@@ -177,8 +177,8 @@ export function SecretStorageRecoveryKey({
           throw toFriendlyError(e);
         }
       },
-      [mx, keyContent]
-    )
+      [mx, keyContent],
+    ),
   );
 
   const drivingKey = driveKeyState.status === AsyncStatus.Loading;

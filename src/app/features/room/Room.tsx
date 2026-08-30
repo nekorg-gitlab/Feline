@@ -24,7 +24,8 @@ import { getHomePath } from '../../pages/pathUtils';
 import { useSelectedSpace } from '../../hooks/router/useSelectedSpace';
 
 export function Room() {
-  const { eventId } = useParams();
+  const { eventId: rawEventId } = useParams();
+  const eventId = rawEventId ? (globalThis as any).decodeURIComponent(rawEventId) : undefined;
   const room = useRoom();
   const mx = useMatrixClient();
   const navigate = useNavigate();
@@ -56,8 +57,8 @@ export function Room() {
           navigate(getHomePath());
         }
       },
-      [mx, room.roomId, hideActivity, navigate, spaceId]
-    )
+      [mx, room.roomId, hideActivity, navigate, spaceId],
+    ),
   );
 
   const callView = callEmbed?.roomId === room.roomId || room.isCallRoom() || callMembers.length > 0;

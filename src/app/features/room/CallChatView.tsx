@@ -8,7 +8,8 @@ import { RoomView } from './RoomView';
 import { ScreenSize, useScreenSizeContext } from '../../hooks/useScreenSize';
 
 export function CallChatView() {
-  const { eventId } = useParams();
+  const { eventId: rawEventId } = useParams();
+  const eventId = rawEventId ? (globalThis as any).decodeURIComponent(rawEventId) : undefined;
   const setChat = useSetAtom(callChatAtom);
   const screenSize = useScreenSizeContext();
 

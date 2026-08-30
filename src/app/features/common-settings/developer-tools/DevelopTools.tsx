@@ -60,7 +60,7 @@ export function DeveloperTools({ requestClose }: DeveloperToolsProps) {
     async (type, content) => {
       await mx.setRoomAccountData(room.roomId, type, content);
     },
-    [mx, room.roomId]
+    [mx, room.roomId],
   );
 
   if (accountDataType !== undefined) {

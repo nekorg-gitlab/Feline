@@ -33,7 +33,7 @@ const useSearchPathSearchParams = (searchParams: URLSearchParams): _SearchPathSe
       rooms: searchParams.get('rooms') ?? undefined,
       senders: searchParams.get('senders') ?? undefined,
     }),
-    [searchParams]
+    [searchParams],
   );
 
 type MessageSearchProps = {
@@ -69,7 +69,7 @@ export function MessageSearch({
   const searchParamRooms = useMemo(() => {
     if (searchPathSearchParams.rooms) {
       const joinedRoomIds = decodeSearchParamValueArray(searchPathSearchParams.rooms).filter(
-        (rId) => allRooms.includes(rId)
+        (rId) => allRooms.includes(rId),
       );
       return joinedRoomIds;
     }

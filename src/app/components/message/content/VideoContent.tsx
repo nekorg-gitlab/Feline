@@ -68,7 +68,7 @@ export const VideoContent = as<'div', VideoContentProps>(
       renderVideo,
       ...props
     },
-    ref
+    ref,
   ) => {
     const mx = useMatrixClient();
     const useAuthentication = true;
@@ -86,11 +86,11 @@ export const VideoContent = as<'div', VideoContentProps>(
           ? await downloadEncryptedMedia(
               mediaUrl,
               (encBuf) => decryptFile(encBuf, mimeType, encInfo),
-              mx
+              mx,
             )
           : await downloadMedia(mediaUrl, mx);
         return URL.createObjectURL(fileContent);
-      }, [mx, url, useAuthentication, mimeType, encInfo])
+      }, [mx, url, useAuthentication, mimeType, encInfo]),
     );
 
     const handleLoad = () => {
@@ -238,5 +238,5 @@ export const VideoContent = as<'div', VideoContentProps>(
         )}
       </Box>
     );
-  }
+  },
 );

@@ -40,8 +40,8 @@ export function DirectCreate() {
           navigate(getHomePath());
         }
       },
-      [navigate]
-    )
+      [navigate],
+    ),
   );
 
   useEffect(() => {

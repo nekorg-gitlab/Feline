@@ -1,5 +1,5 @@
 import { WritableAtom, atom } from 'jotai';
-import produce from 'immer';
+import { produce } from 'immer';
 import { Path } from 'react-router-dom';
 import {
   atomWithLocalStorage,
@@ -38,7 +38,7 @@ export const makeNavToActivePathAtom = (userId: string): NavToActivePathAtom => 
     (key, value) => {
       const obj: Record<string, Path> = Object.fromEntries(value);
       setLocalStorageItem(key, obj);
-    }
+    },
   );
 
   const navToActivePathAtom = atom<NavToActivePath, [NavToActivePathAction], undefined>(
@@ -49,7 +49,7 @@ export const makeNavToActivePathAtom = (userId: string): NavToActivePathAtom => 
           baseNavToActivePathAtom,
           produce(get(baseNavToActivePathAtom), (draft) => {
             draft.delete(action.navId);
-          })
+          }),
         );
         return;
       }
@@ -58,10 +58,10 @@ export const makeNavToActivePathAtom = (userId: string): NavToActivePathAtom => 
           baseNavToActivePathAtom,
           produce(get(baseNavToActivePathAtom), (draft) => {
             draft.set(action.navId, action.path);
-          })
+          }),
         );
       }
-    }
+    },
   );
 
   return navToActivePathAtom;

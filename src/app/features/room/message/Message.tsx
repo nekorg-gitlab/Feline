@@ -120,7 +120,7 @@ export const MessageQuickReactions = as<'div', MessageQuickReactionsProps>(
         <Line size="300" />
       </>
     );
-  }
+  },
 );
 
 export const MessageAllReactionItem = as<
@@ -405,8 +405,8 @@ export const MessageDeleteItem = as<
     useCallback(
       (eventId: string, reason?: string) =>
         mx.redactEvent(room.roomId, eventId, undefined, reason ? { reason } : undefined),
-      [mx, room]
-    )
+      [mx, room],
+    ),
   );
 
   const handleSubmit: FormEventHandler<HTMLFormElement> = (evt) => {
@@ -534,8 +534,8 @@ export const MessageReportItem = as<
     useCallback(
       (eventId: string, score: number, reason: string) =>
         mx.reportEvent(room.roomId, eventId, score, reason),
-      [mx, room]
-    )
+      [mx, room],
+    ),
   );
 
   const handleSubmit: FormEventHandler<HTMLFormElement> = (evt) => {
@@ -670,7 +670,7 @@ export type MessageProps = {
   onUsernameClick: MouseEventHandler<HTMLButtonElement>;
   onReplyClick: (
     ev: Parameters<MouseEventHandler<HTMLButtonElement>>[0],
-    startThread?: boolean
+    startThread?: boolean,
   ) => void;
   onEditId?: (eventId?: string) => void;
   onReactionToggle: (targetEventId: string, key: string, shortcode?: string) => void;
@@ -717,7 +717,7 @@ export const Message = as<'div', MessageProps>(
       children,
       ...props
     },
-    ref
+    ref,
   ) => {
     const mx = useMatrixClient();
     const useAuthentication = useMediaAuthentication();
@@ -733,7 +733,7 @@ export const Message = as<'div', MessageProps>(
       getMemberDisplayName(room, senderId) ?? getMxIdLocalPart(senderId) ?? senderId;
     const senderAvatarMxc = getMemberAvatarMxc(room, senderId);
     const directUrl = senderAvatarMxc
-      ? mxcUrlToHttp(mx, senderAvatarMxc, useAuthentication, 48, 48, 'crop') ?? undefined
+      ? (mxcUrlToHttp(mx, senderAvatarMxc, useAuthentication, 48, 48, 'crop') ?? undefined)
       : undefined;
     const authUrl = useAuthenticatedMxcUrl(senderAvatarMxc, 48, 48, 'crop');
     const avatarUrl = useAuthentication ? authUrl : directUrl;
@@ -1149,7 +1149,7 @@ export const Message = as<'div', MessageProps>(
         )}
       </MessageBase>
     );
-  }
+  },
 );
 
 export type EventProps = {
@@ -1175,7 +1175,7 @@ export const Event = as<'div', EventProps>(
       children,
       ...props
     },
-    ref
+    ref,
   ) => {
     const mx = useMatrixClient();
     const [hover, setHover] = useState(false);
@@ -1300,5 +1300,5 @@ export const Event = as<'div', EventProps>(
         <div onContextMenu={handleContextMenu}>{children}</div>
       </MessageBase>
     );
-  }
+  },
 );

@@ -10,7 +10,11 @@ export function DirectRouteRoomProvider({ children }: { children: ReactNode }) {
   const mx = useMatrixClient();
   const rooms = useDirectRooms();
 
-  const { roomIdOrAlias, eventId } = useParams();
+  const { roomIdOrAlias: rawRoomIdOrAlias, eventId: rawEventId } = useParams();
+  const roomIdOrAlias = rawRoomIdOrAlias
+    ? (globalThis as any).decodeURIComponent(rawRoomIdOrAlias)
+    : undefined;
+  const eventId = rawEventId ? (globalThis as any).decodeURIComponent(rawEventId) : undefined;
   const roomId = useSelectedRoom();
   const room = mx.getRoom(roomId);
 

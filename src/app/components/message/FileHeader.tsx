@@ -29,13 +29,17 @@ export function FileDownloadButton({ filename, url, mimeType, encInfo }: FileDow
       const mediaUrl = mxcUrlToHttp(mx, url, useAuthentication);
       if (!mediaUrl) throw new Error('Invalid media URL');
       const fileContent = encInfo
-        ? await downloadEncryptedMedia(mediaUrl, (encBuf) => decryptFile(encBuf, mimeType, encInfo), mx)
+        ? await downloadEncryptedMedia(
+            mediaUrl,
+            (encBuf) => decryptFile(encBuf, mimeType, encInfo),
+            mx,
+          )
         : await downloadMedia(mediaUrl, mx);
 
       const fileURL = URL.createObjectURL(fileContent);
       FileSaver.saveAs(fileURL, filename);
       return fileURL;
-    }, [mx, url, useAuthentication, mimeType, encInfo, filename])
+    }, [mx, url, useAuthentication, mimeType, encInfo, filename]),
   );
 
   const downloading = downloadState.status === AsyncStatus.Loading;

@@ -22,7 +22,7 @@ export type SetLocalStorageItem<T> = (key: string, value: T) => void;
 export const atomWithLocalStorage = <T>(
   key: string,
   getItem: GetLocalStorageItem<T>,
-  setItem: SetLocalStorageItem<T>
+  setItem: SetLocalStorageItem<T>,
 ) => {
   const value = getItem(key);
 
@@ -45,7 +45,7 @@ export const atomWithLocalStorage = <T>(
     (get, set, newValue) => {
       set(baseAtom, newValue);
       setItem(key, newValue);
-    }
+    },
   );
 
   return localStorageAtom;

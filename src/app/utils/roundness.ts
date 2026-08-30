@@ -43,7 +43,10 @@ export const fromDisplayRoundness = (display: number): number =>
   Math.round((Math.max(0, Math.min(100, display)) / 100) * MAX_ROUNDNESS);
 
 export const applyRoundness = (value: number): void => {
-  const v = Math.max(MIN_ROUNDNESS, Math.min(MAX_ROUNDNESS, Math.round(value ?? DEFAULT_ROUNDNESS)));
+  const v = Math.max(
+    MIN_ROUNDNESS,
+    Math.min(MAX_ROUNDNESS, Math.round(value ?? DEFAULT_ROUNDNESS)),
+  );
   let styleEl = document.getElementById(ROUNDNESS_STYLE_ID) as HTMLStyleElement | null;
   if (!styleEl) {
     styleEl = document.createElement('style');

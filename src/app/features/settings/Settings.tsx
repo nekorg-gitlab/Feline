@@ -104,7 +104,7 @@ const useSettingsMenuItems = (): SettingsMenuItem[] =>
         icon: Icons.Heart,
       },
     ],
-    []
+    [],
   );
 
 type SettingsProps = {
@@ -118,7 +118,7 @@ export function Settings({ initialPage, requestClose }: SettingsProps) {
   const profile = useUserProfile(userId);
   const displayName = profile.displayName ?? getMxIdLocalPart(userId) ?? userId;
   const directUrl = profile.avatarUrl
-    ? mxcUrlToHttp(mx, profile.avatarUrl, useAuthentication, 96, 96, 'crop') ?? undefined
+    ? (mxcUrlToHttp(mx, profile.avatarUrl, useAuthentication, 96, 96, 'crop') ?? undefined)
     : undefined;
   const authUrl = useAuthenticatedMxcUrl(profile.avatarUrl, 96, 96, 'crop');
   const avatarUrl = useAuthentication ? authUrl : directUrl;
@@ -254,7 +254,9 @@ export function Settings({ initialPage, requestClose }: SettingsProps) {
           onSupportClick={() => setActivePage(SettingsPages.SupportPage)}
         />
       )}
-      {activePage === SettingsPages.SupportPage && <Support requestClose={handlePageRequestClose} />}
+      {activePage === SettingsPages.SupportPage && (
+        <Support requestClose={handlePageRequestClose} />
+      )}
     </PageRoot>
   );
 }

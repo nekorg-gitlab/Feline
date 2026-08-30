@@ -133,7 +133,7 @@ const LobbyMenu = forwardRef<HTMLDivElement, LobbyMenuProps>(
         </Box>
       </Menu>
     );
-  }
+  },
 );
 
 type LobbyHeaderProps = {
@@ -151,7 +151,7 @@ export function LobbyHeader({ showProfile, powerLevels }: LobbyHeaderProps) {
   const name = useRoomName(space);
   const avatarMxc = useRoomAvatar(space);
   const directUrl = avatarMxc
-    ? mxcUrlToHttp(mx, avatarMxc, useAuthentication, 96, 96, 'crop') ?? undefined
+    ? (mxcUrlToHttp(mx, avatarMxc, useAuthentication, 96, 96, 'crop') ?? undefined)
     : undefined;
   const authUrl = useAuthenticatedMxcUrl(avatarMxc, 96, 96, 'crop');
   const avatarUrl = useAuthentication ? authUrl : directUrl;

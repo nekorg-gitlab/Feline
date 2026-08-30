@@ -6,7 +6,7 @@ setupLogger();
 import React from 'react';
 import { createRoot } from 'react-dom/client';
 import { enableMapSet } from 'immer';
-import '@fontsource/inter/variable.css';
+import '@fontsource-variable/inter';
 import 'folds/dist/style.css';
 import { configClass, varsClass } from 'folds';
 

@@ -208,13 +208,13 @@ export function MembersDrawer({ room, members }: MembersDrawerProps) {
 
   const filteredMembers = useMemo(
     () => members.filter(membershipFilter.filterFn).sort(memberSort.sortFn).sort(memberPowerSort),
-    [members, membershipFilter, memberSort, memberPowerSort]
+    [members, membershipFilter, memberSort, memberPowerSort],
   );
 
   const [result, search, resetSearch] = useAsyncSearch(
     filteredMembers,
     getRoomMemberStr,
-    SEARCH_OPTIONS
+    SEARCH_OPTIONS,
   );
   if (!result && searchInputRef.current?.value) search(searchInputRef.current.value);
 
@@ -235,9 +235,9 @@ export function MembersDrawer({ room, members }: MembersDrawerProps) {
         if (evt.target.value) search(evt.target.value);
         else resetSearch();
       },
-      [search, resetSearch]
+      [search, resetSearch],
     ),
-    { wait: 200 }
+    { wait: 200 },
   );
 
   const handleMemberClick: MouseEventHandler<HTMLButtonElement> = (evt) => {
@@ -278,7 +278,7 @@ export function MembersDrawer({ room, members }: MembersDrawerProps) {
                         onClick={
                           ((evt) =>
                             setAnchor(
-                              evt.currentTarget.getBoundingClientRect()
+                              evt.currentTarget.getBoundingClientRect(),
                             )) as MouseEventHandler<HTMLButtonElement>
                         }
                         variant="Background"
@@ -310,7 +310,7 @@ export function MembersDrawer({ room, members }: MembersDrawerProps) {
                         onClick={
                           ((evt) =>
                             setAnchor(
-                              evt.currentTarget.getBoundingClientRect()
+                              evt.currentTarget.getBoundingClientRect(),
                             )) as MouseEventHandler<HTMLButtonElement>
                         }
                         variant="Background"
@@ -423,7 +423,7 @@ export function MembersDrawer({ room, members }: MembersDrawerProps) {
                         onClick={handleMemberClick}
                         pressed={openProfileUserId === tagOrMember.userId}
                         typing={typingMembers.some(
-                          (receipt) => receipt.userId === tagOrMember.userId
+                          (receipt) => receipt.userId === tagOrMember.userId,
                         )}
                       />
                     </div>

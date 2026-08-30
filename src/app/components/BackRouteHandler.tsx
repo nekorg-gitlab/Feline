@@ -18,7 +18,7 @@ export function BackRouteHandler({ children }: BackRouteHandlerProps) {
           caseSensitive: true,
           end: false,
         },
-        location.pathname
+        location.pathname,
       )
     ) {
       navigate(getHomePath());
@@ -30,11 +30,11 @@ export function BackRouteHandler({ children }: BackRouteHandlerProps) {
         caseSensitive: true,
         end: false,
       },
-      location.pathname
+      location.pathname,
     );
     const encodedSpaceIdOrAlias = spaceMatch?.params.spaceIdOrAlias;
     const decodedSpaceIdOrAlias =
-      encodedSpaceIdOrAlias && decodeURIComponent(encodedSpaceIdOrAlias);
+      encodedSpaceIdOrAlias && (globalThis as any).decodeURIComponent(encodedSpaceIdOrAlias);
 
     if (decodedSpaceIdOrAlias) {
       navigate(getSpacePath(decodedSpaceIdOrAlias));
@@ -47,7 +47,7 @@ export function BackRouteHandler({ children }: BackRouteHandlerProps) {
           caseSensitive: true,
           end: false,
         },
-        location.pathname
+        location.pathname,
       )
     ) {
       navigate(getExplorePath());
@@ -60,7 +60,7 @@ export function BackRouteHandler({ children }: BackRouteHandlerProps) {
           caseSensitive: true,
           end: false,
         },
-        location.pathname
+        location.pathname,
       )
     ) {
       navigate(getInboxPath());

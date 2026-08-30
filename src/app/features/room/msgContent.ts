@@ -22,7 +22,7 @@ const generateThumbnailContent = async (
   mx: MatrixClient,
   img: HTMLImageElement | HTMLVideoElement,
   dimensions: [number, number],
-  encrypt: boolean
+  encrypt: boolean,
 ): Promise<IThumbnailContent> => {
   const thumbnail = await getThumbnail(img, ...dimensions);
   if (!thumbnail) throw new Error('Can not create thumbnail!');
@@ -46,7 +46,7 @@ const generateThumbnailContent = async (
 export const getImageMsgContent = async (
   mx: MatrixClient,
   item: TUploadItem,
-  mxc: string
+  mxc: string,
 ): Promise<IContent> => {
   const { file, originalFile, encInfo, metadata } = item;
   const [imgError, imgEl] = await to(loadImageElement(getImageFileUrl(originalFile)));
@@ -80,7 +80,7 @@ export const getImageMsgContent = async (
 export const getVideoMsgContent = async (
   mx: MatrixClient,
   item: TUploadItem,
-  mxc: string
+  mxc: string,
 ): Promise<IContent> => {
   const { file, originalFile, encInfo, metadata } = item;
 
@@ -99,14 +99,14 @@ export const getVideoMsgContent = async (
         mx,
         videoEl,
         getThumbnailDimensions(videoEl.videoWidth, videoEl.videoHeight),
-        !!encInfo
-      )
+        !!encInfo,
+      ),
     );
     if (thumbContent && thumbContent.thumbnail_info) {
       thumbContent.thumbnail_info[MATRIX_BLUR_HASH_PROPERTY_NAME] = encodeBlurHash(
         videoEl,
         512,
-        scaleYDimension(videoEl.videoWidth, 512, videoEl.videoHeight)
+        scaleYDimension(videoEl.videoWidth, 512, videoEl.videoHeight),
       );
     }
     if (thumbError && import.meta.env.DEV) console.warn(thumbError);

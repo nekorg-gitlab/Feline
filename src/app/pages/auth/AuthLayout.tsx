@@ -86,7 +86,7 @@ export function AuthLayout() {
         serverName,
         response,
       };
-    }, [])
+    }, []),
   );
 
   useEffect(() => {
@@ -100,7 +100,7 @@ export function AuthLayout() {
         generatePath(currentAuthPath(location.pathname), {
           server: encodeURIComponent(server),
         }),
-        { replace: true }
+        { replace: true },
       );
     }
   }, [urlEncodedServer, navigate, location, server]);
@@ -113,10 +113,10 @@ export function AuthLayout() {
         return;
       }
       navigate(
-        generatePath(currentAuthPath(location.pathname), { server: encodeURIComponent(newServer) })
+        generatePath(currentAuthPath(location.pathname), { server: encodeURIComponent(newServer) }),
       );
     },
-    [navigate, location, discoveryState, server, discoverServer]
+    [navigate, location, discoveryState, server, discoverServer],
   );
 
   const [autoDiscoveryError, autoDiscoveryInfo] =

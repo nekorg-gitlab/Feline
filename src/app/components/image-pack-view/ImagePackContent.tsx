@@ -57,7 +57,7 @@ export const ImagePackContent = as<'div', ImagePackContentProps>(
           Array.from(savedImages).find(([, img]) => img.shortcode === shortcode) !== undefined;
         return hasInSaved;
       },
-      [imagePack, savedImages, uploadedImages]
+      [imagePack, savedImages, uploadedImages],
     );
 
     const pickFiles = useFilePicker(
@@ -74,9 +74,9 @@ export const ImagePackContent = as<'div', ImagePackContentProps>(
 
           setFiles((f) => [...f, ...uniqueFiles]);
         },
-        [hasImageWithShortcode]
+        [hasImageWithShortcode],
       ),
-      true
+      true,
     );
 
     const handleMetaSave = useCallback(
@@ -88,10 +88,10 @@ export const ImagePackContent = as<'div', ImagePackContentProps>(
               ...imagePack.meta.content,
               ...m?.content,
               ...editedMeta.content,
-            })
+            }),
         );
       },
-      [imagePack.meta]
+      [imagePack.meta],
     );
 
     const handleMetaCancel = () => setMetaEditing(false);
@@ -104,10 +104,10 @@ export const ImagePackContent = as<'div', ImagePackContentProps>(
               ...imagePack.meta.content,
               ...m?.content,
               usage: usg,
-            })
+            }),
         );
       },
-      [imagePack.meta]
+      [imagePack.meta],
     );
 
     const handleUploadRemove = useCallback((file: TUploadContent) => {
@@ -123,13 +123,13 @@ export const ImagePackContent = as<'div', ImagePackContentProps>(
         };
         const image = PackImageReader.fromPackImage(
           getFileNameWithoutExt(data.file.name),
-          packImage
+          packImage,
         );
         if (!image) return;
         handleUploadRemove(data.file);
         setUploadedImages((imgs) => [image, ...imgs]);
       },
-      [handleUploadRemove]
+      [handleUploadRemove],
     );
 
     const handleImageEdit = (shortcode: string) => {
@@ -164,7 +164,7 @@ export const ImagePackContent = as<'div', ImagePackContentProps>(
           ? new PackImageReader(
               suffixRename(image.shortcode, hasImageWithShortcode),
               image.url,
-              image.content
+              image.content,
             )
           : image;
 
@@ -199,7 +199,7 @@ export const ImagePackContent = as<'div', ImagePackContentProps>(
         images.forEach((img) => pushImage(img));
 
         return onUpdate?.(pack);
-      }, [imagePack, images, savedMeta, uploadedImages, savedImages, deleteImages, onUpdate])
+      }, [imagePack, images, savedMeta, uploadedImages, savedImages, deleteImages, onUpdate]),
     );
 
     useEffect(() => {
@@ -384,5 +384,5 @@ export const ImagePackContent = as<'div', ImagePackContentProps>(
         )}
       </Box>
     );
-  }
+  },
 );

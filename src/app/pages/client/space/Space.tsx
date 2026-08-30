@@ -108,7 +108,7 @@ const SpaceMenu = forwardRef<HTMLDivElement, SpaceMenuProps>(({ room, requestClo
   const allChild = useSpaceChildren(
     allRoomsAtom,
     room.roomId,
-    useRecursiveChildScopeFactory(mx, roomToParents)
+    useRecursiveChildScopeFactory(mx, roomToParents),
   );
   const unread = useRoomsUnread(allChild, roomToUnreadAtom);
 
@@ -251,7 +251,7 @@ function SpaceHeader() {
 
   const joinRules = useStateEvent(
     space,
-    StateEvent.RoomJoinRules
+    StateEvent.RoomJoinRules,
   )?.getContent<RoomJoinRulesEventContent>();
 
   const handleOpenMenu: MouseEventHandler<HTMLButtonElement> = (evt) => {
@@ -318,7 +318,7 @@ export function SpaceTombstone({ roomId, replacementRoomId }: SpaceTombstoneProp
       return mx.joinRoom(replacementRoomId, {
         viaServers: via,
       });
-    }, [mx, roomId, replacementRoomId])
+    }, [mx, roomId, replacementRoomId]),
   );
   const replacementRoom = mx.getRoom(replacementRoomId);
 
@@ -402,7 +402,7 @@ export function Space() {
       }
       return undefined;
     },
-    [mx, allJoinedRooms]
+    [mx, allJoinedRooms],
   );
 
   const hierarchy = useSpaceJoinedHierarchy(
@@ -417,12 +417,12 @@ export function Space() {
           roomToUnread.has(roomId) || roomId === selectedRoomId || callEmbed?.roomId === roomId;
         return !showRoomAnyway;
       },
-      [space.roomId, closedCategories, roomToUnread, selectedRoomId, callEmbed]
+      [space.roomId, closedCategories, roomToUnread, selectedRoomId, callEmbed],
     ),
     useCallback(
       (sId) => closedCategories.has(makeNavCategoryId(space.roomId, sId)),
-      [closedCategories, space.roomId]
-    )
+      [closedCategories, space.roomId],
+    ),
   );
 
   const virtualizer = useVirtualizer({
@@ -433,7 +433,7 @@ export function Space() {
   });
 
   const handleCategoryClick = useCategoryHandler(setClosedCategories, (categoryId) =>
-    closedCategories.has(categoryId)
+    closedCategories.has(categoryId),
   );
 
   const getToLink = (roomId: string) =>

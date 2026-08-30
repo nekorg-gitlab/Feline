@@ -27,7 +27,10 @@ const NOISY_PATTERNS = [
 
 const shouldSuppress = (args: unknown[]): boolean => {
   try {
-    const text = args.map((a) => (typeof a === 'string' ? a : String(a))).join(' ').toLowerCase();
+    const text = args
+      .map((a) => (typeof a === 'string' ? a : String(a)))
+      .join(' ')
+      .toLowerCase();
     return NOISY_PATTERNS.some((p) => text.includes(p.toLowerCase()));
   } catch (err) {
     if (import.meta.env.DEV) console.debug('[logger] suppress check failed', err);
@@ -48,7 +51,10 @@ export const setupLogger = (): void => {
   const level = loglevel.levels.WARN;
 
   try {
-    (logger as unknown as { setLevel: (l: number, persist: boolean) => void }).setLevel(level, false);
+    (logger as unknown as { setLevel: (l: number, persist: boolean) => void }).setLevel(
+      level,
+      false,
+    );
   } catch (err) {
     if (import.meta.env.DEV) console.debug('[logger] setLevel failed', err);
   }
@@ -64,7 +70,9 @@ export const setupLogger = (): void => {
   (['debug', 'info', 'warn', 'error', 'log', 'trace'] as const).forEach((method) => {
     const orig = console[method] as (...args: unknown[]) => void;
     if (typeof orig !== 'function') return;
-    (console as unknown as Record<string, unknown>)[method] = createFilteredMethod(orig.bind(console));
+    (console as unknown as Record<string, unknown>)[method] = createFilteredMethod(
+      orig.bind(console),
+    );
   });
 
   window.addEventListener('error', (event) => {
@@ -73,7 +81,7 @@ export const setupLogger = (): void => {
 
   window.addEventListener('unhandledrejection', (event) => {
     const reason = event.reason;
-    const text = typeof reason === 'string' ? reason : reason?.message ?? String(reason);
+    const text = typeof reason === 'string' ? reason : (reason?.message ?? String(reason));
     if (shouldSuppress([text])) event.preventDefault();
   });
 };

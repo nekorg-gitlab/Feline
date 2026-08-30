@@ -27,7 +27,12 @@ import * as css from './style.css';
 import { bytesToSize } from '../../../utils/common';
 import { FALLBACK_MIMETYPE } from '../../../utils/mimeTypes';
 import { stopPropagation } from '../../../utils/keyboard';
-import { decryptFile, downloadEncryptedMedia, downloadMedia, mxcUrlToHttp } from '../../../utils/matrix';
+import {
+  decryptFile,
+  downloadEncryptedMedia,
+  downloadMedia,
+  mxcUrlToHttp,
+} from '../../../utils/matrix';
 import { ModalWide } from '../../../styles/Modal.css';
 import { validBlurHash } from '../../../utils/blurHash';
 
@@ -73,7 +78,7 @@ export const ImageContent = as<'div', ImageContentProps>(
       renderImage,
       ...props
     },
-    ref
+    ref,
   ) => {
     const mx = useMatrixClient();
     // For message media, always try authenticated v1 first (with manual Authorization fallback in downloadMedia)
@@ -94,7 +99,7 @@ export const ImageContent = as<'div', ImageContentProps>(
           const fileContent = await downloadEncryptedMedia(
             mediaUrl,
             (encBuf) => decryptFile(encBuf, mimeType ?? FALLBACK_MIMETYPE, encInfo),
-            mx
+            mx,
           );
           return URL.createObjectURL(fileContent);
         }
@@ -103,7 +108,7 @@ export const ImageContent = as<'div', ImageContentProps>(
           return URL.createObjectURL(fileContent);
         }
         return mediaUrl;
-      }, [mx, url, useAuthentication, mimeType, encInfo])
+      }, [mx, url, useAuthentication, mimeType, encInfo]),
     );
 
     const handleLoad = () => {
@@ -264,5 +269,5 @@ export const ImageContent = as<'div', ImageContentProps>(
         )}
       </Box>
     );
-  }
+  },
 );

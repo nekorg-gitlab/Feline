@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
@@ -108,17 +108,33 @@
         ];
         function e(t) {
           try {
-            var x = t.map(function (a) { return typeof a === 'string' ? a : String(a); }).join(' ').toLowerCase();
-            return s.some(function (p) { return x.indexOf(p.toLowerCase()) !== -1; });
-          } catch (_) { return false; }
+            var x = t
+              .map(function (a) {
+                return typeof a === 'string' ? a : String(a);
+              })
+              .join(' ')
+              .toLowerCase();
+            return s.some(function (p) {
+              return x.indexOf(p.toLowerCase()) !== -1;
+            });
+          } catch (_) {
+            return false;
+          }
         }
-        ['log','info','warn','error','debug','trace'].forEach(function (k) {
-          var o = console[k]; if (typeof o !== 'function') return;
-          console[k] = function () { if (e([].slice.call(arguments))) return; return o.apply(console, arguments); };
+        ['log', 'info', 'warn', 'error', 'debug', 'trace'].forEach(function (k) {
+          var o = console[k];
+          if (typeof o !== 'function') return;
+          console[k] = function () {
+            if (e([].slice.call(arguments))) return;
+            return o.apply(console, arguments);
+          };
         });
-        window.addEventListener('error', function (ev) { if (e([ev.message, ev.filename])) ev.preventDefault(); });
+        window.addEventListener('error', function (ev) {
+          if (e([ev.message, ev.filename])) ev.preventDefault();
+        });
         window.addEventListener('unhandledrejection', function (ev) {
-          var r = ev.reason; var t = typeof r === 'string' ? r : (r && r.message) || String(r);
+          var r = ev.reason;
+          var t = typeof r === 'string' ? r : (r && r.message) || String(r);
           if (e([t])) ev.preventDefault();
         });
       })();

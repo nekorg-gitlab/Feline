@@ -45,7 +45,13 @@ function ReaderItem({ room, readerId }: { room: Room; readerId: string }) {
       style={{ padding: `0 ${config.space.S200}` }}
       radii="400"
       onClick={(event) => {
-        openProfile(room.roomId, space?.roomId, readerId, getMouseEventCords(event.nativeEvent), 'Bottom');
+        openProfile(
+          room.roomId,
+          space?.roomId,
+          readerId,
+          getMouseEventCords(event.nativeEvent),
+          'Bottom',
+        );
       }}
       before={
         <Avatar size="200">
@@ -100,5 +106,5 @@ export const EventReaders = as<'div', EventReadersProps>(
         </Box>
       </Box>
     );
-  }
+  },
 );

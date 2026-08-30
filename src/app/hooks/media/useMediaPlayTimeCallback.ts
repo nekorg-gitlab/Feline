@@ -4,7 +4,7 @@ export type PlayTimeCallback = (duration: number, currentTime: number) => void;
 
 export const useMediaPlayTimeCallback = (
   getTargetElement: () => HTMLMediaElement | null,
-  onPlayTimeCallback: PlayTimeCallback
+  onPlayTimeCallback: PlayTimeCallback,
 ): void => {
   useEffect(() => {
     const targetEl = getTargetElement();

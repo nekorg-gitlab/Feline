@@ -112,7 +112,7 @@ function NotificationSenderAvatar({
   const useAuthentication = useMediaAuthentication();
   const senderAvatarMxc = getMemberAvatarMxc(room, senderId);
   const directUrl = senderAvatarMxc
-    ? mxcUrlToHttp(mx, senderAvatarMxc, useAuthentication, 48, 48, 'crop') ?? undefined
+    ? (mxcUrlToHttp(mx, senderAvatarMxc, useAuthentication, 48, 48, 'crop') ?? undefined)
     : undefined;
   const authUrl = useAuthenticatedMxcUrl(senderAvatarMxc, 48, 48, 'crop');
   const avatarUrl = useAuthentication ? authUrl : directUrl;
@@ -143,7 +143,7 @@ type SilentReloadTimeline = () => Promise<void>;
 
 const groupNotifications = (
   notifications: INotification[],
-  allowRooms: Set<string>
+  allowRooms: Set<string>,
 ): RoomNotificationsGroup[] => {
   const groups: RoomNotificationsGroup[] = [];
   notifications.forEach((notification) => {
@@ -165,7 +165,7 @@ const groupNotifications = (
 
 const useNotificationTimeline = (
   paginationLimit: number,
-  onlyHighlight?: boolean
+  onlyHighlight?: boolean,
 ): [NotificationTimeline, LoadTimeline, SilentReloadTimeline] => {
   const mx = useMatrixClient();
   const allRooms = useAtomValue(allRoomsAtom);
@@ -181,10 +181,10 @@ const useNotificationTimeline = (
       return mx.http.authedRequest<INotificationsResponse>(
         Method.Get,
         '/notifications',
-        queryParams
+        queryParams,
       );
     },
-    [mx]
+    [mx],
   );
 
   const loadTimeline: LoadTimeline = useCallback(
@@ -195,7 +195,7 @@ const useNotificationTimeline = (
       const data = await fetchNotifications(
         from,
         paginationLimit,
-        onlyHighlight ? 'highlight' : undefined
+        onlyHighlight ? 'highlight' : undefined,
       );
       const groups = groupNotifications(data.notifications, allJoinedRooms);
 
@@ -209,7 +209,7 @@ const useNotificationTimeline = (
         return currentTimeline;
       });
     },
-    [paginationLimit, onlyHighlight, fetchNotifications, allJoinedRooms]
+    [paginationLimit, onlyHighlight, fetchNotifications, allJoinedRooms],
   );
 
   /**
@@ -220,7 +220,7 @@ const useNotificationTimeline = (
     const data = await fetchNotifications(
       undefined,
       paginationLimit,
-      onlyHighlight ? 'highlight' : undefined
+      onlyHighlight ? 'highlight' : undefined,
     );
     const groups = groupNotifications(data.notifications, allJoinedRooms);
     setNotificationTimeline({
@@ -275,10 +275,10 @@ function RoomNotificationsGroupComp({
     () => ({
       ...LINKIFY_OPTS,
       render: factoryRenderLinkifyWithMention((href) =>
-        renderMatrixMention(mx, room.roomId, href, makeMentionCustomProps(mentionClickHandler))
+        renderMatrixMention(mx, room.roomId, href, makeMentionCustomProps(mentionClickHandler)),
       ),
     }),
-    [mx, room, mentionClickHandler]
+    [mx, room, mentionClickHandler],
   );
   const htmlReactParserOptions = useMemo<HTMLReactParserOptions>(
     () =>
@@ -288,7 +288,7 @@ function RoomNotificationsGroupComp({
         handleSpoilerClick: spoilerClickHandler,
         handleMentionClick: mentionClickHandler,
       }),
-    [mx, room, linkifyOpts, mentionClickHandler, spoilerClickHandler, useAuthentication]
+    [mx, room, linkifyOpts, mentionClickHandler, spoilerClickHandler, useAuthentication],
   );
 
   const renderMatrixEvent = useMatrixEventRenderer<[IRoomEvent, string, GetContentCallback]>(
@@ -350,7 +350,7 @@ function RoomNotificationsGroupComp({
                 const editedEvent = getEditedEvent(
                   evt.event_id,
                   mEvent,
-                  evtTimeline.getTimelineSet()
+                  evtTimeline.getTimelineSet(),
                 );
                 const getContent = (() =>
                   editedEvent?.getContent()['m.new_content'] ??
@@ -427,7 +427,7 @@ function RoomNotificationsGroupComp({
           </Text>
         </Box>
       );
-    }
+    },
   );
 
   const handleOpenClick: MouseEventHandler = (evt) => {
@@ -441,7 +441,7 @@ function RoomNotificationsGroupComp({
 
   const roomAvatarMxc = room.getMxcAvatarUrl() ?? undefined;
   const directRoomAvatarUrl = roomAvatarMxc
-    ? mxcUrlToHttp(mx, roomAvatarMxc, useAuthentication, 96, 96, 'crop') ?? undefined
+    ? (mxcUrlToHttp(mx, roomAvatarMxc, useAuthentication, 96, 96, 'crop') ?? undefined)
     : undefined;
   const authRoomAvatarUrl = useAuthenticatedMxcUrl(roomAvatarMxc, 96, 96, 'crop');
   const roomAvatarUrl = useAuthentication ? authRoomAvatarUrl : directRoomAvatarUrl;
@@ -451,7 +451,9 @@ function RoomNotificationsGroupComp({
       <Header size="300">
         <Box gap="200" grow="Yes">
           <Avatar size="200" radii="300">
-            <RoomAvatar roomId={room.roomId} src={roomAvatarUrl}
+            <RoomAvatar
+              roomId={room.roomId}
+              src={roomAvatarUrl}
               alt={room.name}
               renderFallback={() => (
                 <RoomIcon
@@ -570,13 +572,13 @@ function RoomNotificationsGroupComp({
 }
 
 const useNotificationsSearchParams = (
-  searchParams: URLSearchParams
+  searchParams: URLSearchParams,
 ): InboxNotificationsPathSearchParams =>
   useMemo(
     () => ({
       only: searchParams.get('only') ?? undefined,
     }),
-    [searchParams]
+    [searchParams],
   );
 
 const DEFAULT_REFRESH_MS = 7000;
@@ -605,7 +607,7 @@ export function Notifications() {
       setSearchParams(
         new URLSearchParams({
           only: 'highlight',
-        })
+        }),
       );
       return;
     }
@@ -614,7 +616,7 @@ export function Notifications() {
 
   const [notificationTimeline, _loadTimeline, silentReloadTimeline] = useNotificationTimeline(
     24,
-    onlyHighlight
+    onlyHighlight,
   );
   const [timelineState, loadTimeline] = useAsyncCallback(_loadTimeline);
 
@@ -630,12 +632,12 @@ export function Notifications() {
     useCallback(() => {
       silentReloadTimeline();
     }, [silentReloadTimeline]),
-    refreshIntervalTime
+    refreshIntervalTime,
   );
 
   const handleScrollTopVisibility = useCallback(
     (onTop: boolean) => setRefreshIntervalTime(onTop ? DEFAULT_REFRESH_MS : -1),
-    []
+    [],
   );
 
   useEffect(() => {

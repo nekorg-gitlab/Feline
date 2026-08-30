@@ -12,7 +12,8 @@ export const useExploreSelected = (): boolean => {
 };
 
 export const useExploreServer = (): string | undefined => {
-  const { server } = useParams();
+  const { server: rawServer } = useParams();
+  const server = rawServer ? (globalThis as any).decodeURIComponent(rawServer) : undefined;
 
   return server;
 };

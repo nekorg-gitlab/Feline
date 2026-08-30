@@ -1,4 +1,4 @@
-import produce from 'immer';
+import { produce } from 'immer';
 import { atom, useSetAtom } from 'jotai';
 import { MatrixClient, RoomMemberEvent, RoomMemberEventHandlerMap } from 'matrix-js-sdk';
 import { useEffect } from 'react';
@@ -30,7 +30,7 @@ const baseRoomIdToTypingMembersAtom = atom<IRoomIdToTypingMembers>(new Map());
 
 const putTypingMember = (
   roomToMembers: IRoomIdToTypingMembers,
-  action: TypingMemberPutAction
+  action: TypingMemberPutAction,
 ): IRoomIdToTypingMembers => {
   let typingMembers = roomToMembers.get(action.roomId) ?? [];
 
@@ -45,7 +45,7 @@ const putTypingMember = (
 
 const deleteTypingMember = (
   roomToMembers: IRoomIdToTypingMembers,
-  action: TypingMemberDeleteAction
+  action: TypingMemberDeleteAction,
 ): IRoomIdToTypingMembers => {
   let typingMembers = roomToMembers.get(action.roomId) ?? [];
 
@@ -62,7 +62,7 @@ const timeoutReceipt = (
   roomToMembers: IRoomIdToTypingMembers,
   roomId: string,
   userId: string,
-  timeout: number
+  timeout: number,
 ): boolean | undefined => {
   const typingMembers = roomToMembers.get(roomId) ?? [];
 
@@ -84,7 +84,7 @@ export const roomIdToTypingMembersAtom = atom<
     if (action.type === 'PUT') {
       set(
         baseRoomIdToTypingMembersAtom,
-        produce(rToTyping, (draft) => putTypingMember(draft, action))
+        produce(rToTyping, (draft) => putTypingMember(draft, action)),
       );
 
       // remove typing receipt after some timeout
@@ -95,7 +95,7 @@ export const roomIdToTypingMembersAtom = atom<
           get(baseRoomIdToTypingMembersAtom),
           roomId,
           userId,
-          TYPING_TIMEOUT_MS
+          TYPING_TIMEOUT_MS,
         );
         if (timeout) {
           set(
@@ -105,8 +105,8 @@ export const roomIdToTypingMembersAtom = atom<
                 type: 'DELETE',
                 roomId,
                 userId,
-              })
-            )
+              }),
+            ),
           );
         }
       }, TYPING_TIMEOUT_MS);
@@ -118,15 +118,15 @@ export const roomIdToTypingMembersAtom = atom<
     ) {
       set(
         baseRoomIdToTypingMembersAtom,
-        produce(rToTyping, (draft) => deleteTypingMember(draft, action))
+        produce(rToTyping, (draft) => deleteTypingMember(draft, action)),
       );
     }
-  }
+  },
 );
 
 export const useBindRoomIdToTypingMembersAtom = (
   mx: MatrixClient,
-  typingMembersAtom: typeof roomIdToTypingMembersAtom
+  typingMembersAtom: typeof roomIdToTypingMembersAtom,
 ) => {
   const setTypingMembers = useSetAtom(typingMembersAtom);
   const [hideActivity] = useSetting(settingsAtom, 'hideActivity');
@@ -134,7 +134,7 @@ export const useBindRoomIdToTypingMembersAtom = (
   useEffect(() => {
     const handleTypingEvent: RoomMemberEventHandlerMap[RoomMemberEvent.Typing] = (
       event,
-      member
+      member,
     ) => {
       if (hideActivity) {
         return;

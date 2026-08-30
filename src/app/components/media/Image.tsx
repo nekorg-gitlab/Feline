@@ -11,5 +11,5 @@ export const Image = forwardRef<HTMLImageElement, ImgHTMLAttributes<HTMLImageEle
       {...props}
       ref={ref}
     />
-  )
+  ),
 );

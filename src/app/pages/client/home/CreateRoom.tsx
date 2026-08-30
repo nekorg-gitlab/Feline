@@ -33,8 +33,8 @@ export function HomeCreateRoom() {
           navigate(getHomePath());
         }
       },
-      [navigate]
-    )
+      [navigate],
+    ),
   );
 
   return (
