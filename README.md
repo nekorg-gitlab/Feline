@@ -6,7 +6,7 @@
 
 <p style="margin: 8px 0 0 0;"><strong>Live at <a href="https://nekorg.gitlab.io/feline">nekorg.gitlab.io/feline</a></strong></p>
 
-<p style="margin: 8px 0 0 0;">Feline is a Matrix client — fast, modern, and focused on clean UX.</p>
+<p style="margin: 8px 0 0 0;">Feline is a Matrix client - fast, modern, and focused on clean UX.</p>
 
 <p style="margin: 8px 0 0 0; color: #666;"><em>The best matrix client ever.</em></p>
 
@@ -48,7 +48,7 @@ Rebuild after changing config. See `build.config.ts` and `vite.config.js` for bu
 
 ## Deployment
 
-**GitLab Pages** — configured via `.gitlab-ci.yml` (builds with `--base=/feline/`, copies `index.html` → `404.html` for SPA fallback).
+**GitLab Pages** - configured via `.gitlab-ci.yml` (builds with `--base=/feline/`, copies `index.html` → `404.html` for SPA fallback).
 
 **Docker:**
 
@@ -58,7 +58,7 @@ docker compose up --build
 docker build -t feline . && docker run -p 80:80 feline
 ```
 
-**Netlify** — `netlify.toml` included with SPA redirect.
+**Netlify** - `netlify.toml` included with SPA redirect.
 
 For a custom domain, change the build base to `/`:
 
@@ -69,12 +69,12 @@ npm run build -- --base=/
 ## Project Structure
 
 ```
-src/app/components  — reusable UI
-src/app/features    — feature modules (room, settings, lobby, search, etc.)
-src/app/pages       — route pages (auth, client, home, space, etc.)
-src/app/state       — Jotai atoms / hooks
-src/utils           — helpers (themeOverride, roundness, matrix, etc.)
-public/             — static assets + element-call embed
+src/app/components  - reusable UI
+src/app/features    - feature modules (room, settings, lobby, search, etc.)
+src/app/pages       - route pages (auth, client, home, space, etc.)
+src/app/state       - Jotai atoms / hooks
+src/utils           - helpers (themeOverride, roundness, matrix, etc.)
+public/             - static assets + element-call embed
 ```
 
 ## Contributing
