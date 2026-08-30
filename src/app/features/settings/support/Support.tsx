@@ -4,6 +4,7 @@ import { Page, PageContent, PageHeader } from '../../../components/page';
 import { SequenceCard } from '../../../components/sequence-card';
 import { SequenceCardStyle } from '../styles.css';
 import FelineSVG from '../../../../../public/res/svg/feline.svg';
+import { VERSION_DISPLAY } from '../../../../version';
 
 type SupportProps = {
   requestClose?: () => void;
@@ -63,7 +64,7 @@ export function Support({ requestClose }: SupportProps) {
                   <Box direction="Column" gap="100">
                     <Box gap="100" alignItems="End">
                       <Text size="H3">Support Feline</Text>
-                      <Text size="T200">v4.12.6</Text>
+                      <Text size="T200">{VERSION_DISPLAY}</Text>
                     </Box>
                     <Text size="T300" priority="300">
                       Feline is free and open-source. Your support keeps it running.

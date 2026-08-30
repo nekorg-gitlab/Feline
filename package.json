@@ -1,6 +1,6 @@
 {
   "name": "feline",
-  "version": "4.12.6",
+  "version": "0.0.0",
   "description": "Yet another matrix client",
   "main": "index.js",
   "type": "module",
