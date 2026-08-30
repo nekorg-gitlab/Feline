@@ -20,6 +20,9 @@ export function getCallCapabilities(
   capabilities.add(MatrixCapabilities.MSC3846TurnServers);
   capabilities.add(MatrixCapabilities.MSC4157SendDelayedEvent);
   capabilities.add(MatrixCapabilities.MSC4157UpdateDelayedEvent);
+  capabilities.add(MatrixCapabilities.MSC4515RtcTransports);
+  capabilities.add(MatrixCapabilities.MSC4533RtcLivekitGetToken);
+  capabilities.add(MatrixCapabilities.MSC4533RtcLivekitDelegateDelayedLeave);
   capabilities.add(`org.matrix.msc2762.timeline:${roomId}`);
   capabilities.add(`org.matrix.msc2762.state:${roomId}`);
 

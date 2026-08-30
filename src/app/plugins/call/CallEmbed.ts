@@ -12,6 +12,7 @@ import {
   IRoomEvent,
   IWidget,
   Widget,
+  WidgetApiFromWidgetAction,
   WidgetApiToWidgetAction,
   WidgetDriver,
 } from 'matrix-widget-api';
@@ -232,6 +233,9 @@ export class CallEmbed {
     this.disposables.push(
       this.listenAction(ElementWidgetActions.JoinCall, this.onCallJoined.bind(this)),
     );
+    this.disposables.push(
+      this.listenAction(WidgetApiFromWidgetAction.UpdateAlwaysOnScreen, () => {}),
+    );
 
     // Populate the map of "read up to" events for this widget with the current event in every room.
     // This is a bit inefficient, but should be okay. We do this for all rooms in case the widget
@@ -404,7 +408,11 @@ export class CallEmbed {
   }
 
   public listenAction<T>(type: string, callback: (event: CustomEvent<T>) => void) {
-    return this.listenEvent(`action:${type}`, callback);
+    const wrapped = (ev: CustomEvent<T>) => {
+      ev.preventDefault();
+      callback(ev);
+    };
+    return this.listenEvent(`action:${type}`, wrapped);
   }
 
   public listenEvent<T>(type: string, callback: (event: T) => void) {

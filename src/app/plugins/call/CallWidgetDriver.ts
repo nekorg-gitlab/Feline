@@ -8,6 +8,11 @@ import {
   type IWidgetApiErrorResponseDataDetails,
   type ISearchUserDirectoryResult,
   type IGetMediaConfigResult,
+  type IRtcTransportsResult,
+  type IRtcLivekitGetTokenFromWidgetRequestData,
+  type IRtcLivekitGetTokenFromWidgetResponseData,
+  type IRtcLivekitDelegateDelayedLeaveFromWidgetRequestData,
+  type IRtcLivekitDelegateDelayedLeaveFromWidgetResponseData,
   OpenIDRequestState,
   SimpleObservable,
   IOpenIDUpdate,
@@ -313,6 +318,65 @@ export class CallWidgetDriver extends WidgetDriver {
     }
     const blob = await downloadMedia(httpUrl, this.mx);
     return { file: blob };
+  }
+
+  public async getRtcTransports(): Promise<IRtcTransportsResult> {
+    try {
+      const transports = await this.mx._unstable_getRTCTransports();
+      return { rtc_transports: transports };
+    } catch (e) {
+      if (e instanceof MatrixError && e.httpStatus === 404) {
+        try {
+          const domain = this.mx.getSafeUserId().split(':')[1];
+          const wellKnownUrl = `https://${domain}/.well-known/matrix/client`;
+          const res = await fetch(wellKnownUrl);
+          if (res.ok) {
+            const body = (await res.json()) as Record<string, unknown>;
+            const foci = body['org.matrix.msc4143.rtc_foci'];
+            if (Array.isArray(foci) && foci.length > 0) {
+              return { rtc_transports: foci as IRtcTransportsResult['rtc_transports'] };
+            }
+          }
+        } catch {}
+        const domain = this.mx.getSafeUserId().split(':')[1];
+        if (domain === 'matrix.org') {
+          return {
+            rtc_transports: [
+              { type: 'livekit', livekit_service_url: 'https://livekit-jwt.call.matrix.org' } as unknown as IRtcTransportsResult['rtc_transports'][number],
+            ],
+          };
+        }
+      }
+      throw e;
+    }
+  }
+
+  public async getRtcLivekitToken(
+    data: IRtcLivekitGetTokenFromWidgetRequestData,
+  ): Promise<IRtcLivekitGetTokenFromWidgetResponseData> {
+    const token = await this.mx.getOpenIdToken();
+    const res = await fetch(data.url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        room_id: data.room_id,
+        slot_id: data.slot_id,
+        member: data.member,
+        openid_token: token,
+      }),
+    });
+    if (!res.ok) {
+      const text = await res.text();
+      throw new Error(`Failed to get LiveKit token: ${res.status} ${text}`);
+    }
+    const body = (await res.json()) as { jwt?: string; token?: string };
+    return { jwt: body.jwt ?? body.token ?? '' };
+  }
+
+  public async delegateRtcLivekitDelayedLeave(
+    _data: IRtcLivekitDelegateDelayedLeaveFromWidgetRequestData,
+  ): Promise<IRtcLivekitDelegateDelayedLeaveFromWidgetResponseData> {
+    return {};
   }
 
   public getKnownRooms(): string[] {

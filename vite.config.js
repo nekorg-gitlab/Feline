@@ -14,13 +14,14 @@ import buildConfig from './build.config.ts';
 const copyFiles = {
   targets: [
     {
-      src: 'node_modules/@element-hq/element-call-embedded/dist/*',
+      src: 'node_modules/@element-hq/element-call-embedded/dist/**/*',
       dest: 'public/element-call',
+      rename: { stripBase: 4 },
     },
     {
       src: 'node_modules/pdfjs-dist/build/pdf.worker.min.mjs',
       dest: '',
-      rename: 'pdf.worker.min.js',
+      rename: { stripBase: true, name: 'pdf.worker.min.js' },
     },
     {
       src: 'netlify.toml',
@@ -33,14 +34,15 @@ const copyFiles = {
     {
       src: 'public/manifest.json',
       dest: '',
+      rename: { stripBase: true },
     },
     {
       src: 'public/res/android',
-      dest: 'public/',
+      dest: '',
     },
     {
       src: 'public/locales',
-      dest: 'public/',
+      dest: '',
     },
   ],
 };
@@ -98,7 +100,7 @@ function securityHeaders() {
       server.middlewares.use((req, res, next) => {
         res.setHeader(
           'Permissions-Policy',
-          'camera=(), microphone=(), geolocation=(), payment=(), usb=()',
+          'camera=(self), microphone=(self), display-capture=(self), geolocation=(), payment=(), usb=()',
         );
         next();
       });
@@ -107,7 +109,7 @@ function securityHeaders() {
       if (!html.includes('Permissions-Policy')) {
         return html.replace(
           '</head>',
-          '  <meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=(), payment=(), usb=()" />\n  </head>',
+          '  <meta http-equiv="Permissions-Policy" content="camera=(self), microphone=(self), display-capture=(self), geolocation=(), payment=(), usb=()" />\n  </head>',
         );
       }
       return html;
@@ -117,7 +119,7 @@ function securityHeaders() {
 
 export default defineConfig({
   appType: 'spa',
-  publicDir: 'public',
+  publicDir: false,
   base: buildConfig.base,
   server: {
     port: 8080,
