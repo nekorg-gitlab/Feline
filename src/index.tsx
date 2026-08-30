@@ -24,6 +24,8 @@ import './app/i18n';
 import { pushSessionToSW } from './sw-session';
 import { getFallbackSession } from './app/state/sessions';
 
+document.addEventListener('contextmenu', (evt) => evt.preventDefault(), { capture: true });
+
 document.body.classList.add(configClass, varsClass);
 try {
   const raw = localStorage.getItem('settings');
