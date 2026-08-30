@@ -16,7 +16,7 @@
     "check:prettier": "prettier --check .",
     "fix:prettier": "prettier --write .",
     "typecheck": "tsc --noEmit",
-    "prepare": "husky install",
+    "prepare": "husky",
     "postinstall": "node scripts/postinstall.js",
     "commit": "git-cz",
     "bump": "node scripts/update-version.js"
@@ -93,7 +93,8 @@
     "ua-parser-js": "2.0.10"
   },
   "overrides": {
-    "@swc/core": "1.12.14"
+    "@swc/core": "1.12.14",
+    "uuid": "11.1.1"
   },
   "devDependencies": {
     "@element-hq/element-call-embedded": "0.24.0",
@@ -133,5 +134,9 @@
     "vite-plugin-pwa": "1.3.0",
     "vite-plugin-static-copy": "4.1.1",
     "vite-plugin-top-level-await": "1.6.0"
+  },
+  "allowScripts": {
+    "@swc/core@1.12.14": true,
+    "esbuild@0.28.2": true
   }
 }
