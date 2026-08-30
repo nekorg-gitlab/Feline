@@ -537,7 +537,12 @@ export function Lobby() {
         </Page>
         {screenSize === ScreenSize.Desktop && isDrawer && (
           <>
-            <Line variant="Background" direction="Vertical" size="300" />
+            <Line
+              variant="Background"
+              direction="Vertical"
+              size="300"
+              data-feline-pane-divider=""
+            />
             <MembersDrawer room={space} members={members} />
           </>
         )}

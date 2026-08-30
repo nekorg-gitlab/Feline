@@ -91,7 +91,7 @@ export function RoomView({ eventId }: { eventId?: string }) {
   );
 
   return (
-    <Page ref={roomViewRef}>
+    <Page ref={roomViewRef} style={{ borderRadius: 0 }}>
       <Box grow="Yes" direction="Column">
         <RoomTimeline
           key={roomId}

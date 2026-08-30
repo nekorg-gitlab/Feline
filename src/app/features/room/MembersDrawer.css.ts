@@ -8,7 +8,7 @@ export const MembersDrawer = style({
 export const MembersDrawerHeader = style({
   flexShrink: 0,
   padding: `0 ${config.space.S200} 0 ${config.space.S300}`,
-  borderBottomWidth: config.borderWidth.B300,
+  borderBottomWidth: 'var(--feline-divider-width, 1px)',
 });
 
 export const MemberDrawerContentBase = style({

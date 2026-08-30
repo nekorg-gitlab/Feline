@@ -17,7 +17,7 @@ export function PageRoot({ nav, children }: PageRootProps) {
     <Box grow="Yes" className={ContainerColor({ variant: 'Background' })}>
       {nav}
       {screenSize !== ScreenSize.Mobile && (
-        <Line variant="Background" size="300" direction="Vertical" />
+        <Line variant="Background" size="300" direction="Vertical" data-feline-pane-divider="" />
       )}
       {children}
     </Box>
@@ -83,7 +83,7 @@ export const Page = as<'div'>(({ className, ...props }, ref) => (
   <Box
     grow="Yes"
     direction="Column"
-    className={classNames(ContainerColor({ variant: 'Surface' }), className)}
+    className={classNames(ContainerColor({ variant: 'Surface' }), css.Page, className)}
     {...props}
     ref={ref}
   />

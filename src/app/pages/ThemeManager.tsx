@@ -12,11 +12,13 @@ import { useSetting } from '../state/hooks/settings';
 import { settingsAtom } from '../state/settings';
 import { applyThemeOverrides } from '../utils/themeOverride';
 import { applyRoundness } from '../utils/roundness';
+import { applyBorders } from '../utils/borders';
 
 export function UnAuthRouteThemeManager() {
   const systemThemeKind = useSystemThemeKind();
   const [customThemeColors] = useSetting(settingsAtom, 'customThemeColors');
   const [roundness] = useSetting(settingsAtom, 'roundness');
+  const [hideBorderLines] = useSetting(settingsAtom, 'hideBorderLines');
 
   useEffect(() => {
     document.body.className = '';
@@ -29,7 +31,8 @@ export function UnAuthRouteThemeManager() {
     }
     applyThemeOverrides(customThemeColors);
     applyRoundness(roundness ?? 50);
-  }, [systemThemeKind, customThemeColors, roundness]);
+    applyBorders(!!hideBorderLines);
+  }, [systemThemeKind, customThemeColors, roundness, hideBorderLines]);
 
   return null;
 }
@@ -39,6 +42,7 @@ export function AuthRouteThemeManager({ children }: { children: ReactNode }) {
   const [monochromeMode] = useSetting(settingsAtom, 'monochromeMode');
   const [customThemeColors] = useSetting(settingsAtom, 'customThemeColors');
   const [roundness] = useSetting(settingsAtom, 'roundness');
+  const [hideBorderLines] = useSetting(settingsAtom, 'hideBorderLines');
 
   useEffect(() => {
     document.body.className = '';
@@ -53,7 +57,8 @@ export function AuthRouteThemeManager({ children }: { children: ReactNode }) {
     }
     applyThemeOverrides(customThemeColors);
     applyRoundness(roundness ?? 50);
-  }, [activeTheme, monochromeMode, customThemeColors, roundness]);
+    applyBorders(!!hideBorderLines);
+  }, [activeTheme, monochromeMode, customThemeColors, roundness, hideBorderLines]);
 
   return <ThemeContextProvider value={activeTheme}>{children}</ThemeContextProvider>;
 }

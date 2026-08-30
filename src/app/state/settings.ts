@@ -26,6 +26,7 @@ export interface Settings {
   pageZoom: number;
   roundness: number;
   hideActivity: boolean;
+  hideBorderLines: boolean;
 
   animationsEnabled: boolean;
   animationSpeed: number;
@@ -65,6 +66,7 @@ const defaultSettings: Settings = {
   pageZoom: 100,
   roundness: 50,
   hideActivity: false,
+  hideBorderLines: false,
 
   animationsEnabled: true,
   animationSpeed: 1,
@@ -105,6 +107,9 @@ export const getSettings = () => {
     }
     if (typeof parsed.animationsEnabled !== 'boolean') {
       parsed.animationsEnabled = defaultSettings.animationsEnabled;
+    }
+    if (typeof parsed.hideBorderLines !== 'boolean') {
+      parsed.hideBorderLines = defaultSettings.hideBorderLines;
     }
     return {
       ...defaultSettings,

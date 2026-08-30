@@ -6,6 +6,8 @@ export const DEFAULT_ROUNDNESS = 50;
 export const MAX_ROUNDNESS = 90;
 export const MIN_ROUNDNESS = 0;
 
+export const CHAT_RADIUS_VAR = '--feline-chat-radius';
+
 const getVarName = (tokenRef: string): string => {
   const match = /var\((--[^)]+)\)/.exec(tokenRef);
   return match ? match[1] : '';
@@ -73,6 +75,7 @@ export const applyRoundness = (value: number): void => {
   if (r500) varMap[r500] = remFor(0.75, v);
   if (round) varMap[round] = roundFor(v);
   if (pill) varMap[pill] = pillFor(v);
+  varMap[CHAT_RADIUS_VAR] = remFor(0.5, v);
 
   const rules = Object.entries(varMap)
     .map(([name, val]) => `  ${name}: ${val} !important;`)

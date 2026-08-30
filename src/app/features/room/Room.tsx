@@ -22,6 +22,7 @@ import { useCallEmbed } from '../../hooks/useCallEmbed';
 import { useCallMembers, useCallSession } from '../../hooks/useCall';
 import { getHomePath } from '../../pages/pathUtils';
 import { useSelectedSpace } from '../../hooks/router/useSelectedSpace';
+import * as css from '../../components/page/style.css';
 
 export function Room() {
   const { eventId: rawEventId } = useParams();
@@ -67,7 +68,7 @@ export function Room() {
     <PowerLevelsContextProvider value={powerLevels}>
       <Box grow="Yes">
         {callView && (screenSize === ScreenSize.Desktop || !chat) && (
-          <Box grow="Yes" direction="Column">
+          <Box grow="Yes" direction="Column" className={css.ChatPane}>
             <RoomViewHeader callView />
             <Box grow="Yes">
               <CallView />
@@ -75,7 +76,7 @@ export function Room() {
           </Box>
         )}
         {!callView && (
-          <Box grow="Yes" direction="Column">
+          <Box grow="Yes" direction="Column" className={css.ChatPane}>
             <RoomViewHeader />
             <Box grow="Yes">
               <RoomView eventId={eventId} />
@@ -86,14 +87,24 @@ export function Room() {
         {callView && chat && (
           <>
             {screenSize === ScreenSize.Desktop && (
-              <Line variant="Background" direction="Vertical" size="300" />
+              <Line
+                variant="Background"
+                direction="Vertical"
+                size="300"
+                data-feline-pane-divider=""
+              />
             )}
             <CallChatView />
           </>
         )}
         {!callView && screenSize === ScreenSize.Desktop && isDrawer && (
           <>
-            <Line variant="Background" direction="Vertical" size="300" />
+            <Line
+              variant="Background"
+              direction="Vertical"
+              size="300"
+              data-feline-pane-divider=""
+            />
             <MembersDrawer key={room.roomId} room={room} members={members} />
           </>
         )}

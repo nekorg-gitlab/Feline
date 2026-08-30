@@ -17,6 +17,7 @@ import './index.css';
 import { trimTrailingSlash } from './app/utils/common';
 import { applyRoundness } from './app/utils/roundness';
 import { applyAnimations } from './app/utils/animations';
+import { applyBorders } from './app/utils/borders';
 import App from './app/pages/App';
 
 // import i18n (needs to be bundled ;))
@@ -36,6 +37,8 @@ try {
     typeof parsed.animationsEnabled === 'boolean' ? parsed.animationsEnabled : true;
   const animSpeed = typeof parsed.animationSpeed === 'number' ? parsed.animationSpeed : 1;
   applyAnimations(animEnabled, animSpeed);
+  const hideBorders = typeof parsed.hideBorderLines === 'boolean' ? parsed.hideBorderLines : false;
+  applyBorders(hideBorders);
 } catch (err) {
   if (import.meta.env.DEV) console.warn('[init] roundness parse failed', err);
 }

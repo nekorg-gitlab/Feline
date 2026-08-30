@@ -59,6 +59,7 @@ import {
   MIN_ANIMATION_SPEED,
   clampSpeed,
 } from '../../../utils/animations';
+import { applyBorders } from '../../../utils/borders';
 import { CustomThemeColorGroup } from '../../../state/settings';
 import { SequenceCardStyle } from '../styles.css';
 
@@ -965,6 +966,7 @@ export function Appearance() {
   const [systemTheme, setSystemTheme] = useSetting(settingsAtom, 'useSystemTheme');
   const [monochromeMode, setMonochromeMode] = useSetting(settingsAtom, 'monochromeMode');
   const [twitterEmoji, setTwitterEmoji] = useSetting(settingsAtom, 'twitterEmoji');
+  const [hideBorderLines, setHideBorderLines] = useSetting(settingsAtom, 'hideBorderLines');
   const [, setCustomThemeColors] = useSetting(settingsAtom, 'customThemeColors');
 
   const handleResetCustomTheme = () => {
@@ -1042,6 +1044,23 @@ export function Appearance() {
         <SettingTile
           title="Twitter Emoji"
           after={<Switch variant="Primary" value={twitterEmoji} onChange={setTwitterEmoji} />}
+        />
+      </SequenceCard>
+
+      <SequenceCard className={SequenceCardStyle} variant="SurfaceVariant" direction="Column">
+        <SettingTile
+          title="Hide Border Lines"
+          description="Remove the thin lines that separate panes and headers for a cleaner look."
+          after={
+            <Switch
+              variant="Primary"
+              value={hideBorderLines}
+              onChange={(v) => {
+                setHideBorderLines(v);
+                applyBorders(v);
+              }}
+            />
+          }
         />
       </SequenceCard>
 

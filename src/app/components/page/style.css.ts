@@ -42,7 +42,7 @@ export const PageNavHeader = recipe({
   variants: {
     outlined: {
       true: {
-        borderBottomWidth: 1,
+        borderBottomWidth: 'var(--feline-divider-width, 1px)',
       },
     },
   },
@@ -72,7 +72,7 @@ export const PageHeader = recipe({
     },
     outlined: {
       true: {
-        borderBottomWidth: config.borderWidth.B300,
+        borderBottomWidth: 'var(--feline-divider-width, 1px)',
       },
     },
   },
@@ -119,3 +119,28 @@ export const PageContentCenter = style([
     margin: 'auto',
   },
 ]);
+
+export const Page = style({
+  borderRadius: 'var(--feline-chat-radius, 0)',
+  overflow: 'hidden',
+  '@media': {
+    'screen and (max-width: 750px)': {
+      borderRadius: 0,
+    },
+  },
+});
+
+export const ChatPane = style({
+  borderRadius: 'var(--feline-chat-radius, 0)',
+  overflow: 'hidden',
+  display: 'flex',
+  flexDirection: 'column',
+  flexGrow: 1,
+  minHeight: 0,
+  minWidth: 0,
+  '@media': {
+    'screen and (max-width: 750px)': {
+      borderRadius: 0,
+    },
+  },
+});
