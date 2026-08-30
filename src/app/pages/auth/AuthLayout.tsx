@@ -1,5 +1,5 @@
-import React, { useCallback, useEffect } from 'react';
-import { Box, Header, Scroll, Spinner, Text, color } from 'folds';
+import React, { useCallback, useEffect, useState } from 'react';
+import { Box, Button, Header, Icon, Icons, Line, Spinner, Text, color } from 'folds';
 import {
   Outlet,
   generatePath,
@@ -13,11 +13,7 @@ import classNames from 'classnames';
 import { AuthFooter } from './AuthFooter';
 import * as css from './styles.css';
 import * as PatternsCss from '../../styles/Patterns.css';
-import {
-  clientAllowedServer,
-  clientDefaultServer,
-  useClientConfig,
-} from '../../hooks/useClientConfig';
+import { clientDefaultServer, useClientConfig } from '../../hooks/useClientConfig';
 import { AsyncStatus, useAsyncCallback } from '../../hooks/useAsyncCallback';
 import { LOGIN_PATH, REGISTER_PATH, RESET_PASSWORD_PATH } from '../paths';
 import FelineSVG from '../../../../public/res/svg/feline.svg';
@@ -30,6 +26,7 @@ import { AuthFlowsLoader } from '../../components/AuthFlowsLoader';
 import { AuthFlowsProvider } from '../../hooks/useAuthFlows';
 import { AuthServerProvider } from '../../hooks/useAuthServer';
 import { tryDecodeURIComponent } from '../../utils/dom';
+import { PasswordLoginForm } from './login/PasswordLoginForm';
 
 const currentAuthPath = (pathname: string): string => {
   if (matchPath(LOGIN_PATH, pathname)) {
@@ -73,11 +70,7 @@ export function AuthLayout() {
   const clientConfig = useClientConfig();
 
   const defaultServer = clientDefaultServer(clientConfig);
-  let server: string = urlEncodedServer ? tryDecodeURIComponent(urlEncodedServer) : defaultServer;
-
-  if (!clientAllowedServer(clientConfig, server)) {
-    server = defaultServer;
-  }
+  const server: string = urlEncodedServer ? tryDecodeURIComponent(urlEncodedServer) : defaultServer;
 
   const [discoveryState, discoverServer] = useAsyncCallback(
     useCallback(async (serverName: string) => {
@@ -122,88 +115,272 @@ export function AuthLayout() {
   const [autoDiscoveryError, autoDiscoveryInfo] =
     discoveryState.status === AsyncStatus.Success ? discoveryState.data.response : [];
 
+  const [showAdvanced, setShowAdvanced] = useState(false);
+
   return (
-    <Scroll variant="Background" visibility="Hover" size="300" hideTrack>
-      <Box
-        className={classNames(css.AuthLayout, PatternsCss.BackgroundDotPattern)}
-        direction="Column"
-        alignItems="Center"
-        justifyContent="SpaceBetween"
-        gap="400"
-      >
-        <Box direction="Column" className={css.AuthCard}>
-          <Header className={css.AuthHeader} size="600" variant="Surface">
-            <Box grow="Yes" direction="Row" gap="300" alignItems="Center">
-              <img className={css.AuthLogo} src={FelineSVG} alt="Feline Logo" />
-              <Text size="H3">Feline</Text>
-            </Box>
-          </Header>
-          <Box className={css.AuthCardContent} direction="Column">
-            <Box direction="Column" gap="100">
-              <Text as="label" size="L400" priority="300">
-                Homeserver
-              </Text>
-              <ServerPicker
-                server={server}
-                serverList={clientConfig.homeserverList ?? []}
-                allowCustomServer={clientConfig.allowCustomHomeservers}
-                onServerChange={selectServer}
-              />
-            </Box>
-            {discoveryState.status === AsyncStatus.Loading && (
-              <AuthLayoutLoading message="Looking for homeserver..." />
-            )}
-            {discoveryState.status === AsyncStatus.Error && (
-              <AuthLayoutError message="Failed to find homeserver." />
-            )}
-            {autoDiscoveryError?.action === AutoDiscoveryAction.FAIL_PROMPT && (
-              <AuthLayoutError
-                message={`Failed to connect. Homeserver configuration found with ${autoDiscoveryError.host} appears unusable.`}
-              />
-            )}
-            {autoDiscoveryError?.action === AutoDiscoveryAction.FAIL_ERROR && (
-              <AuthLayoutError message="Failed to connect. Homeserver configuration base_url appears invalid." />
-            )}
-            {discoveryState.status === AsyncStatus.Success && autoDiscoveryInfo && (
-              <AuthServerProvider value={discoveryState.data.serverName}>
-                <AutoDiscoveryInfoProvider value={autoDiscoveryInfo}>
-                  <SpecVersionsLoader
-                    baseUrl={autoDiscoveryInfo['m.homeserver'].base_url}
-                    fallback={() => (
-                      <AuthLayoutLoading
-                        message={`Connecting to ${autoDiscoveryInfo['m.homeserver'].base_url}`}
-                      />
-                    )}
-                    error={() => (
+    <Box
+      className={classNames(css.AuthLayout, PatternsCss.BackgroundDotPattern)}
+      direction="Column"
+      alignItems="Center"
+      justifyContent="Center"
+      gap="400"
+    >
+      <Box direction="Column" className={css.AuthCard}>
+        <Header className={css.AuthHeader} size="600" variant="Surface">
+          <Box grow="Yes" direction="Row" gap="300" alignItems="Center">
+            <img className={css.AuthLogo} src={FelineSVG} alt="Feline Logo" />
+            <Text size="H3">Feline</Text>
+          </Box>
+        </Header>
+        <Box className={css.AuthCardContent} direction="Column">
+          {discoveryState.status === AsyncStatus.Loading && (
+            <AuthLayoutLoading message="Looking for homeserver..." />
+          )}
+          {discoveryState.status === AsyncStatus.Error && (
+            <AuthLayoutError message="Failed to find homeserver." />
+          )}
+          {autoDiscoveryError?.action === AutoDiscoveryAction.FAIL_PROMPT && (
+            <AuthLayoutError
+              message={`Failed to connect. Homeserver configuration found with ${autoDiscoveryError.host} appears unusable.`}
+            />
+          )}
+          {autoDiscoveryError?.action === AutoDiscoveryAction.FAIL_ERROR && (
+            <AuthLayoutError message="Failed to connect. Homeserver configuration base_url appears invalid." />
+          )}
+          {discoveryState.status === AsyncStatus.Success && autoDiscoveryInfo ? (
+            <AuthServerProvider value={discoveryState.data.serverName}>
+              <AutoDiscoveryInfoProvider value={autoDiscoveryInfo}>
+                <SpecVersionsLoader
+                  baseUrl={autoDiscoveryInfo['m.homeserver'].base_url}
+                  fallback={() => (
+                    <AuthLayoutLoading
+                      message={`Connecting to ${autoDiscoveryInfo['m.homeserver'].base_url}`}
+                    />
+                  )}
+                  error={() => (
+                    <>
                       <AuthLayoutError message="Failed to connect. Either homeserver is unavailable at this moment or does not exist." />
-                    )}
-                  >
-                    {(specVersions) => (
-                      <SpecVersionsProvider value={specVersions}>
-                        <AuthFlowsLoader
-                          fallback={() => (
-                            <AuthLayoutLoading message="Loading authentication flow..." />
-                          )}
-                          error={() => (
-                            <AuthLayoutError message="Failed to get authentication flow information." />
-                          )}
+                      <Line size="300" variant="Surface" direction="Horizontal" />
+                      <Box direction="Column" gap="200">
+                        <Button
+                          variant="Secondary"
+                          fill="Soft"
+                          size="300"
+                          outlined
+                          onClick={() => setShowAdvanced((v) => !v)}
+                          after={
+                            <Icon
+                              size="100"
+                              src={Icons.ChevronBottom}
+                              style={{
+                                transform: showAdvanced ? 'rotate(180deg)' : 'rotate(0deg)',
+                                transition: 'transform 150ms ease',
+                              }}
+                            />
+                          }
+                          aria-pressed={showAdvanced}
                         >
-                          {(authFlows) => (
+                          <Text as="span" size="B300">
+                            Advanced
+                          </Text>
+                        </Button>
+                        <Text size="T200" priority="300" align="Center">
+                          If you want to choose a custom Matrix homeserver, click Advanced.
+                        </Text>
+                        {showAdvanced && (
+                          <Box direction="Column" gap="100">
+                            <Text as="label" size="L400" priority="300">
+                              Homeserver
+                            </Text>
+                            <ServerPicker
+                              server={server}
+                              serverList={clientConfig.homeserverList ?? []}
+                              allowCustomServer={clientConfig.allowCustomHomeservers}
+                              onServerChange={selectServer}
+                            />
+                          </Box>
+                        )}
+                      </Box>
+                    </>
+                  )}
+                >
+                  {(specVersions) => (
+                    <SpecVersionsProvider value={specVersions}>
+                      <AuthFlowsLoader
+                        fallback={() => (
+                          <AuthLayoutLoading message="Loading authentication flow..." />
+                        )}
+                        error={() => (
+                          <>
+                            <AuthLayoutError message="Failed to get authentication flow information." />
+                            <Line size="300" variant="Surface" direction="Horizontal" />
+                            <Box direction="Column" gap="200">
+                              <Button
+                                variant="Secondary"
+                                fill="Soft"
+                                size="300"
+                                outlined
+                                onClick={() => setShowAdvanced((v) => !v)}
+                                after={
+                                  <Icon
+                                    size="100"
+                                    src={Icons.ChevronBottom}
+                                    style={{
+                                      transform: showAdvanced ? 'rotate(180deg)' : 'rotate(0deg)',
+                                      transition: 'transform 150ms ease',
+                                    }}
+                                  />
+                                }
+                                aria-pressed={showAdvanced}
+                              >
+                                <Text as="span" size="B300">
+                                  Advanced
+                                </Text>
+                              </Button>
+                              <Text size="T200" priority="300" align="Center">
+                                If you want to choose a custom Matrix homeserver, click Advanced.
+                              </Text>
+                              {showAdvanced && (
+                                <Box direction="Column" gap="100">
+                                  <Text as="label" size="L400" priority="300">
+                                    Homeserver
+                                  </Text>
+                                  <ServerPicker
+                                    server={server}
+                                    serverList={clientConfig.homeserverList ?? []}
+                                    allowCustomServer={clientConfig.allowCustomHomeservers}
+                                    onServerChange={selectServer}
+                                  />
+                                </Box>
+                              )}
+                            </Box>
+                          </>
+                        )}
+                      >
+                        {(authFlows) => {
+                          const isLoginPath = !!matchPath(LOGIN_PATH, location.pathname);
+                          const hasPasswordFlow = authFlows.loginFlows.flows.some(
+                            (f) => f.type === 'm.login.password',
+                          );
+                          return (
                             <AuthFlowsProvider value={authFlows}>
                               <Outlet />
+                              <Line size="300" variant="Surface" direction="Horizontal" />
+                              <Box direction="Column" gap="200">
+                                <Button
+                                  variant="Secondary"
+                                  fill="Soft"
+                                  size="300"
+                                  outlined
+                                  onClick={() => setShowAdvanced((v) => !v)}
+                                  after={
+                                    <Icon
+                                      size="100"
+                                      src={Icons.ChevronBottom}
+                                      style={{
+                                        transform: showAdvanced ? 'rotate(180deg)' : 'rotate(0deg)',
+                                        transition: 'transform 150ms ease',
+                                      }}
+                                    />
+                                  }
+                                  aria-pressed={showAdvanced}
+                                >
+                                  <Text as="span" size="B300">
+                                    Advanced
+                                  </Text>
+                                </Button>
+                                <Text size="T200" priority="300" align="Center">
+                                  If you want to choose a custom Matrix homeserver, click Advanced.
+                                </Text>
+                                {showAdvanced && (
+                                  <Box direction="Column" gap="400">
+                                    <Box direction="Column" gap="100">
+                                      <Text as="label" size="L400" priority="300">
+                                        Homeserver
+                                      </Text>
+                                      <ServerPicker
+                                        server={server}
+                                        serverList={clientConfig.homeserverList ?? []}
+                                        allowCustomServer={clientConfig.allowCustomHomeservers}
+                                        onServerChange={selectServer}
+                                      />
+                                    </Box>
+                                    {isLoginPath && hasPasswordFlow && (
+                                      <>
+                                        <Line size="300" variant="Surface" direction="Horizontal" />
+                                        <Box direction="Column" gap="200">
+                                          <Text size="L400" priority="300">
+                                            Sign in with password
+                                          </Text>
+                                          <PasswordLoginForm />
+                                        </Box>
+                                      </>
+                                    )}
+                                    {isLoginPath && !hasPasswordFlow && (
+                                      <Text size="T200" priority="300">
+                                        Password login is not available on this homeserver.
+                                      </Text>
+                                    )}
+                                  </Box>
+                                )}
+                              </Box>
                             </AuthFlowsProvider>
-                          )}
-                        </AuthFlowsLoader>
-                      </SpecVersionsProvider>
-                    )}
-                  </SpecVersionsLoader>
-                </AutoDiscoveryInfoProvider>
-              </AuthServerProvider>
-            )}
-          </Box>
+                          );
+                        }}
+                      </AuthFlowsLoader>
+                    </SpecVersionsProvider>
+                  )}
+                </SpecVersionsLoader>
+              </AutoDiscoveryInfoProvider>
+            </AuthServerProvider>
+          ) : (
+            <>
+              <Line size="300" variant="Surface" direction="Horizontal" />
+              <Box direction="Column" gap="200">
+                <Button
+                  variant="Secondary"
+                  fill="Soft"
+                  size="300"
+                  outlined
+                  onClick={() => setShowAdvanced((v) => !v)}
+                  after={
+                    <Icon
+                      size="100"
+                      src={Icons.ChevronBottom}
+                      style={{
+                        transform: showAdvanced ? 'rotate(180deg)' : 'rotate(0deg)',
+                        transition: 'transform 150ms ease',
+                      }}
+                    />
+                  }
+                  aria-pressed={showAdvanced}
+                >
+                  <Text as="span" size="B300">
+                    Advanced
+                  </Text>
+                </Button>
+                <Text size="T200" priority="300" align="Center">
+                  If you want to choose a custom Matrix homeserver, click Advanced.
+                </Text>
+                {showAdvanced && (
+                  <Box direction="Column" gap="100">
+                    <Text as="label" size="L400" priority="300">
+                      Homeserver
+                    </Text>
+                    <ServerPicker
+                      server={server}
+                      serverList={clientConfig.homeserverList ?? []}
+                      allowCustomServer={clientConfig.allowCustomHomeservers}
+                      onServerChange={selectServer}
+                    />
+                  </Box>
+                )}
+              </Box>
+            </>
+          )}
         </Box>
-        <AuthFooter />
       </Box>
-    </Scroll>
+      <AuthFooter />
+    </Box>
   );
 }

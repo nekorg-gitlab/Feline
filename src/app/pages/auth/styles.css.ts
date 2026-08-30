@@ -2,17 +2,27 @@ import { style } from '@vanilla-extract/css';
 import { DefaultReset, color, config, toRem } from 'folds';
 
 export const AuthLayout = style({
-  minHeight: '100%',
+  minHeight: '100vh',
+  maxHeight: '100vh',
+  overflowY: 'auto',
+  scrollbarWidth: 'none',
+  // @ts-ignore - msOverflowStyle for IE/Edge legacy
+  msOverflowStyle: 'none',
   backgroundColor: color.Background.Container,
   color: color.Background.OnContainer,
   padding: config.space.S400,
-  paddingRight: config.space.S200,
   paddingBottom: 0,
   position: 'relative',
+  justifyContent: 'center',
+  selectors: {
+    '&::-webkit-scrollbar': {
+      display: 'none',
+    },
+  },
 });
 
 export const AuthCard = style({
-  marginTop: '1vh',
+  margin: 'auto 0',
   maxWidth: toRem(460),
   width: '100%',
   backgroundColor: color.Surface.Container,

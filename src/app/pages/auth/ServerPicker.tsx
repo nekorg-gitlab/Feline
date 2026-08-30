@@ -3,6 +3,7 @@ import React, {
   KeyboardEventHandler,
   MouseEventHandler,
   useEffect,
+  useMemo,
   useRef,
   useState,
 } from 'react';
@@ -27,7 +28,6 @@ import { stopPropagation } from '../../utils/keyboard';
 export function ServerPicker({
   server,
   serverList,
-  allowCustomServer,
   onServerChange,
 }: {
   server: string;
@@ -77,20 +77,32 @@ export function ServerPicker({
     setServerMenuAnchor(target.getBoundingClientRect());
   };
 
+  const sortedServerList = useMemo(() => {
+    const idx = serverList.indexOf('matrix.org');
+    if (idx === 0) return serverList;
+    if (idx > 0) {
+      const copy = [...serverList];
+      copy.splice(idx, 1);
+      copy.unshift('matrix.org');
+      return copy;
+    }
+    return ['matrix.org', ...serverList];
+  }, [serverList]);
+
   return (
     <Input
       ref={serverInputRef}
       style={{ paddingRight: config.space.S200 }}
-      variant={allowCustomServer ? 'Background' : 'Surface'}
+      variant="Background"
       outlined
       defaultValue={server}
+      placeholder="matrix.org"
       onChange={handleServerChange}
       onKeyDown={handleKeyDown}
       size="500"
-      readOnly={!allowCustomServer}
-      onClick={allowCustomServer ? undefined : handleOpenServerMenu}
+      readOnly={false}
       after={
-        serverList.length === 0 || (serverList.length === 1 && !allowCustomServer) ? undefined : (
+        serverList.length === 0 ? undefined : (
           <PopOut
             anchor={serverMenuAnchor}
             position="Bottom"
@@ -112,7 +124,7 @@ export function ServerPicker({
                     <Text size="L400">Homeserver List</Text>
                   </Header>
                   <div style={{ padding: config.space.S100, paddingTop: 0 }}>
-                    {serverList?.map((serverName) => (
+                    {sortedServerList?.map((serverName) => (
                       <MenuItem
                         key={serverName}
                         radii="300"
@@ -130,7 +142,7 @@ export function ServerPicker({
           >
             <IconButton
               onClick={handleOpenServerMenu}
-              variant={allowCustomServer ? 'Background' : 'Surface'}
+              variant="Background"
               size="300"
               aria-pressed={!!serverMenuAnchor}
               radii="300"

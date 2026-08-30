@@ -1,7 +1,8 @@
 import { Avatar, AvatarImage, Box, Button, Text } from 'folds';
 import { IIdentityProvider, SSOAction, createClient } from 'matrix-js-sdk';
-import React, { useMemo } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { useAutoDiscoveryInfo } from '../../hooks/useAutoDiscoveryInfo';
+import { isTauri } from '../../utils/isTauri';
 
 type SSOLoginProps = {
   providers?: IIdentityProvider[];
@@ -16,6 +17,17 @@ export function SSOLogin({ providers, redirectUrl, action, saveScreenSpace }: SS
 
   const getSSOIdUrl = (ssoId?: string): string =>
     mx.getSsoLoginUrl(redirectUrl, 'sso', ssoId, action);
+
+  const handleSsoClick = useCallback(async (evt: React.MouseEvent, url: string) => {
+    if (!isTauri()) return;
+    evt.preventDefault();
+    try {
+      const { openUrl } = await import('@tauri-apps/plugin-opener');
+      await openUrl(url);
+    } catch {
+      window.open(url, '_blank', 'noopener');
+    }
+  }, []);
 
   const withoutIcon = providers
     ? providers.find(
@@ -41,6 +53,7 @@ export function SSOLogin({ providers, redirectUrl, action, saveScreenSpace }: SS
                 key={id}
                 as="a"
                 href={getSSOIdUrl(id)}
+                onClick={(evt) => handleSsoClick(evt, getSSOIdUrl(id))}
                 aria-label={buttonTitle}
                 size="300"
                 radii="300"
@@ -56,6 +69,7 @@ export function SSOLogin({ providers, redirectUrl, action, saveScreenSpace }: SS
               key={id}
               as="a"
               href={getSSOIdUrl(id)}
+              onClick={(evt) => handleSsoClick(evt, getSSOIdUrl(id))}
               size="500"
               variant="Secondary"
               fill="Soft"
@@ -79,6 +93,7 @@ export function SSOLogin({ providers, redirectUrl, action, saveScreenSpace }: SS
           style={{ width: '100%' }}
           as="a"
           href={getSSOIdUrl()}
+          onClick={(evt) => handleSsoClick(evt, getSSOIdUrl())}
           size="500"
           variant="Secondary"
           fill="Soft"
