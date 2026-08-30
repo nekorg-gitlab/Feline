@@ -83,6 +83,7 @@ import { useRoomPermissions } from '../../../hooks/useRoomPermissions';
 import { ContainerColor } from '../../../styles/ContainerColor.css';
 import { AsyncStatus, useAsyncCallback } from '../../../hooks/useAsyncCallback';
 import { BreakWord } from '../../../styles/Text.css';
+import { useOpenCreateRoomModal } from '../../../state/hooks/createRoomModal';
 import { InviteUserPrompt } from '../../../components/invite-user-prompt';
 import { useCallEmbed } from '../../../hooks/useCallEmbed';
 
@@ -306,6 +307,28 @@ function SpaceHeader() {
   );
 }
 
+function SpaceCreateRoomButton({ room }: { room: Room }) {
+  const mx = useMatrixClient();
+  const powerLevels = usePowerLevels(room);
+  const creators = useRoomCreators(room);
+  const permissions = useRoomPermissions(creators, powerLevels);
+  const canCreate = permissions.stateEvent(StateEvent.SpaceChild, mx.getSafeUserId());
+  const openCreateRoom = useOpenCreateRoomModal();
+
+  if (!canCreate) return null;
+  return (
+    <IconButton
+      size="300"
+      radii="300"
+      variant="Background"
+      aria-label="Create room"
+      onClick={() => openCreateRoom(room.roomId)}
+    >
+      <Icon src={Icons.Plus} size="100" />
+    </IconButton>
+  );
+}
+
 type SpaceTombstoneProps = { roomId: string; replacementRoomId: string };
 export function SpaceTombstone({ roomId, replacementRoomId }: SpaceTombstoneProps) {
   const mx = useMatrixClient();
@@ -513,6 +536,7 @@ export function Space() {
                         >
                           {roomId === space.roomId ? 'Rooms' : room?.name}
                         </RoomNavCategoryButton>
+                        <SpaceCreateRoomButton room={room} />
                       </NavCategoryHeader>
                     </div>
                   </VirtualTile>
