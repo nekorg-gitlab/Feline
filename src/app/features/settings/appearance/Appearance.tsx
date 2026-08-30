@@ -283,8 +283,8 @@ function RoundnessControl() {
       ? 'Square'
       : value === MAX_ROUNDNESS
         ? 'Circle'
-        : value < 50
-          ? 'Sharp'
+            : value < 50
+          ? 'Sharpness'
           : value === 50
             ? 'Default'
             : 'Rounded';
@@ -310,15 +310,21 @@ function RoundnessControl() {
       />
       <Box
         style={{
-          padding: config.space.S300,
           borderRadius: config.radii.R400,
           background: color.Surface.Container,
           border: `1px solid ${color.Surface.ContainerLine}`,
+          paddingBottom: config.space.S300,
         }}
         direction="Column"
         gap="300"
       >
-        <Box gap="300" alignItems="Center" justifyContent="SpaceBetween" wrap="Wrap">
+        <Box
+          gap="300"
+          alignItems="Center"
+          justifyContent="SpaceBetween"
+          wrap="Wrap"
+          style={{ padding: config.space.S300 }}
+        >
           <Box gap="200" alignItems="Center">
             <Box
               aria-hidden
@@ -381,21 +387,31 @@ function RoundnessControl() {
                 {displayValue}
               </Text>
             </Box>
-            <Text size="T200" priority="300">
+            <Text
+              size="T200"
+              priority="300"
+              style={{
+                position: 'relative',
+                left: `calc(-1 * ${config.space.S100})`,
+              }}
+            >
               {label}
             </Text>
           </Box>
         </Box>
-        <Box direction="Column" gap="200">
-          <Box style={{ padding: `0 ${toRem(2)}` }}>
-            <Box
-              style={{
-                position: 'relative',
-                height: toRem(24),
-                display: 'flex',
-                alignItems: 'center',
-              }}
-            >
+        <Box
+          direction="Column"
+          gap="200"
+          style={{ padding: `0 ${config.space.S300}` }}
+        >
+          <Box
+            style={{
+              position: 'relative',
+              height: toRem(24),
+              display: 'flex',
+              alignItems: 'center',
+            }}
+          >
               <input
                 className="roundness-slider"
                 type="range"
@@ -469,8 +485,15 @@ function RoundnessControl() {
                 }
               `}</style>
             </Box>
-          </Box>
-          <Box direction="Row" justifyContent="SpaceBetween" alignItems="Center">
+          <Box
+            direction="Row"
+            justifyContent="SpaceBetween"
+            alignItems="Center"
+            style={{
+              padding: `0 ${config.space.S200}`,
+              marginTop: `calc(-1 * ${config.space.S300})`,
+            }}
+          >
             <Text size="T200" priority="300">
               Square
             </Text>
