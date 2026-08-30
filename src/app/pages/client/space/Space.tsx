@@ -462,64 +462,126 @@ export function Space() {
   const getToLink = (roomId: string) =>
     getSpaceRoomPath(spaceIdOrAlias, getCanonicalAliasOrRoomId(mx, roomId));
 
+  const openCreateRoom = useOpenCreateRoomModal();
+  const spacePowerLevels = usePowerLevels(space);
+  const spaceCreators = useRoomCreators(space);
+  const spacePermissions = useRoomPermissions(spaceCreators, spacePowerLevels);
+  const canCreateRoom = spacePermissions.stateEvent(StateEvent.SpaceChild, mx.getSafeUserId());
+  const canInviteSpace = spacePermissions.action('invite', mx.getSafeUserId());
+  const [emptyMenuAnchor, setEmptyMenuAnchor] = useState<RectCords>();
+  const [emptyInvitePrompt, setEmptyInvitePrompt] = useState(false);
+
+  const handleEmptyContextMenu: MouseEventHandler<HTMLDivElement> = (evt) => {
+    const target = evt.target as HTMLElement;
+    if (target.closest('a, button')) return;
+    evt.preventDefault();
+    setEmptyMenuAnchor({
+      x: evt.clientX,
+      y: evt.clientY,
+      width: 0,
+      height: 0,
+    });
+  };
+
+  const handleEmptyCopyLink = () => {
+    const roomIdOrAlias = getCanonicalAliasOrRoomId(mx, space.roomId);
+    const viaServers = isRoomAlias(roomIdOrAlias) ? undefined : getViaServers(space);
+    copyToClipboard(getMatrixToRoom(roomIdOrAlias, viaServers));
+    setEmptyMenuAnchor(undefined);
+  };
+
+  const handleEmptyInvite = () => {
+    setEmptyInvitePrompt(true);
+  };
+
   return (
     <PageNav>
       <SpaceHeader />
-      <PageNavContent scrollRef={scrollRef}>
-        <Box direction="Column" gap="300">
-          {tombstoneEvent && (
-            <SpaceTombstone
-              roomId={space.roomId}
-              replacementRoomId={tombstoneEvent.getContent().replacement_room}
-            />
-          )}
-          <NavCategory>
-            <NavItem variant="Background" radii="400" aria-selected={lobbySelected}>
-              <NavLink to={getSpaceLobbyPath(getCanonicalAliasOrRoomId(mx, space.roomId))}>
-                <NavItemContent>
-                  <Box as="span" grow="Yes" alignItems="Center" gap="200">
-                    <Avatar size="200" radii="400">
-                      <Icon src={Icons.Flag} size="100" filled={lobbySelected} />
-                    </Avatar>
-                    <Box as="span" grow="Yes">
-                      <Text as="span" size="Inherit" truncate>
-                        Lobby
-                      </Text>
+      <Box
+        grow="Yes"
+        direction="Column"
+        style={{ minHeight: 0 }}
+        onContextMenu={handleEmptyContextMenu}
+      >
+        <PageNavContent scrollRef={scrollRef}>
+          <Box direction="Column" gap="300" style={{ minHeight: '100%' }}>
+            {tombstoneEvent && (
+              <SpaceTombstone
+                roomId={space.roomId}
+                replacementRoomId={tombstoneEvent.getContent().replacement_room}
+              />
+            )}
+            <NavCategory>
+              <NavItem variant="Background" radii="400" aria-selected={lobbySelected}>
+                <NavLink to={getSpaceLobbyPath(getCanonicalAliasOrRoomId(mx, space.roomId))}>
+                  <NavItemContent>
+                    <Box as="span" grow="Yes" alignItems="Center" gap="200">
+                      <Avatar size="200" radii="400">
+                        <Icon src={Icons.Flag} size="100" filled={lobbySelected} />
+                      </Avatar>
+                      <Box as="span" grow="Yes">
+                        <Text as="span" size="Inherit" truncate>
+                          Lobby
+                        </Text>
+                      </Box>
                     </Box>
-                  </Box>
-                </NavItemContent>
-              </NavLink>
-            </NavItem>
-            <NavItem variant="Background" radii="400" aria-selected={searchSelected}>
-              <NavLink to={getSpaceSearchPath(getCanonicalAliasOrRoomId(mx, space.roomId))}>
-                <NavItemContent>
-                  <Box as="span" grow="Yes" alignItems="Center" gap="200">
-                    <Avatar size="200" radii="400">
-                      <Icon src={Icons.Search} size="100" filled={searchSelected} />
-                    </Avatar>
-                    <Box as="span" grow="Yes">
-                      <Text as="span" size="Inherit" truncate>
-                        Message Search
-                      </Text>
+                  </NavItemContent>
+                </NavLink>
+              </NavItem>
+              <NavItem variant="Background" radii="400" aria-selected={searchSelected}>
+                <NavLink to={getSpaceSearchPath(getCanonicalAliasOrRoomId(mx, space.roomId))}>
+                  <NavItemContent>
+                    <Box as="span" grow="Yes" alignItems="Center" gap="200">
+                      <Avatar size="200" radii="400">
+                        <Icon src={Icons.Search} size="100" filled={searchSelected} />
+                      </Avatar>
+                      <Box as="span" grow="Yes">
+                        <Text as="span" size="Inherit" truncate>
+                          Message Search
+                        </Text>
+                      </Box>
                     </Box>
-                  </Box>
-                </NavItemContent>
-              </NavLink>
-            </NavItem>
-          </NavCategory>
-          <NavCategory
-            style={{
-              height: virtualizer.getTotalSize(),
-              position: 'relative',
-            }}
-          >
-            {virtualizer.getVirtualItems().map((vItem) => {
-              const { roomId } = hierarchy[vItem.index] ?? {};
-              const room = mx.getRoom(roomId);
-              if (!room) return null;
+                  </NavItemContent>
+                </NavLink>
+              </NavItem>
+            </NavCategory>
+            <NavCategory
+              style={{
+                height: virtualizer.getTotalSize(),
+                position: 'relative',
+              }}
+            >
+              {virtualizer.getVirtualItems().map((vItem) => {
+                const { roomId } = hierarchy[vItem.index] ?? {};
+                const room = mx.getRoom(roomId);
+                if (!room) return null;
 
-              if (room.isSpaceRoom()) {
-                const categoryId = makeNavCategoryId(space.roomId, roomId);
+                if (room.isSpaceRoom()) {
+                  const categoryId = makeNavCategoryId(space.roomId, roomId);
+
+                  return (
+                    <VirtualTile
+                      virtualItem={vItem}
+                      key={vItem.index}
+                      ref={virtualizer.measureElement}
+                    >
+                      <div
+                        style={{ paddingTop: vItem.index === 0 ? undefined : config.space.S400 }}
+                      >
+                        <NavCategoryHeader>
+                          <RoomNavCategoryButton
+                            data-category-id={categoryId}
+                            onClick={handleCategoryClick}
+                            closed={closedCategories.has(categoryId)}
+                          >
+                            {roomId === space.roomId ? 'Rooms' : room?.name}
+                          </RoomNavCategoryButton>
+                          <SpaceCreateRoomButton room={room} />
+                        </NavCategoryHeader>
+                      </div>
+                    </VirtualTile>
+                  );
+                }
 
                 return (
                   <VirtualTile
@@ -527,38 +589,97 @@ export function Space() {
                     key={vItem.index}
                     ref={virtualizer.measureElement}
                   >
-                    <div style={{ paddingTop: vItem.index === 0 ? undefined : config.space.S400 }}>
-                      <NavCategoryHeader>
-                        <RoomNavCategoryButton
-                          data-category-id={categoryId}
-                          onClick={handleCategoryClick}
-                          closed={closedCategories.has(categoryId)}
-                        >
-                          {roomId === space.roomId ? 'Rooms' : room?.name}
-                        </RoomNavCategoryButton>
-                        <SpaceCreateRoomButton room={room} />
-                      </NavCategoryHeader>
-                    </div>
+                    <RoomNavItem
+                      room={room}
+                      selected={selectedRoomId === roomId}
+                      showAvatar={mDirects.has(roomId)}
+                      direct={mDirects.has(roomId)}
+                      linkPath={getToLink(roomId)}
+                      notificationMode={getRoomNotificationMode(
+                        notificationPreferences,
+                        room.roomId,
+                      )}
+                    />
                   </VirtualTile>
                 );
-              }
-
-              return (
-                <VirtualTile virtualItem={vItem} key={vItem.index} ref={virtualizer.measureElement}>
-                  <RoomNavItem
-                    room={room}
-                    selected={selectedRoomId === roomId}
-                    showAvatar={mDirects.has(roomId)}
-                    direct={mDirects.has(roomId)}
-                    linkPath={getToLink(roomId)}
-                    notificationMode={getRoomNotificationMode(notificationPreferences, room.roomId)}
+              })}
+            </NavCategory>
+            <Box grow="Yes" style={{ minHeight: toRem(100) }} />
+          </Box>
+        </PageNavContent>
+      </Box>
+      {emptyMenuAnchor && (
+        <PopOut
+          anchor={emptyMenuAnchor}
+          position="Bottom"
+          align="Start"
+          content={
+            <FocusTrap
+              focusTrapOptions={{
+                initialFocus: false,
+                returnFocusOnDeactivate: false,
+                onDeactivate: () => setEmptyMenuAnchor(undefined),
+                clickOutsideDeactivates: true,
+                isKeyForward: (evt: KeyboardEvent) => evt.key === 'ArrowDown',
+                isKeyBackward: (evt: KeyboardEvent) => evt.key === 'ArrowUp',
+                escapeDeactivates: stopPropagation,
+              }}
+            >
+              <Menu style={{ maxWidth: toRem(160), width: '100vw' }}>
+                {emptyInvitePrompt && (
+                  <InviteUserPrompt
+                    room={space}
+                    requestClose={() => {
+                      setEmptyInvitePrompt(false);
+                      setEmptyMenuAnchor(undefined);
+                    }}
                   />
-                </VirtualTile>
-              );
-            })}
-          </NavCategory>
-        </Box>
-      </PageNavContent>
+                )}
+                <Box direction="Column" gap="100" style={{ padding: config.space.S100 }}>
+                  <MenuItem
+                    size="300"
+                    radii="300"
+                    after={<Icon size="100" src={Icons.Plus} />}
+                    onClick={() => {
+                      openCreateRoom(space.roomId);
+                      setEmptyMenuAnchor(undefined);
+                    }}
+                    disabled={!canCreateRoom}
+                  >
+                    <Text style={{ flexGrow: 1 }} as="span" size="T300" truncate>
+                      Create Room
+                    </Text>
+                  </MenuItem>
+                  <MenuItem
+                    size="300"
+                    radii="300"
+                    variant="Primary"
+                    fill="None"
+                    after={<Icon size="100" src={Icons.UserPlus} />}
+                    onClick={handleEmptyInvite}
+                    disabled={!canInviteSpace}
+                    aria-pressed={emptyInvitePrompt}
+                  >
+                    <Text style={{ flexGrow: 1 }} as="span" size="T300" truncate>
+                      Invite
+                    </Text>
+                  </MenuItem>
+                  <MenuItem
+                    size="300"
+                    radii="300"
+                    after={<Icon size="100" src={Icons.Link} />}
+                    onClick={handleEmptyCopyLink}
+                  >
+                    <Text style={{ flexGrow: 1 }} as="span" size="T300" truncate>
+                      Copy Link
+                    </Text>
+                  </MenuItem>
+                </Box>
+              </Menu>
+            </FocusTrap>
+          }
+        />
+      )}
     </PageNav>
   );
 }

@@ -268,6 +268,7 @@ export function RoomNavItem({
 
   const handleContextMenu: MouseEventHandler<HTMLElement> = (evt) => {
     evt.preventDefault();
+    evt.stopPropagation();
     setMenuAnchor({
       x: evt.clientX,
       y: evt.clientY,
