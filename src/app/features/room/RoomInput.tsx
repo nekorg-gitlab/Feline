@@ -99,7 +99,12 @@ import {
   getImageMsgContent,
   getVideoMsgContent,
 } from './msgContent';
-import { getMemberDisplayName, getMentionContent, trimReplyFromBody } from '../../utils/room';
+import {
+  getMemberAvatarMxc,
+  getMemberDisplayName,
+  getMentionContent,
+  trimReplyFromBody,
+} from '../../utils/room';
 import { CommandAutocomplete } from './CommandAutocomplete';
 import { Command, SHRUG, TABLEFLIP, UNFLIP, useCommands } from '../../hooks/useCommands';
 import { mobileOrTablet } from '../../utils/user-agent';
@@ -107,9 +112,11 @@ import { useElementSizeObserver } from '../../hooks/useElementSizeObserver';
 import { ReplyLayout, ThreadIndicator } from '../../components/message';
 import { roomToParentsAtom } from '../../state/room/roomToParents';
 import { useMediaAuthentication } from '../../hooks/useMediaAuthentication';
+import { useAuthenticatedMxcUrl } from '../../hooks/useAuthenticatedMxcUrl';
 import { useImagePackRooms } from '../../hooks/useImagePackRooms';
 import { usePowerLevelsContext } from '../../hooks/usePowerLevels';
 import colorMXID from '../../../util/colorMXID';
+import { UserAvatar } from '../../components/user-avatar';
 import { useIsDirectRoom } from '../../hooks/useRoom';
 import { useAccessiblePowerTagColors, useGetMemberPowerTag } from '../../hooks/useMemberPowerTag';
 import { useRoomCreators } from '../../hooks/useRoomCreators';
@@ -159,6 +166,16 @@ export const RoomInput = forwardRef<HTMLDivElement, RoomInputProps>(
       : undefined;
     const replyUsernameColor =
       legacyUsernameColor || direct ? colorMXID(replyUserID ?? '') : replyPowerColor;
+
+    const replyAvatarMxc = replyUserID ? getMemberAvatarMxc(room, replyUserID) : undefined;
+    const replyDirectUrl = replyAvatarMxc
+      ? (mxcUrlToHttp(mx, replyAvatarMxc, useAuthentication, 32, 32, 'crop') ?? undefined)
+      : undefined;
+    const replyAuthUrl = useAuthenticatedMxcUrl(replyAvatarMxc, 32, 32, 'crop');
+    const replyAvatarUrl = useAuthentication ? replyAuthUrl : replyDirectUrl;
+    const replyDisplayName = replyUserID
+      ? (getMemberDisplayName(room, replyUserID) ?? getMxIdLocalPart(replyUserID) ?? replyUserID)
+      : undefined;
 
     const [uploadBoard, setUploadBoard] = useState(true);
     const [selectedFiles, setSelectedFiles] = useAtom(roomIdToUploadItemsAtomFamily(roomId));
@@ -569,14 +586,21 @@ export const RoomInput = forwardRef<HTMLDivElement, RoomInputProps>(
                   <Box direction="Row" gap="200" alignItems="Center">
                     {replyDraft.relation?.rel_type === RelationType.Thread && <ThreadIndicator />}
                     <ReplyLayout
+                      hideBend
                       userColor={replyUsernameColor}
+                      avatar={
+                        replyUserID ? (
+                          <UserAvatar
+                            userId={replyUserID}
+                            src={replyAvatarUrl}
+                            alt={replyDisplayName ?? replyUserID}
+                            renderFallback={() => <Icon size="50" src={Icons.User} filled />}
+                          />
+                        ) : undefined
+                      }
                       username={
                         <Text size="T300" truncate>
-                          <b>
-                            {getMemberDisplayName(room, replyDraft.userId) ??
-                              getMxIdLocalPart(replyDraft.userId) ??
-                              replyDraft.userId}
-                          </b>
+                          <b>@{replyDisplayName ?? replyUserID}</b>
                         </Text>
                       }
                     >

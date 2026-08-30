@@ -22,6 +22,7 @@ import {
   as,
   color,
   config,
+  toRem,
 } from 'folds';
 import React, {
   FormEventHandler,
@@ -815,6 +816,27 @@ export const Message = as<'div', MessageProps>(
       </AvatarBase>
     );
 
+    const bodyOnlyJSX = (
+      <Box direction="Column" alignSelf="Start" style={{ maxWidth: '100%' }}>
+        {edit && onEditId ? (
+          <MessageEditor
+            style={{
+              maxWidth: '100%',
+              width: '100vw',
+            }}
+            roomId={room.roomId}
+            room={room}
+            mEvent={mEvent}
+            imagePackRooms={imagePackRooms}
+            onCancel={() => onEditId()}
+          />
+        ) : (
+          children
+        )}
+        {reactions}
+      </Box>
+    );
+
     const msgContentJSX = (
       <Box direction="Column" alignSelf="Start" style={{ maxWidth: '100%' }}>
         {reply}
@@ -1137,15 +1159,25 @@ export const Message = as<'div', MessageProps>(
           </CompactLayout>
         )}
         {messageLayout === MessageLayout.Bubble && (
-          <BubbleLayout before={avatarJSX} header={headerJSX} onContextMenu={handleContextMenu}>
-            {msgContentJSX}
-          </BubbleLayout>
+          <Box direction="Column">
+            {reply && (
+              <Box style={{ paddingLeft: toRem(48), paddingBottom: toRem(2) }}>{reply}</Box>
+            )}
+            <BubbleLayout before={avatarJSX} header={headerJSX} onContextMenu={handleContextMenu}>
+              {bodyOnlyJSX}
+            </BubbleLayout>
+          </Box>
         )}
         {messageLayout !== MessageLayout.Compact && messageLayout !== MessageLayout.Bubble && (
-          <ModernLayout before={avatarJSX} onContextMenu={handleContextMenu}>
-            {headerJSX}
-            {msgContentJSX}
-          </ModernLayout>
+          <Box direction="Column">
+            {reply && (
+              <Box style={{ paddingLeft: toRem(48), paddingBottom: toRem(2) }}>{reply}</Box>
+            )}
+            <ModernLayout before={avatarJSX} onContextMenu={handleContextMenu}>
+              {headerJSX}
+              {bodyOnlyJSX}
+            </ModernLayout>
+          </Box>
         )}
       </MessageBase>
     );

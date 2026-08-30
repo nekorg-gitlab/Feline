@@ -2,8 +2,8 @@ import { Box, Icon, Icons, Text, as, color, toRem } from 'folds';
 import { EventTimelineSet, Room } from 'matrix-js-sdk';
 import React, { MouseEventHandler, ReactNode, useCallback, useMemo } from 'react';
 import classNames from 'classnames';
-import { getMemberDisplayName, trimReplyFromBody } from '../../utils/room';
-import { getMxIdLocalPart } from '../../utils/matrix';
+import { getMemberAvatarMxc, getMemberDisplayName, trimReplyFromBody } from '../../utils/room';
+import { getMxIdLocalPart, mxcUrlToHttp } from '../../utils/matrix';
 import { LinePlaceholder } from './placeholder';
 import { randomNumberBetween } from '../../utils/common';
 import * as css from './Reply.css';
@@ -12,22 +12,28 @@ import { scaleSystemEmoji } from '../../plugins/react-custom-html-parser';
 import { useRoomEvent } from '../../hooks/useRoomEvent';
 import colorMXID from '../../../util/colorMXID';
 import { GetMemberPowerTag } from '../../hooks/useMemberPowerTag';
+import { useMatrixClient } from '../../hooks/useMatrixClient';
+import { useMediaAuthentication } from '../../hooks/useMediaAuthentication';
+import { useAuthenticatedMxcUrl } from '../../hooks/useAuthenticatedMxcUrl';
+import { UserAvatar } from '../user-avatar';
 
 type ReplyLayoutProps = {
   userColor?: string;
   username?: ReactNode;
+  avatar?: ReactNode;
+  hideBend?: boolean;
 };
 export const ReplyLayout = as<'div', ReplyLayoutProps>(
-  ({ username, userColor, className, children, ...props }, ref) => (
-    <Box
-      className={classNames(css.Reply, className)}
-      alignItems="Center"
-      gap="100"
-      {...props}
-      ref={ref}
-    >
-      <Box style={{ color: userColor, maxWidth: toRem(200) }} alignItems="Center" shrink="No">
-        <Icon size="100" src={Icons.ReplyArrow} />
+  ({ username, userColor, avatar, hideBend, className, children, ...props }, ref) => (
+    <Box className={classNames(css.Reply, className)} {...props} ref={ref}>
+      {!hideBend && <div className={css.ReplyBend} aria-hidden />}
+      {avatar && <div className={css.ReplyAvatar}>{avatar}</div>}
+      <Box
+        style={{ color: userColor }}
+        className={css.ReplyUsername}
+        alignItems="Center"
+        shrink="No"
+      >
         {username}
       </Box>
       <Box grow="Yes" className={css.ReplyContent}>
@@ -77,6 +83,8 @@ export const Reply = as<'div', ReplyProps>(
     },
     ref,
   ) => {
+    const mx = useMatrixClient();
+    const useAuthentication = useMediaAuthentication();
     const placeholderWidth = useMemo(() => randomNumberBetween(40, 400), []);
     const getFromLocalTimeline = useCallback(
       () => timelineSet?.findEventById(replyEventId),
@@ -90,6 +98,17 @@ export const Reply = as<'div', ReplyProps>(
     const tagColor = powerTag?.color ? accessibleTagColors?.get(powerTag.color) : undefined;
 
     const usernameColor = legacyUsernameColor ? colorMXID(sender ?? replyEventId) : tagColor;
+
+    const avatarMxc = sender ? getMemberAvatarMxc(room, sender) : undefined;
+    const directUrl = avatarMxc
+      ? (mxcUrlToHttp(mx, avatarMxc, useAuthentication, 32, 32, 'crop') ?? undefined)
+      : undefined;
+    const authUrl = useAuthenticatedMxcUrl(avatarMxc, 32, 32, 'crop');
+    const avatarUrl = useAuthentication ? authUrl : directUrl;
+
+    const displayName = sender
+      ? (getMemberDisplayName(room, sender) ?? getMxIdLocalPart(sender) ?? sender)
+      : undefined;
 
     const fallbackBody = replyEvent?.isRedacted() ? (
       <MessageDeletedContent />
@@ -109,11 +128,21 @@ export const Reply = as<'div', ReplyProps>(
           as="button"
           userColor={usernameColor}
           username={
-            sender && (
+            sender && displayName ? (
               <Text size="T300" truncate>
-                <b>{getMemberDisplayName(room, sender) ?? getMxIdLocalPart(sender)}</b>
+                <b>@{displayName}</b>
               </Text>
-            )
+            ) : undefined
+          }
+          avatar={
+            sender ? (
+              <UserAvatar
+                userId={sender}
+                src={avatarUrl}
+                alt={displayName ?? sender}
+                renderFallback={() => <Icon size="50" src={Icons.User} filled />}
+              />
+            ) : undefined
           }
           data-event-id={replyEventId}
           onClick={onClick}
