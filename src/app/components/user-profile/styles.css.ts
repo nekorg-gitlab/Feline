@@ -36,9 +36,14 @@ export const UserAvatarContainer = style({
   top: 0,
   transform: 'translateY(-50%)',
   backgroundColor: color.Surface.Container,
+  borderRadius: config.radii.Pill,
+  overflow: 'hidden',
+  isolation: 'isolate',
 });
 export const UserHeroAvatar = style({
-  outline: `${config.borderWidth.B600} solid ${color.Surface.Container}`,
+  borderRadius: config.radii.Pill,
+  overflow: 'hidden',
+  boxShadow: `0 0 0 ${config.borderWidth.B600} ${color.Surface.Container}`,
   selectors: {
     'button&': {
       cursor: 'pointer',
