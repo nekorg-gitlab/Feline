@@ -16,6 +16,7 @@ import './index.css';
 
 import { trimTrailingSlash } from './app/utils/common';
 import { applyRoundness } from './app/utils/roundness';
+import { applyAnimations } from './app/utils/animations';
 import App from './app/pages/App';
 
 // import i18n (needs to be bundled ;))
@@ -29,6 +30,9 @@ try {
   const parsed = raw ? JSON.parse(raw) : {};
   const r = typeof parsed.roundness === 'number' ? parsed.roundness : 50;
   applyRoundness(r);
+  const animEnabled = typeof parsed.animationsEnabled === 'boolean' ? parsed.animationsEnabled : true;
+  const animSpeed = typeof parsed.animationSpeed === 'number' ? parsed.animationSpeed : 1;
+  applyAnimations(animEnabled, animSpeed);
 } catch (err) {
   if (import.meta.env.DEV) console.warn('[init] roundness parse failed', err);
 }

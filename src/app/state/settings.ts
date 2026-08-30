@@ -27,6 +27,9 @@ export interface Settings {
   roundness: number;
   hideActivity: boolean;
 
+  animationsEnabled: boolean;
+  animationSpeed: number;
+
   isPeopleDrawer: boolean;
   memberSortFilterIndex: number;
   enterForNewline: boolean;
@@ -63,6 +66,9 @@ const defaultSettings: Settings = {
   roundness: 50,
   hideActivity: false,
 
+  animationsEnabled: true,
+  animationSpeed: 1,
+
   isPeopleDrawer: true,
   memberSortFilterIndex: 0,
   enterForNewline: false,
@@ -86,19 +92,31 @@ const defaultSettings: Settings = {
 };
 
 export const getSettings = () => {
-  const settings = localStorage.getItem(STORAGE_KEY);
-  if (settings === null) return defaultSettings;
-  const parsed = JSON.parse(settings) as Settings;
-  if (typeof parsed.roundness === 'number') {
-    parsed.roundness = Math.max(0, Math.min(90, Math.round(parsed.roundness)));
+  if (typeof window === 'undefined' || typeof localStorage === 'undefined') return defaultSettings;
+  try {
+    const settings = localStorage.getItem(STORAGE_KEY);
+    if (settings === null) return defaultSettings;
+    const parsed = JSON.parse(settings) as Settings;
+    if (typeof parsed.roundness === 'number') {
+      parsed.roundness = Math.max(0, Math.min(90, Math.round(parsed.roundness)));
+    }
+    if (typeof parsed.animationSpeed === 'number') {
+      parsed.animationSpeed = Math.max(0.5, Math.min(2, parsed.animationSpeed));
+    }
+    if (typeof parsed.animationsEnabled !== 'boolean') {
+      parsed.animationsEnabled = defaultSettings.animationsEnabled;
+    }
+    return {
+      ...defaultSettings,
+      ...parsed,
+    };
+  } catch {
+    return defaultSettings;
   }
-  return {
-    ...defaultSettings,
-    ...parsed,
-  };
 };
 
 export const setSettings = (settings: Settings) => {
+  if (typeof window === 'undefined' || typeof localStorage === 'undefined') return;
   localStorage.setItem(STORAGE_KEY, JSON.stringify(settings));
 };
 

@@ -42,11 +42,9 @@ export function SettingsTab() {
           </SidebarAvatar>
         )}
       </SidebarItemTooltip>
-      {settings && (
-        <Modal500 requestClose={closeSettings}>
-          <Settings requestClose={closeSettings} />
-        </Modal500>
-      )}
+      <Modal500 open={settings} requestClose={closeSettings}>
+        <Settings requestClose={closeSettings} />
+      </Modal500>
     </SidebarItem>
   );
 }

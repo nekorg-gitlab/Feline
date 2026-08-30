@@ -52,6 +52,13 @@ import {
   MIN_ROUNDNESS,
   toDisplayRoundness,
 } from '../../../utils/roundness';
+import {
+  applyAnimations,
+  DEFAULT_ANIMATION_SPEED,
+  MAX_ANIMATION_SPEED,
+  MIN_ANIMATION_SPEED,
+  clampSpeed,
+} from '../../../utils/animations';
 import { CustomThemeColorGroup } from '../../../state/settings';
 import { SequenceCardStyle } from '../styles.css';
 
@@ -551,6 +558,194 @@ function PageZoomInput() {
   );
 }
 
+function AnimationsControl() {
+  const [animationsEnabled, setAnimationsEnabled] = useSetting(settingsAtom, 'animationsEnabled');
+  const [animationSpeed, setAnimationSpeed] = useSetting(settingsAtom, 'animationSpeed');
+  const raw = typeof animationSpeed === 'number' ? animationSpeed : DEFAULT_ANIMATION_SPEED;
+  const speed = clampSpeed(raw);
+  const displayPercent = ((speed - MIN_ANIMATION_SPEED) / (MAX_ANIMATION_SPEED - MIN_ANIMATION_SPEED)) * 100;
+
+  const handleSpeedChange = (v: number) => {
+    const clamped = clampSpeed(v);
+    setAnimationSpeed(clamped);
+    applyAnimations(animationsEnabled, clamped);
+  };
+
+  const handleToggle = (enabled: boolean) => {
+    setAnimationsEnabled(enabled);
+    applyAnimations(enabled, speed);
+  };
+
+  const handleReset = () => handleSpeedChange(DEFAULT_ANIMATION_SPEED);
+
+  const speedLabel =
+    speed <= 0.7 ? 'Slow' : speed >= 1.6 ? 'Fast' : speed === 1 ? 'Normal' : 'Balanced';
+
+  return (
+    <Box direction="Column" gap="400">
+      <SettingTile
+        title="Animations"
+        description="Enable smooth animations for switches, page changes, popups and all interactions."
+        after={<Switch variant="Primary" value={animationsEnabled} onChange={handleToggle} />}
+      />
+      <Box
+        style={{
+          borderRadius: config.radii.R400,
+          background: color.Surface.Container,
+          border: `1px solid ${color.Surface.ContainerLine}`,
+          paddingBottom: config.space.S300,
+          opacity: animationsEnabled ? 1 : 0.5,
+          pointerEvents: animationsEnabled ? undefined : 'none',
+        }}
+        direction="Column"
+        gap="300"
+      >
+        <Box
+          gap="300"
+          alignItems="Center"
+          justifyContent="SpaceBetween"
+          wrap="Wrap"
+          style={{ padding: config.space.S300 }}
+        >
+          <Box direction="Column" gap="100">
+            <Text size="T300">Animation Speed</Text>
+            <Text size="T200" priority="300">
+              Adjust how fast animations play
+            </Text>
+          </Box>
+          <Box direction="Column" alignItems="End" gap="100" style={{ minWidth: toRem(80) }}>
+            <Box
+              style={{
+                minWidth: toRem(56),
+                height: toRem(28),
+                padding: `0 ${config.space.S200}`,
+                borderRadius: config.radii.Pill,
+                background: color.Primary.Main,
+                color: color.Primary.OnMain,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              <Text size="B400" style={{ color: 'inherit', fontVariantNumeric: 'tabular-nums' }}>
+                {speed.toFixed(1)}x
+              </Text>
+            </Box>
+            <Text size="T200" priority="300">
+              {speedLabel}
+            </Text>
+          </Box>
+        </Box>
+        <Box direction="Column" gap="200" style={{ padding: `0 ${config.space.S300}` }}>
+          <Box
+            style={{
+              position: 'relative',
+              height: toRem(24),
+              display: 'flex',
+              alignItems: 'center',
+            }}
+          >
+            <input
+              className="anim-speed-slider"
+              type="range"
+              min={MIN_ANIMATION_SPEED}
+              max={MAX_ANIMATION_SPEED}
+              step={0.1}
+              value={speed}
+              onChange={(e) => handleSpeedChange(Number(e.target.value))}
+              aria-label="Animation Speed"
+              disabled={!animationsEnabled}
+              style={{
+                WebkitAppearance: 'none',
+                appearance: 'none',
+                width: '100%',
+                height: toRem(8),
+                borderRadius: '9999px',
+                background: `linear-gradient(to right, ${color.Primary.Main} 0%, ${color.Primary.Main} ${displayPercent}%, ${color.Background.Container} ${displayPercent}%, ${color.Background.Container} 100%)`,
+                border: `1px solid ${color.SurfaceVariant.ContainerLine}`,
+                outline: 'none',
+                cursor: animationsEnabled ? 'pointer' : 'not-allowed',
+                margin: 0,
+                padding: 0,
+              }}
+            />
+            <style>{`
+              .anim-speed-slider::-webkit-slider-thumb {
+                -webkit-appearance: none;
+                appearance: none;
+                width: ${toRem(22)};
+                height: ${toRem(22)};
+                border-radius: 50%;
+                background: #fff;
+                border: 2px solid ${color.Primary.Main};
+                box-shadow: 0 1px 6px rgba(0,0,0,0.22), 0 1px 2px rgba(0,0,0,0.14);
+                cursor: pointer;
+                transition: transform 100ms ease, box-shadow 100ms ease;
+                margin-top: -${toRem(7)};
+              }
+              .anim-speed-slider::-webkit-slider-thumb:active {
+                transform: scale(1.08);
+                box-shadow: 0 2px 10px rgba(0,0,0,0.28);
+              }
+              .anim-speed-slider::-moz-range-thumb {
+                width: ${toRem(22)};
+                height: ${toRem(22)};
+                border-radius: 50%;
+                background: #fff;
+                border: 2px solid ${color.Primary.Main};
+                box-shadow: 0 1px 6px rgba(0,0,0,0.22), 0 1px 2px rgba(0,0,0,0.14);
+                cursor: pointer;
+                transition: transform 100ms ease;
+              }
+              .anim-speed-slider::-moz-range-thumb:active {
+                transform: scale(1.08);
+              }
+              .anim-speed-slider::-webkit-slider-runnable-track {
+                height: ${toRem(8)};
+                border-radius: 9999px;
+                background: transparent;
+              }
+              .anim-speed-slider::-moz-range-track {
+                height: ${toRem(8)};
+                border-radius: 9999px;
+                background: transparent;
+                border: none;
+              }
+              .anim-speed-slider:focus-visible::-webkit-slider-thumb {
+                box-shadow: 0 0 0 3px ${color.Primary.Container}, 0 1px 6px rgba(0,0,0,0.22);
+              }
+              .anim-speed-slider:focus-visible::-moz-range-thumb {
+                box-shadow: 0 0 0 3px ${color.Primary.Container}, 0 1px 6px rgba(0,0,0,0.22);
+              }
+            `}</style>
+          </Box>
+          <Box direction="Row" justifyContent="SpaceBetween" alignItems="Center" style={{ padding: `0 ${config.space.S200}` }}>
+            <Text size="T200" priority="300">
+              Slower
+            </Text>
+            <Button
+              size="300"
+              variant="Secondary"
+              fill="Soft"
+              radii="300"
+              onClick={handleReset}
+              disabled={speed === DEFAULT_ANIMATION_SPEED}
+            >
+              <Text size="B300">Reset</Text>
+            </Button>
+            <Text size="T200" priority="300">
+              Faster
+            </Text>
+          </Box>
+        </Box>
+      </Box>
+      <Text size="T200" priority="300">
+        Smooth scrolling is provided by the browser and is not affected by these settings.
+      </Text>
+    </Box>
+  );
+}
+
 const CUSTOM_THEME_GROUPS: { group: CustomThemeColorGroup; label: string }[] = [
   { group: 'Background', label: 'Background' },
   { group: 'Surface', label: 'Surface' },
@@ -860,6 +1055,15 @@ export function Appearance() {
 
       <SequenceCard className={SequenceCardStyle} variant="SurfaceVariant" direction="Column">
         <SettingTile title="Page Zoom" after={<PageZoomInput />} />
+      </SequenceCard>
+
+      <SequenceCard
+        className={SequenceCardStyle}
+        variant="SurfaceVariant"
+        direction="Column"
+        gap="400"
+      >
+        <AnimationsControl />
       </SequenceCard>
     </Box>
   );

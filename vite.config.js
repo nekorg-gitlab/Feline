@@ -136,6 +136,9 @@ export default defineConfig({
   define: {
     __APP_VERSION__: JSON.stringify(pkg.version),
   },
+  resolve: {
+    alias: [{ find: /^folds$/, replacement: path.resolve('./src/app/utils/folds-animated.ts') }],
+  },
   server: {
     port: 8080,
     host: true,

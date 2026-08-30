@@ -48,11 +48,9 @@ export function WelcomePage() {
           </PageHero>
         </PageHeroSection>
       </Box>
-      {supportOpen && (
-        <Modal500 requestClose={() => setSupportOpen(false)}>
-          <Support requestClose={() => setSupportOpen(false)} />
-        </Modal500>
-      )}
+      <Modal500 open={supportOpen} requestClose={() => setSupportOpen(false)}>
+        <Support requestClose={() => setSupportOpen(false)} />
+      </Modal500>
     </Page>
   );
 }

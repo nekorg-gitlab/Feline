@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
   Avatar,
   Box,
@@ -14,6 +14,7 @@ import {
   OverlayCenter,
   Text,
 } from 'folds';
+import { useAnimationDuration } from '../../hooks/useAnimationDuration';
 import FocusTrap from 'focus-trap-react';
 import { General } from './general';
 import { PageNav, PageNavContent, PageNavHeader, PageRoot } from '../../components/page';
@@ -138,6 +139,55 @@ export function Settings({ initialPage, requestClose }: SettingsProps) {
     requestClose();
   };
 
+  const duration = useAnimationDuration();
+  const [renderedPage, setRenderedPage] = useState(activePage);
+  const [prevPage, setPrevPage] = useState<SettingsPages | undefined>(undefined);
+  const [isExiting, setIsExiting] = useState(false);
+  const prevActiveRef = useRef(activePage);
+
+  useEffect(() => {
+    if (prevActiveRef.current === activePage) return;
+    const prev = prevActiveRef.current;
+    prevActiveRef.current = activePage;
+
+    if (duration === 0) {
+      setRenderedPage(activePage);
+      setPrevPage(undefined);
+      setIsExiting(false);
+      return;
+    }
+
+    if (prev !== undefined || activePage !== undefined) {
+      setPrevPage(prev);
+      setRenderedPage(activePage);
+      setIsExiting(true);
+      const t = setTimeout(() => {
+        setPrevPage(undefined);
+        setIsExiting(false);
+      }, duration);
+      return () => clearTimeout(t);
+    }
+    setRenderedPage(activePage);
+  }, [activePage, duration]);
+
+  const renderPage = (page: SettingsPages | undefined) => {
+    if (page === SettingsPages.GeneralPage) return <General requestClose={handlePageRequestClose} />;
+    if (page === SettingsPages.AccountPage) return <Account requestClose={handlePageRequestClose} />;
+    if (page === SettingsPages.NotificationPage)
+      return <Notifications requestClose={handlePageRequestClose} />;
+    if (page === SettingsPages.DevicesPage) return <Devices requestClose={handlePageRequestClose} />;
+    if (page === SettingsPages.EmojisStickersPage)
+      return <EmojisStickers requestClose={handlePageRequestClose} />;
+    if (page === SettingsPages.AppearancePage)
+      return <AppearancePage requestClose={handlePageRequestClose} />;
+    if (page === SettingsPages.DeveloperToolsPage)
+      return <DeveloperTools requestClose={handlePageRequestClose} />;
+    if (page === SettingsPages.AboutPage)
+      return <About requestClose={handlePageRequestClose} onSupportClick={() => setActivePage(SettingsPages.SupportPage)} />;
+    if (page === SettingsPages.SupportPage) return <Support requestClose={handlePageRequestClose} />;
+    return null;
+  };
+
   return (
     <PageRoot
       nav={
@@ -227,36 +277,20 @@ export function Settings({ initialPage, requestClose }: SettingsProps) {
         )
       }
     >
-      {activePage === SettingsPages.GeneralPage && (
-        <General requestClose={handlePageRequestClose} />
-      )}
-      {activePage === SettingsPages.AccountPage && (
-        <Account requestClose={handlePageRequestClose} />
-      )}
-      {activePage === SettingsPages.NotificationPage && (
-        <Notifications requestClose={handlePageRequestClose} />
-      )}
-      {activePage === SettingsPages.DevicesPage && (
-        <Devices requestClose={handlePageRequestClose} />
-      )}
-      {activePage === SettingsPages.EmojisStickersPage && (
-        <EmojisStickers requestClose={handlePageRequestClose} />
-      )}
-      {activePage === SettingsPages.AppearancePage && (
-        <AppearancePage requestClose={handlePageRequestClose} />
-      )}
-      {activePage === SettingsPages.DeveloperToolsPage && (
-        <DeveloperTools requestClose={handlePageRequestClose} />
-      )}
-      {activePage === SettingsPages.AboutPage && (
-        <About
-          requestClose={handlePageRequestClose}
-          onSupportClick={() => setActivePage(SettingsPages.SupportPage)}
-        />
-      )}
-      {activePage === SettingsPages.SupportPage && (
-        <Support requestClose={handlePageRequestClose} />
-      )}
+      <div className="feline-page-stack">
+        {prevPage !== undefined && isExiting && (
+          <div className="feline-page-exit" aria-hidden>
+            {renderPage(prevPage)}
+          </div>
+        )}
+        <div
+          key={renderedPage ?? 'empty'}
+          className={isExiting && prevPage !== undefined ? 'feline-page-enter' : undefined}
+          style={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column' }}
+        >
+          {renderPage(renderedPage)}
+        </div>
+      </div>
     </PageRoot>
   );
 }
