@@ -650,6 +650,9 @@ export function Space() {
                       Create Room
                     </Text>
                   </MenuItem>
+                </Box>
+                <Line variant="Surface" size="300" />
+                <Box direction="Column" gap="100" style={{ padding: config.space.S100 }}>
                   <MenuItem
                     size="300"
                     radii="300"
