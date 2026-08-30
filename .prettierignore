@@ -4,3 +4,6 @@ package.json
 package-lock.json
 LICENSE
 README.md
+src-tauri/target
+src-tauri/Cargo.lock
+src-tauri/gen

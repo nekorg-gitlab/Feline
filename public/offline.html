@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Offline — Feline</title>
+    <meta name="theme-color" content="#000000" />
+    <link rel="shortcut icon" href="./favicon.ico" />
+    <style>
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        font-family:
+          Inter,
+          system-ui,
+          -apple-system,
+          Segoe UI,
+          Roboto,
+          sans-serif;
+        background: #0a0a0a;
+        color: #f0f0f0;
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 24px;
+      }
+      .card {
+        max-width: 420px;
+        width: 100%;
+        background: #1a1a1a;
+        border: 1px solid #2a2a2a;
+        border-radius: 16px;
+        padding: 32px 24px;
+        text-align: center;
+      }
+      .logo {
+        width: 64px;
+        height: 64px;
+        margin: 0 auto 16px;
+        display: block;
+      }
+      h1 {
+        font-size: 20px;
+        font-weight: 700;
+        margin-bottom: 8px;
+      }
+      p {
+        font-size: 14px;
+        line-height: 1.5;
+        color: #999;
+        margin-bottom: 16px;
+      }
+      .hint {
+        font-size: 12px;
+        color: #666;
+      }
+      button {
+        margin-top: 16px;
+        padding: 10px 20px;
+        border-radius: 10px;
+        border: 0;
+        background: #fff;
+        color: #000;
+        font-weight: 600;
+        cursor: pointer;
+      }
+      button:active {
+        transform: scale(0.98);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="card">
+      <img
+        class="logo"
+        src="./res/svg/feline.svg"
+        alt="Feline"
+        onerror="this.style.display = 'none'"
+      />
+      <h1>You're offline</h1>
+      <p>
+        Feline needs an internet connection for the first launch. Once you've loaded it once, the
+        latest cached version will open instantly — even offline.
+      </p>
+      <p class="hint">Check your connection and try again.</p>
+      <button onclick="location.reload()">Retry</button>
+    </div>
+    <script>
+      // auto-reload when back online
+      window.addEventListener('online', () => location.reload());
+    </script>
+  </body>
+</html>

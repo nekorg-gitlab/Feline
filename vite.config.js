@@ -55,6 +55,11 @@ const copyFiles = {
       src: 'public/locales',
       dest: '',
     },
+    {
+      src: 'public/offline.html',
+      dest: '',
+      rename: { stripBase: true },
+    },
   ],
 };
 
@@ -167,7 +172,9 @@ export default defineConfig({
       injectRegister: false,
       manifest: false,
       injectManifest: {
-        injectionPoint: undefined,
+        injectionPoint: 'self.__WB_MANIFEST',
+        globPatterns: ['**/*.{js,css,html,woff2,ttf,svg,png,ico,json}'],
+        maximumFileSizeToCacheInBytes: 5 * 1024 * 1024,
       },
       devOptions: {
         enabled: false,

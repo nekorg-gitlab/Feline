@@ -1,7 +1,14 @@
 /// <reference lib="WebWorker" />
 
+import { precacheAndRoute, cleanupOutdatedCaches } from 'workbox-precaching';
+
 export type {};
-declare const self: ServiceWorkerGlobalScope;
+declare const self: ServiceWorkerGlobalScope & { __WB_MANIFEST: Array<unknown> };
+
+// Precache app shell (VitePWA injects manifest at build)
+// Show cache instantly offline; network updates cache in background
+precacheAndRoute(self.__WB_MANIFEST);
+cleanupOutdatedCaches();
 
 (() => {
   const swNoisy = ['Failed to load resource', 'matrix_sdk', 'thumbnail'];
@@ -181,6 +188,61 @@ async function fetchWithFallback(request: Request): Promise<Response> {
     return badGateway();
   }
 }
+
+// Offline fallback for pure remote (Tauri desktop loads https://nekorg.gitlab.io/feline)
+// - If cached shell exists, return it instantly (stale-while-revalidate)
+// - If no cache and offline (first launch), return offline.html fallback
+self.addEventListener('fetch', (event: FetchEvent) => {
+  const req = event.request;
+  if (req.mode === 'navigate' && req.method === 'GET') {
+    // Don't handle media navigations (shouldn't happen)
+    if (mediaPath(req.url)) return;
+    event.respondWith(
+      (async () => {
+        // Try cache instantly
+        const cached = await caches.match(req);
+        const networkPromise = fetch(req)
+          .then((response) => {
+            if (response && response.ok) {
+              const copy = response.clone();
+              caches
+                .open('navigations')
+                .then((cache) => cache.put(req, copy))
+                .catch(() => {});
+            }
+            return response;
+          })
+          .catch(() => undefined);
+
+        if (cached) {
+          // Update cache in background
+          void networkPromise;
+          return cached;
+        }
+
+        const networkResponse = await networkPromise;
+        if (networkResponse) return networkResponse;
+
+        // Offline + no cache -> fallback to offline.html (precached)
+        const offlineCandidates = [
+          '/offline.html',
+          '/feline/offline.html',
+          new URL('offline.html', self.location.href).href,
+          'offline.html',
+        ];
+        for (const url of offlineCandidates) {
+          const offline = await caches.match(url);
+          if (offline) return offline;
+        }
+        return new Response('Offline - Feline needs internet for first launch', {
+          status: 503,
+          headers: { 'Content-Type': 'text/plain' },
+        });
+      })(),
+    );
+    return;
+  }
+});
 
 self.addEventListener('fetch', (event: FetchEvent) => {
   const { url, method } = event.request;
