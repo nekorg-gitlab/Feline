@@ -302,18 +302,6 @@ function RoundnessControl() {
       <SettingTile
         title="Roundness"
         description="Control how rounded the interface feels - 0 is sharp squares, 100 is fully circular."
-        after={
-          <Button
-            size="300"
-            variant="Secondary"
-            fill="Soft"
-            radii="300"
-            onClick={handleReset}
-            disabled={value === DEFAULT_ROUNDNESS}
-          >
-            <Text size="B300">Reset</Text>
-          </Button>
-        }
       />
       <Box
         style={{
@@ -496,14 +484,21 @@ function RoundnessControl() {
             direction="Row"
             justifyContent="SpaceBetween"
             alignItems="Center"
-            style={{
-              padding: `0 ${config.space.S200}`,
-              marginTop: `calc(-1 * ${config.space.S300})`,
-            }}
+            style={{ padding: `0 ${config.space.S200}` }}
           >
             <Text size="T200" priority="300">
               Square
             </Text>
+            <Button
+              size="300"
+              variant="Secondary"
+              fill="Soft"
+              radii="300"
+              onClick={handleReset}
+              disabled={value === DEFAULT_ROUNDNESS}
+            >
+              <Text size="B300">Reset</Text>
+            </Button>
             <Text size="T200" priority="300">
               Circle
             </Text>
