@@ -23,6 +23,20 @@ const NOISY_PATTERNS = [
   'React Router Future Flag Warning',
   'v7_startTransition',
   'has been externalized for browser compatibility',
+  'Permissions-Policy',
+  'attribution-reporting',
+  'browsing-topics',
+  'CallMembership',
+  'MatrixRTCSession',
+  'getVersion',
+  'm.room.create',
+  'One time key',
+  'already exists',
+  'Failed to process outgoing',
+  'room_keys',
+  'rtc/transports',
+  'M_UNKNOWN',
+  'MatrixError',
 ];
 
 const shouldSuppress = (args: unknown[]): boolean => {

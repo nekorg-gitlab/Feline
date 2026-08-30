@@ -37,7 +37,16 @@ const copyFiles = {
       rename: { stripBase: true },
     },
     {
+      src: 'public/favicon.ico',
+      dest: '',
+      rename: { stripBase: true },
+    },
+    {
       src: 'public/res/android',
+      dest: '',
+    },
+    {
+      src: 'public/res/apple',
       dest: '',
     },
     {
@@ -84,11 +93,12 @@ function fixManifestBase() {
       base = config.base;
     },
     transformIndexHtml(html) {
-      if (base !== '/' && html.includes('href="/manifest.json"')) {
-        const baseWithSlash = base.endsWith('/') ? base : `${base}/`;
-        return html.replace('href="/manifest.json"', `href="${baseWithSlash}manifest.json"`);
-      }
-      return html;
+      if (base === '/') return html;
+      const baseWithSlash = base.endsWith('/') ? base : `${base}/`;
+      let out = html;
+      out = out.replaceAll('href="/manifest.json"', `href="${baseWithSlash}manifest.json"`);
+      out = out.replaceAll('href="/favicon.ico"', `href="${baseWithSlash}favicon.ico"`);
+      return out;
     },
   };
 }
