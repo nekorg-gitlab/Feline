@@ -81,6 +81,11 @@ export const ImageViewer = as<'div', ImageViewerProps>(
           className={css.ImageViewerContent}
           justifyContent="Center"
           alignItems="Center"
+          onWheel={(evt) => {
+            evt.preventDefault();
+            if (evt.deltaY < 0) zoomIn();
+            else if (evt.deltaY > 0) zoomOut();
+          }}
         >
           <img
             className={css.ImageViewerImg}
