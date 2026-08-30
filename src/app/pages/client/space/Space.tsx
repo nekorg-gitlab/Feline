@@ -167,8 +167,6 @@ const SpaceMenu = forwardRef<HTMLDivElement, SpaceMenuProps>(({ room, requestClo
       <Box direction="Column" gap="100" style={{ padding: config.space.S100 }}>
         <MenuItem
           onClick={handleInvite}
-          variant="Primary"
-          fill="None"
           size="300"
           after={<Icon size="100" src={Icons.UserPlus} />}
           radii="300"
@@ -656,8 +654,6 @@ export function Space() {
                   <MenuItem
                     size="300"
                     radii="300"
-                    variant="Primary"
-                    fill="None"
                     after={<Icon size="100" src={Icons.UserPlus} />}
                     onClick={handleEmptyInvite}
                     disabled={!canInviteSpace}
