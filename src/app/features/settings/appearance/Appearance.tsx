@@ -60,7 +60,9 @@ import {
   clampSpeed,
 } from '../../../utils/animations';
 import { applyBorders } from '../../../utils/borders';
-import { CustomThemeColorGroup } from '../../../state/settings';
+import { CustomThemeColorGroup, MessageLayout, MessageSpacing } from '../../../state/settings';
+import { useMessageLayoutItems } from '../../../hooks/useMessageLayout';
+import { useMessageSpacingItems } from '../../../hooks/useMessageSpacing';
 import { SequenceCardStyle } from '../styles.css';
 
 type ThemeSelectorProps = {
@@ -744,6 +746,144 @@ function AnimationsControl() {
   );
 }
 
+function SelectMessageLayout() {
+  const [menuCords, setMenuCords] = useState<RectCords>();
+  const [messageLayout, setMessageLayout] = useSetting(settingsAtom, 'messageLayout');
+  const messageLayoutItems = useMessageLayoutItems();
+
+  const handleMenu: MouseEventHandler<HTMLButtonElement> = (evt) => {
+    setMenuCords(evt.currentTarget.getBoundingClientRect());
+  };
+
+  const handleSelect = (layout: MessageLayout) => {
+    setMessageLayout(layout);
+    setMenuCords(undefined);
+  };
+
+  return (
+    <>
+      <Button
+        size="300"
+        variant="Secondary"
+        outlined
+        fill="Soft"
+        radii="300"
+        after={<Icon size="300" src={Icons.ChevronBottom} />}
+        onClick={handleMenu}
+      >
+        <Text size="T300">
+          {messageLayoutItems.find((i) => i.layout === messageLayout)?.name ?? messageLayout}
+        </Text>
+      </Button>
+      <PopOut
+        anchor={menuCords}
+        offset={5}
+        position="Bottom"
+        align="End"
+        content={
+          <FocusTrap
+            focusTrapOptions={{
+              initialFocus: false,
+              onDeactivate: () => setMenuCords(undefined),
+              clickOutsideDeactivates: true,
+              isKeyForward: (evt: KeyboardEvent) =>
+                evt.key === 'ArrowDown' || evt.key === 'ArrowRight',
+              isKeyBackward: (evt: KeyboardEvent) =>
+                evt.key === 'ArrowUp' || evt.key === 'ArrowLeft',
+              escapeDeactivates: stopPropagation,
+            }}
+          >
+            <Menu>
+              <Box direction="Column" gap="100" style={{ padding: config.space.S100 }}>
+                {messageLayoutItems.map((item) => (
+                  <MenuItem
+                    key={item.layout}
+                    size="300"
+                    variant={messageLayout === item.layout ? 'Primary' : 'Surface'}
+                    radii="300"
+                    onClick={() => handleSelect(item.layout)}
+                  >
+                    <Text size="T300">{item.name}</Text>
+                  </MenuItem>
+                ))}
+              </Box>
+            </Menu>
+          </FocusTrap>
+        }
+      />
+    </>
+  );
+}
+
+function SelectMessageSpacing() {
+  const [menuCords, setMenuCords] = useState<RectCords>();
+  const [messageSpacing, setMessageSpacing] = useSetting(settingsAtom, 'messageSpacing');
+  const messageSpacingItems = useMessageSpacingItems();
+
+  const handleMenu: MouseEventHandler<HTMLButtonElement> = (evt) => {
+    setMenuCords(evt.currentTarget.getBoundingClientRect());
+  };
+
+  const handleSelect = (layout: MessageSpacing) => {
+    setMessageSpacing(layout);
+    setMenuCords(undefined);
+  };
+
+  return (
+    <>
+      <Button
+        size="300"
+        variant="Secondary"
+        outlined
+        fill="Soft"
+        radii="300"
+        after={<Icon size="300" src={Icons.ChevronBottom} />}
+        onClick={handleMenu}
+      >
+        <Text size="T300">
+          {messageSpacingItems.find((i) => i.spacing === messageSpacing)?.name ?? messageSpacing}
+        </Text>
+      </Button>
+      <PopOut
+        anchor={menuCords}
+        offset={5}
+        position="Bottom"
+        align="End"
+        content={
+          <FocusTrap
+            focusTrapOptions={{
+              initialFocus: false,
+              onDeactivate: () => setMenuCords(undefined),
+              clickOutsideDeactivates: true,
+              isKeyForward: (evt: KeyboardEvent) =>
+                evt.key === 'ArrowDown' || evt.key === 'ArrowRight',
+              isKeyBackward: (evt: KeyboardEvent) =>
+                evt.key === 'ArrowUp' || evt.key === 'ArrowLeft',
+              escapeDeactivates: stopPropagation,
+            }}
+          >
+            <Menu>
+              <Box direction="Column" gap="100" style={{ padding: config.space.S100 }}>
+                {messageSpacingItems.map((item) => (
+                  <MenuItem
+                    key={item.spacing}
+                    size="300"
+                    variant={messageSpacing === item.spacing ? 'Primary' : 'Surface'}
+                    radii="300"
+                    onClick={() => handleSelect(item.spacing)}
+                  >
+                    <Text size="T300">{item.name}</Text>
+                  </MenuItem>
+                ))}
+              </Box>
+            </Menu>
+          </FocusTrap>
+        }
+      />
+    </>
+  );
+}
+
 const CUSTOM_THEME_GROUPS: { group: CustomThemeColorGroup; label: string }[] = [
   { group: 'Background', label: 'Background' },
   { group: 'Surface', label: 'Surface' },
@@ -967,6 +1107,12 @@ export function Appearance() {
   const [monochromeMode, setMonochromeMode] = useSetting(settingsAtom, 'monochromeMode');
   const [twitterEmoji, setTwitterEmoji] = useSetting(settingsAtom, 'twitterEmoji');
   const [hideBorderLines, setHideBorderLines] = useSetting(settingsAtom, 'hideBorderLines');
+  const [legacyUsernameColor, setLegacyUsernameColor] = useSetting(
+    settingsAtom,
+    'legacyUsernameColor',
+  );
+  const [urlPreview, setUrlPreview] = useSetting(settingsAtom, 'urlPreview');
+  const [encUrlPreview, setEncUrlPreview] = useSetting(settingsAtom, 'encUrlPreview');
   const [, setCustomThemeColors] = useSetting(settingsAtom, 'customThemeColors');
 
   const handleResetCustomTheme = () => {
@@ -1061,6 +1207,41 @@ export function Appearance() {
               }}
             />
           }
+        />
+      </SequenceCard>
+
+      <SequenceCard className={SequenceCardStyle} variant="SurfaceVariant" direction="Column">
+        <SettingTile title="Message Layout" after={<SelectMessageLayout />} />
+      </SequenceCard>
+
+      <SequenceCard className={SequenceCardStyle} variant="SurfaceVariant" direction="Column">
+        <SettingTile title="Message Spacing" after={<SelectMessageSpacing />} />
+      </SequenceCard>
+
+      <SequenceCard className={SequenceCardStyle} variant="SurfaceVariant" direction="Column">
+        <SettingTile
+          title="Legacy Username Color"
+          after={
+            <Switch
+              variant="Primary"
+              value={legacyUsernameColor}
+              onChange={setLegacyUsernameColor}
+            />
+          }
+        />
+      </SequenceCard>
+
+      <SequenceCard className={SequenceCardStyle} variant="SurfaceVariant" direction="Column">
+        <SettingTile
+          title="Url Preview"
+          after={<Switch variant="Primary" value={urlPreview} onChange={setUrlPreview} />}
+        />
+      </SequenceCard>
+
+      <SequenceCard className={SequenceCardStyle} variant="SurfaceVariant" direction="Column">
+        <SettingTile
+          title="Url Preview in Encrypted Room"
+          after={<Switch variant="Primary" value={encUrlPreview} onChange={setEncUrlPreview} />}
         />
       </SequenceCard>
 
