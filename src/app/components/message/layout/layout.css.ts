@@ -147,20 +147,6 @@ export const BubbleContent = style({
   position: 'relative',
 });
 
-export const BubbleContentArrowLeft = style({
-  borderTopLeftRadius: 0,
-});
-
-export const BubbleLeftArrow = style({
-  width: toRem(9),
-  height: toRem(8),
-
-  position: 'absolute',
-  top: 0,
-  left: toRem(-8),
-  zIndex: 1,
-});
-
 export const Username = style({
   overflow: 'hidden',
   whiteSpace: 'nowrap',
