@@ -12,8 +12,8 @@ type ConfirmPasswordMatchProps = {
 };
 export function ConfirmPasswordMatch({ initialValue, children }: ConfirmPasswordMatchProps) {
   const [match, setMatch] = useState(initialValue);
-  const passRef = useRef<HTMLInputElement>(null);
-  const confPassRef = useRef<HTMLInputElement>(null);
+  const passRef = useRef<HTMLInputElement>(null as unknown as HTMLInputElement);
+  const confPassRef = useRef<HTMLInputElement>(null as unknown as HTMLInputElement);
 
   const doMatch = useDebounce(
     useCallback(() => {

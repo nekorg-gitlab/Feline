@@ -11,7 +11,7 @@ import { ScreenSize, useScreenSizeContext } from '../../../hooks/useScreenSize';
 import { BackRouteHandler } from '../../../components/BackRouteHandler';
 
 export function HomeSearch() {
-  const scrollRef = useRef<HTMLDivElement>(null);
+  const scrollRef = useRef<HTMLDivElement>(null as unknown as HTMLDivElement);
   const rooms = useHomeRooms();
   const screenSize = useScreenSizeContext();
   const navigate = useNavigate();

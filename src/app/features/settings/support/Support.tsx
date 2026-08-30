@@ -37,7 +37,7 @@ export function Support({ requestClose }: SupportProps) {
             <Box shrink="No">
               <Button
                 onClick={requestClose}
-                variant="Surface"
+                variant="Secondary"
                 size="300"
                 radii="300"
                 aria-label="Close"

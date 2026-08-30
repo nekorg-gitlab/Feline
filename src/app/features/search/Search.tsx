@@ -137,8 +137,8 @@ type SearchProps = {
 export function Search({ requestClose }: SearchProps) {
   const mx = useMatrixClient();
   const useAuthentication = useMediaAuthentication();
-  const scrollRef = useRef<HTMLDivElement>(null);
-  const inputRef = useRef<HTMLInputElement>(null);
+  const scrollRef = useRef<HTMLDivElement>(null as unknown as HTMLDivElement);
+  const inputRef = useRef<HTMLInputElement>(null as unknown as HTMLInputElement);
   const { navigateRoom, navigateSpace } = useRoomNavigate();
   const roomToUnread = useAtomValue(roomToUnreadAtom);
 
@@ -251,7 +251,7 @@ export function Search({ requestClose }: SearchProps) {
             allowOutsideClick: true,
             clickOutsideDeactivates: true,
             onDeactivate: requestClose,
-            escapeDeactivates: (evt) => {
+            escapeDeactivates: (evt: any) => {
               evt.stopPropagation();
               return true;
             },

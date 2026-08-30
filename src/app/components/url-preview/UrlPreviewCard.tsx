@@ -109,9 +109,9 @@ export const UrlPreviewCard = as<'div', { url: string; ts: number }>(
 );
 
 export const UrlPreviewHolder = as<'div'>(({ children, ...props }, ref) => {
-  const scrollRef = useRef<HTMLDivElement>(null);
-  const backAnchorRef = useRef<HTMLDivElement>(null);
-  const frontAnchorRef = useRef<HTMLDivElement>(null);
+  const scrollRef = useRef<HTMLDivElement>(null as unknown as HTMLDivElement);
+  const backAnchorRef = useRef<HTMLDivElement>(null as unknown as HTMLDivElement);
+  const frontAnchorRef = useRef<HTMLDivElement>(null as unknown as HTMLDivElement);
   const [backVisible, setBackVisible] = useState(true);
   const [frontVisible, setFrontVisible] = useState(true);
 

@@ -207,7 +207,7 @@ function HomeEmpty() {
 export function Home() {
   const mx = useMatrixClient();
   useNavToActivePathMapper('home');
-  const scrollRef = useRef<HTMLDivElement>(null);
+  const scrollRef = useRef<HTMLDivElement>(null as unknown as HTMLDivElement);
   const rooms = useHomeRooms();
   const directs = useDirectRooms();
   const notificationPreferences = useRoomsNotificationPreferencesContext();

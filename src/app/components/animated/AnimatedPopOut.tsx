@@ -43,7 +43,12 @@ export function AnimatedPopOut({ anchor, content, children, ...props }: PopOutPr
   );
 
   return (
-    <FoldsPopOut anchor={effectiveAnchor as any} content={innerContent} {...(props as any)} data-closing={closing ? 'true' : undefined}>
+    <FoldsPopOut
+      anchor={effectiveAnchor as any}
+      content={innerContent}
+      {...(props as any)}
+      data-closing={closing ? 'true' : undefined}
+    >
       {children}
     </FoldsPopOut>
   );

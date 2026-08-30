@@ -36,8 +36,8 @@ export type PdfViewerProps = {
 
 export const PdfViewer = as<'div', PdfViewerProps>(
   ({ className, name, src, requestClose, ...props }, ref) => {
-    const containerRef = useRef<HTMLDivElement>(null);
-    const scrollRef = useRef<HTMLDivElement>(null);
+    const containerRef = useRef<HTMLDivElement>(null as unknown as HTMLDivElement);
+    const scrollRef = useRef<HTMLDivElement>(null as unknown as HTMLDivElement);
     const { zoom, zoomIn, zoomOut, setZoom } = useZoom(0.2);
 
     const [pdfJSState, loadPdfJS] = usePdfJSLoader();

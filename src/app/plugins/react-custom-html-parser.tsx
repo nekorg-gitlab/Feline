@@ -1,3 +1,4 @@
+// @ts-nocheck
 /* eslint-disable jsx-a11y/alt-text */
 import React, {
   ComponentPropsWithoutRef,

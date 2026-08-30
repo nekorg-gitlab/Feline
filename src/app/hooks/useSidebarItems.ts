@@ -71,7 +71,7 @@ export const useSidebarItems = (
   const [sidebarItems, setSidebarItems] = useState(() => {
     const inFelineSpacesContent = getAccountData(
       mx,
-      AccountDataEvent.FelineSpaces,
+      AccountDataEvent.FelineSpaces as any,
     )?.getContent<InFelineSpacesContent>();
     return parseSidebar(mx, orphanSpaces, inFelineSpacesContent);
   });
@@ -79,7 +79,7 @@ export const useSidebarItems = (
   useEffect(() => {
     const inFelineSpacesContent = getAccountData(
       mx,
-      AccountDataEvent.FelineSpaces,
+      AccountDataEvent.FelineSpaces as any,
     )?.getContent<InFelineSpacesContent>();
     setSidebarItems(parseSidebar(mx, orphanSpaces, inFelineSpacesContent));
   }, [mx, orphanSpaces]);
@@ -88,7 +88,7 @@ export const useSidebarItems = (
     mx,
     useCallback(
       (mEvent) => {
-        if (mEvent.getType() === AccountDataEvent.FelineSpaces) {
+        if (mEvent.getType() === (AccountDataEvent.FelineSpaces as any)) {
           const newContent = mEvent.getContent<InFelineSpacesContent>();
           setSidebarItems(parseSidebar(mx, orphanSpaces, newContent));
         }
@@ -127,7 +127,8 @@ export const makeFelineSpacesContent = (
   items: SidebarItems,
 ): InFelineSpacesContent => {
   const currentInSpaces =
-    getAccountData(mx, AccountDataEvent.FelineSpaces)?.getContent<InFelineSpacesContent>() ?? {};
+    getAccountData(mx, AccountDataEvent.FelineSpaces as any)?.getContent<InFelineSpacesContent>() ??
+    {};
 
   const newSpacesContent: InFelineSpacesContent = {
     ...currentInSpaces,

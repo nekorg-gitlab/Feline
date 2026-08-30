@@ -159,8 +159,8 @@ export function Lobby() {
   const lex = useMemo(() => new ASCIILexicalTable(' '.charCodeAt(0), '~'.charCodeAt(0), 6), []);
   const members = useRoomMembers(mx, space.roomId);
 
-  const scrollRef = useRef<HTMLDivElement>(null);
-  const heroSectionRef = useRef<HTMLDivElement>(null);
+  const scrollRef = useRef<HTMLDivElement>(null as unknown as HTMLDivElement);
+  const heroSectionRef = useRef<HTMLDivElement>(null as unknown as HTMLDivElement);
   const [heroSectionHeight, setHeroSectionHeight] = useState<number>();
   const [spaceRooms, setSpaceRooms] = useAtom(spaceRoomsAtom);
   const [isDrawer] = useSetting(settingsAtom, 'isPeopleDrawer');
@@ -374,7 +374,7 @@ export function Lobby() {
   const reordering = reorderingRoom || reorderingSpace;
 
   useDnDMonitor(
-    scrollRef,
+    scrollRef as unknown as React.RefObject<HTMLElement>,
     setDraggingItem,
     useCallback(
       (item, container) => {
@@ -422,7 +422,7 @@ export function Lobby() {
         newItems.push(rId);
       }
       const newSpacesContent = makeFelineSpacesContent(mx, newItems);
-      mx.setAccountData(AccountDataEvent.FelineSpaces as any, newSpacesContent as any);
+      (mx.setAccountData as any)(AccountDataEvent.FelineSpaces as any, newSpacesContent as any);
     },
     [mx, sidebarItems, sidebarSpaces],
   );
@@ -440,8 +440,8 @@ export function Lobby() {
               <PageContent>
                 <PageContentCenter>
                   <ScrollTopContainer
-                    scrollRef={scrollRef}
-                    anchorRef={heroSectionRef}
+                    scrollRef={scrollRef as unknown as React.RefObject<HTMLElement>}
+                    anchorRef={heroSectionRef as unknown as React.RefObject<HTMLElement>}
                     onVisibilityChange={setOnTop}
                   >
                     <IconButton

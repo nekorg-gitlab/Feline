@@ -36,7 +36,7 @@ export function makeImagePacks(packEvents: MatrixEvent[]): ImagePack[] {
 }
 
 export function getRoomImagePack(room: Room, stateKey: string): ImagePack | undefined {
-  const packEvent = getStateEvent(room, StateEvent.PoniesRoomEmotes, stateKey);
+  const packEvent = getStateEvent(room, StateEvent.PoniesRoomEmotes as any, stateKey);
   if (!packEvent) return undefined;
   const packId = packEvent.getId();
   if (!packId) return undefined;
@@ -44,13 +44,15 @@ export function getRoomImagePack(room: Room, stateKey: string): ImagePack | unde
 }
 
 export function getRoomImagePacks(room: Room): ImagePack[] {
-  const packEvents = getStateEvents(room, StateEvent.PoniesRoomEmotes);
+  const packEvents = getStateEvents(room, StateEvent.PoniesRoomEmotes as any);
   return makeImagePacks(packEvents);
 }
 
 export function getGlobalImagePacks(mx: MatrixClient): ImagePack[] {
-  const emoteRoomsContent = getAccountData(mx, AccountDataEvent.PoniesEmoteRooms)?.getContent() as
-    EmoteRoomsContent | undefined;
+  const emoteRoomsContent = getAccountData(
+    mx,
+    AccountDataEvent.PoniesEmoteRooms as any,
+  )?.getContent() as EmoteRoomsContent | undefined;
   if (typeof emoteRoomsContent !== 'object') return [];
 
   const { rooms: roomIdToPackInfo } = emoteRoomsContent;
@@ -63,7 +65,7 @@ export function getGlobalImagePacks(mx: MatrixClient): ImagePack[] {
     const room = mx.getRoom(roomId);
     if (!room) return [];
     const packStateKeyToUnknown = roomIdToPackInfo[roomId];
-    const packEvents = getStateEvents(room, StateEvent.PoniesRoomEmotes);
+    const packEvents = getStateEvents(room, StateEvent.PoniesRoomEmotes as any);
     const globalPackEvents = packEvents.filter((mE) => {
       const stateKey = mE.getStateKey();
       if (typeof stateKey === 'string') return !!packStateKeyToUnknown[stateKey];
@@ -76,7 +78,7 @@ export function getGlobalImagePacks(mx: MatrixClient): ImagePack[] {
 }
 
 export function getUserImagePack(mx: MatrixClient): ImagePack | undefined {
-  const packEvent = getAccountData(mx, AccountDataEvent.PoniesUserEmotes);
+  const packEvent = getAccountData(mx, AccountDataEvent.PoniesUserEmotes as any);
   const userId = mx.getUserId();
   if (!packEvent || !userId) {
     return undefined;

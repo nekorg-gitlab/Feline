@@ -39,7 +39,7 @@ export function AddServer() {
   const mx = useMatrixClient();
   const navigate = useNavigate();
   const [dialog, setDialog] = useState(false);
-  const serverInputRef = useRef<HTMLInputElement>(null);
+  const serverInputRef = useRef<HTMLInputElement>(null as unknown as HTMLInputElement);
 
   const [exploreState] = useAsyncCallback(
     useCallback((server: string) => mx.publicRooms({ server, limit: 1 }), [mx]),

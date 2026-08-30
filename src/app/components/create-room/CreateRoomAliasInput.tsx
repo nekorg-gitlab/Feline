@@ -17,7 +17,7 @@ import { useDebounce } from '../../hooks/useDebounce';
 
 export function CreateRoomAliasInput({ disabled }: { disabled?: boolean }) {
   const mx = useMatrixClient();
-  const aliasInputRef = useRef<HTMLInputElement>(null);
+  const aliasInputRef = useRef<HTMLInputElement>(null as unknown as HTMLInputElement);
   const [aliasAvail, setAliasAvail] = useState<AsyncState<boolean, Error>>({
     status: AsyncStatus.Idle,
   });

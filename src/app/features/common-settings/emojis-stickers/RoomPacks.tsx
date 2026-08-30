@@ -170,7 +170,7 @@ export function RoomPacks({ onViewPack }: RoomPacksProps) {
   const creators = useRoomCreators(room);
 
   const permissions = useRoomPermissions(creators, powerLevels);
-  const canEdit = permissions.stateEvent(StateEvent.PoniesRoomEmotes, mx.getSafeUserId());
+  const canEdit = permissions.stateEvent(StateEvent.PoniesRoomEmotes as any, mx.getSafeUserId());
 
   const unfilteredPacks = useRoomImagePacks(room);
   const packs = useMemo(() => unfilteredPacks.filter((pack) => !pack.deleted), [unfilteredPacks]);

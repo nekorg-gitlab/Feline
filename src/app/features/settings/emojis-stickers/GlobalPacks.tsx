@@ -303,7 +303,9 @@ export function GlobalPacks({ onViewPack }: GlobalPacksProps) {
   const [applyState, applyChanges] = useAsyncCallback(
     useCallback(async () => {
       const content =
-        mx.getAccountData(AccountDataEvent.PoniesEmoteRooms)?.getContent<EmoteRoomsContent>() ?? {};
+        ((mx.getAccountData as any)(
+          AccountDataEvent.PoniesEmoteRooms as any,
+        )?.getContent() as EmoteRoomsContent) ?? {};
       const updatedContent: EmoteRoomsContent = JSON.parse(JSON.stringify(content));
 
       selectedPacks.forEach((addr) => {
@@ -320,7 +322,7 @@ export function GlobalPacks({ onViewPack }: GlobalPacksProps) {
         }
       });
 
-      await mx.setAccountData(AccountDataEvent.PoniesEmoteRooms, updatedContent);
+      await (mx.setAccountData as any)(AccountDataEvent.PoniesEmoteRooms as any, updatedContent);
     }, [mx, selectedPacks, removedPacks]),
   );
 

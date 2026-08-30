@@ -402,7 +402,7 @@ function SpaceTab({
 }: SpaceTabProps) {
   const mx = useMatrixClient();
   const useAuthentication = useMediaAuthentication();
-  const targetRef = useRef<HTMLDivElement>(null);
+  const targetRef = useRef<HTMLDivElement>(null as unknown as HTMLDivElement);
   const directUrl = getRoomAvatarUrl(mx, space, 96, useAuthentication);
   const authUrl = useAuthenticatedMxcUrl(space.getMxcAvatarUrl() ?? undefined, 96, 96, 'crop');
   const avatarUrl = useAuthentication ? authUrl : directUrl;
@@ -509,8 +509,8 @@ type OpenedSpaceFolderProps = {
   children?: ReactNode;
 };
 function OpenedSpaceFolder({ folder, onClose, children }: OpenedSpaceFolderProps) {
-  const aboveTargetRef = useRef<HTMLDivElement>(null);
-  const belowTargetRef = useRef<HTMLDivElement>(null);
+  const aboveTargetRef = useRef<HTMLDivElement>(null as unknown as HTMLDivElement);
+  const belowTargetRef = useRef<HTMLDivElement>(null as unknown as HTMLDivElement);
 
   const spaceDraggable: SidebarDraggable = useMemo(() => ({ folder, open: true }), [folder]);
 
@@ -572,7 +572,7 @@ function ClosedSpaceFolder({
   disabled,
 }: ClosedSpaceFolderProps) {
   const mx = useMatrixClient();
-  const handlerRef = useRef<HTMLDivElement>(null);
+  const handlerRef = useRef<HTMLDivElement>(null as unknown as HTMLDivElement);
 
   const spaceDraggable: FolderDraggable = useMemo(() => ({ folder }), [folder]);
   useDraggableItem(spaceDraggable, handlerRef, onDragging);
@@ -756,7 +756,10 @@ export function SpaceTabs({ scrollRef }: SpaceTabsProps) {
 
         const newSpacesContent = makeFelineSpacesContent(mx, newItems);
         localEchoSidebarItem(parseSidebar(mx, orphanSpaces, newSpacesContent));
-        mx.setAccountData(AccountDataEvent.FelineSpaces, newSpacesContent);
+        (mx.setAccountData as any)(
+          AccountDataEvent.FelineSpaces as unknown as string,
+          newSpacesContent,
+        );
       },
       [mx, sidebarItems, setOpenedFolder, localEchoSidebarItem, orphanSpaces],
     ),
@@ -802,7 +805,10 @@ export function SpaceTabs({ scrollRef }: SpaceTabsProps) {
 
       const newSpacesContent = makeFelineSpacesContent(mx, newItems);
       localEchoSidebarItem(parseSidebar(mx, orphanSpaces, newSpacesContent));
-      mx.setAccountData(AccountDataEvent.FelineSpaces, newSpacesContent);
+      (mx.setAccountData as any)(
+        AccountDataEvent.FelineSpaces as unknown as string,
+        newSpacesContent,
+      );
     },
     [mx, sidebarItems, orphanSpaces, localEchoSidebarItem],
   );

@@ -487,17 +487,17 @@ export function RoomTimeline({ room, eventId, roomInputRef, editor }: RoomTimeli
   const imagePackRooms: Room[] = useImagePackRooms(room.roomId, roomToParents);
 
   const [unreadInfo, setUnreadInfo] = useState(() => getRoomUnreadInfo(room, true));
-  const readUptoEventIdRef = useRef<string>();
+  const readUptoEventIdRef = useRef<string | undefined>(undefined);
   if (unreadInfo) {
     readUptoEventIdRef.current = unreadInfo.readUptoEventId;
   }
 
-  const atBottomAnchorRef = useRef<HTMLElement>(null);
+  const atBottomAnchorRef = useRef<HTMLElement>(null as unknown as HTMLElement);
   const [atBottom, setAtBottom] = useState<boolean>(true);
   const atBottomRef = useRef(atBottom);
   atBottomRef.current = atBottom;
 
-  const scrollRef = useRef<HTMLDivElement>(null);
+  const scrollRef = useRef<HTMLDivElement>(null as unknown as HTMLDivElement);
   const scrollToBottomRef = useRef({
     count: 0,
     smooth: true,

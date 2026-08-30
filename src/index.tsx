@@ -30,7 +30,8 @@ try {
   const parsed = raw ? JSON.parse(raw) : {};
   const r = typeof parsed.roundness === 'number' ? parsed.roundness : 50;
   applyRoundness(r);
-  const animEnabled = typeof parsed.animationsEnabled === 'boolean' ? parsed.animationsEnabled : true;
+  const animEnabled =
+    typeof parsed.animationsEnabled === 'boolean' ? parsed.animationsEnabled : true;
   const animSpeed = typeof parsed.animationSpeed === 'number' ? parsed.animationSpeed : 1;
   applyAnimations(animEnabled, animSpeed);
 } catch (err) {

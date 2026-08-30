@@ -373,7 +373,7 @@ type CallEmbedProviderProps = {
 };
 export function CallEmbedProvider({ children }: CallEmbedProviderProps) {
   const callEmbed = useAtomValue(callEmbedAtom);
-  const callEmbedRef = useRef<HTMLDivElement>(null);
+  const callEmbedRef = useRef<HTMLDivElement>(null as unknown as HTMLDivElement);
   const joined = useCallJoined(callEmbed);
 
   const selectedRoom = useSelectedRoom();

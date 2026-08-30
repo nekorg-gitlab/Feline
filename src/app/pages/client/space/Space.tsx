@@ -403,7 +403,7 @@ export function Space() {
   const space = useSpace();
   useNavToActivePathMapper(space.roomId);
   const spaceIdOrAlias = getCanonicalAliasOrRoomId(mx, space.roomId);
-  const scrollRef = useRef<HTMLDivElement>(null);
+  const scrollRef = useRef<HTMLDivElement>(null as unknown as HTMLDivElement);
   const mDirects = useAtomValue(mDirectAtom);
   const roomToUnread = useAtomValue(roomToUnreadAtom);
   const allRooms = useAtomValue(allRoomsAtom);

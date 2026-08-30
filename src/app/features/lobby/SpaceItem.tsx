@@ -430,7 +430,7 @@ export const SpaceItemCard = as<'div', SpaceItemCardProps>(
     const useAuthentication = useMediaAuthentication();
     const { roomId, content } = item;
     const space = getRoom(roomId);
-    const targetRef = useRef<HTMLDivElement>(null);
+    const targetRef = useRef<HTMLDivElement>(null as unknown as HTMLDivElement);
     useDraggableItem(item, targetRef, onDragging);
 
     const spaceAvatarMxc = space?.getMxcAvatarUrl() ?? undefined;

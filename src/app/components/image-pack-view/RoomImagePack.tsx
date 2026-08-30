@@ -22,7 +22,7 @@ export function RoomImagePack({ room, stateKey }: RoomImagePackProps) {
   const creators = useRoomCreators(room);
 
   const permissions = useRoomPermissions(creators, powerLevels);
-  const canEditImagePack = permissions.stateEvent(StateEvent.PoniesRoomEmotes, userId);
+  const canEditImagePack = permissions.stateEvent(StateEvent.PoniesRoomEmotes as any, userId);
 
   const fallbackPack = useMemo(() => {
     const fakePackId = randomStr(4);
@@ -44,7 +44,7 @@ export function RoomImagePack({ room, stateKey }: RoomImagePackProps) {
 
       await mx.sendStateEvent(
         address.roomId,
-        StateEvent.PoniesRoomEmotes,
+        StateEvent.PoniesRoomEmotes as any,
         packContent,
         address.stateKey,
       );

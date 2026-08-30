@@ -95,9 +95,9 @@ export function Members({ requestClose }: MembersProps) {
   const memberSort = useMemberSort(sortFilterIndex, useMemberSortMenu());
   const memberPowerSort = useMemberPowerSort(creators, getPowerLevel);
 
-  const scrollRef = useRef<HTMLDivElement>(null);
-  const searchInputRef = useRef<HTMLInputElement>(null);
-  const scrollTopAnchorRef = useRef<HTMLDivElement>(null);
+  const scrollRef = useRef<HTMLDivElement>(null as unknown as HTMLDivElement);
+  const searchInputRef = useRef<HTMLInputElement>(null as unknown as HTMLInputElement);
+  const scrollTopAnchorRef = useRef<HTMLDivElement>(null as unknown as HTMLDivElement);
 
   const sortedMembers = useMemo(
     () =>

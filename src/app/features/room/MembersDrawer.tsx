@@ -182,9 +182,9 @@ type MembersDrawerProps = {
 export function MembersDrawer({ room, members }: MembersDrawerProps) {
   const mx = useMatrixClient();
   const useAuthentication = useMediaAuthentication();
-  const scrollRef = useRef<HTMLDivElement>(null);
-  const searchInputRef = useRef<HTMLInputElement>(null);
-  const scrollTopAnchorRef = useRef<HTMLDivElement>(null);
+  const scrollRef = useRef<HTMLDivElement>(null as unknown as HTMLDivElement);
+  const searchInputRef = useRef<HTMLInputElement>(null as unknown as HTMLInputElement);
+  const scrollTopAnchorRef = useRef<HTMLDivElement>(null as unknown as HTMLDivElement);
   const powerLevels = usePowerLevelsContext();
   const creators = useRoomCreators(room);
   const getPowerTag = useGetMemberPowerTag(room, creators, powerLevels);

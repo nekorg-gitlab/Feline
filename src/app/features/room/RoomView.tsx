@@ -55,8 +55,8 @@ const shouldFocusMessageField = (evt: KeyboardEvent): boolean => {
 };
 
 export function RoomView({ eventId }: { eventId?: string }) {
-  const roomInputRef = useRef<HTMLDivElement>(null);
-  const roomViewRef = useRef<HTMLDivElement>(null);
+  const roomInputRef = useRef<HTMLDivElement>(null as unknown as HTMLDivElement);
+  const roomViewRef = useRef<HTMLDivElement>(null as unknown as HTMLDivElement);
 
   const [hideActivity] = useSetting(settingsAtom, 'hideActivity');
 

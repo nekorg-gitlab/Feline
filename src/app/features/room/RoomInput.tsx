@@ -166,7 +166,7 @@ export const RoomInput = forwardRef<HTMLDivElement, RoomInputProps>(
       roomUploadAtomFamily,
       selectedFiles.map((f) => f.file),
     );
-    const uploadBoardHandlers = useRef<UploadBoardImperativeHandlers>();
+    const uploadBoardHandlers = useRef<UploadBoardImperativeHandlers | undefined>(undefined);
 
     const imagePackRooms: Room[] = useImagePackRooms(roomId, roomToParents);
 
@@ -188,7 +188,9 @@ export const RoomInput = forwardRef<HTMLDivElement, RoomInputProps>(
           );
           encryptFiles.forEach((ef) =>
             fileItems.push({
-              ...ef,
+              file: ef.file,
+              originalFile: ef.originalFile as File,
+              encInfo: ef.encInfo,
               metadata: {
                 markedAsSpoiler: false,
               },

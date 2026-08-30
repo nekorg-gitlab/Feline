@@ -175,7 +175,7 @@ export const ReactionViewer = as<'div', ReactionViewerProps>(
                       key={senderId}
                       room={room}
                       senderId={senderId}
-                      member={member}
+                      member={member ?? undefined}
                       getName={getName}
                     />
                   );

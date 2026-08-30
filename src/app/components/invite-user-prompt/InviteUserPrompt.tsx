@@ -59,7 +59,7 @@ export function InviteUserPrompt({ room, requestClose }: InviteUserProps) {
   const mx = useMatrixClient();
   const alive = useAlive();
 
-  const inputRef = useRef<HTMLInputElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null as unknown as HTMLInputElement);
   const directUsers = useDirectUsers();
   const [validUserId, setValidUserId] = useState<string>();
 

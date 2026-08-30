@@ -353,8 +353,8 @@ export function PublicRooms() {
   const [searchParams] = useSearchParams();
   const serverSearchParams = useServerSearchParams(searchParams);
   const isSearch = !!serverSearchParams.term;
-  const scrollRef = useRef<HTMLDivElement>(null);
-  const searchInputRef = useRef<HTMLInputElement>(null);
+  const scrollRef = useRef<HTMLDivElement>(null as unknown as HTMLDivElement);
+  const searchInputRef = useRef<HTMLInputElement>(null as unknown as HTMLInputElement);
   const navigate = useNavigate();
   const roomTypeFilters = useRoomTypeFilters();
 

@@ -171,11 +171,14 @@ export function Settings({ initialPage, requestClose }: SettingsProps) {
   }, [activePage, duration]);
 
   const renderPage = (page: SettingsPages | undefined) => {
-    if (page === SettingsPages.GeneralPage) return <General requestClose={handlePageRequestClose} />;
-    if (page === SettingsPages.AccountPage) return <Account requestClose={handlePageRequestClose} />;
+    if (page === SettingsPages.GeneralPage)
+      return <General requestClose={handlePageRequestClose} />;
+    if (page === SettingsPages.AccountPage)
+      return <Account requestClose={handlePageRequestClose} />;
     if (page === SettingsPages.NotificationPage)
       return <Notifications requestClose={handlePageRequestClose} />;
-    if (page === SettingsPages.DevicesPage) return <Devices requestClose={handlePageRequestClose} />;
+    if (page === SettingsPages.DevicesPage)
+      return <Devices requestClose={handlePageRequestClose} />;
     if (page === SettingsPages.EmojisStickersPage)
       return <EmojisStickers requestClose={handlePageRequestClose} />;
     if (page === SettingsPages.AppearancePage)
@@ -183,8 +186,14 @@ export function Settings({ initialPage, requestClose }: SettingsProps) {
     if (page === SettingsPages.DeveloperToolsPage)
       return <DeveloperTools requestClose={handlePageRequestClose} />;
     if (page === SettingsPages.AboutPage)
-      return <About requestClose={handlePageRequestClose} onSupportClick={() => setActivePage(SettingsPages.SupportPage)} />;
-    if (page === SettingsPages.SupportPage) return <Support requestClose={handlePageRequestClose} />;
+      return (
+        <About
+          requestClose={handlePageRequestClose}
+          onSupportClick={() => setActivePage(SettingsPages.SupportPage)}
+        />
+      );
+    if (page === SettingsPages.SupportPage)
+      return <Support requestClose={handlePageRequestClose} />;
     return null;
   };
 

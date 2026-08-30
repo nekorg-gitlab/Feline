@@ -282,7 +282,7 @@ export const RoomPinMenu = forwardRef<HTMLDivElement, RoomPinMenuProps>(
     const [dateFormatString] = useSetting(settingsAtom, 'dateFormatString');
 
     const { navigateRoom } = useRoomNavigate();
-    const scrollRef = useRef<HTMLDivElement>(null);
+    const scrollRef = useRef<HTMLDivElement>(null as unknown as HTMLDivElement);
 
     const virtualizer = useVirtualizer({
       count: sortedPinnedEvent.length,

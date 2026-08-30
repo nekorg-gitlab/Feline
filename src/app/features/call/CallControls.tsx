@@ -34,7 +34,7 @@ type CallControlsProps = {
   callEmbed: CallEmbed;
 };
 export function CallControls({ callEmbed }: CallControlsProps) {
-  const controlRef = useRef<HTMLDivElement>(null);
+  const controlRef = useRef<HTMLDivElement>(null as unknown as HTMLDivElement);
   const [compact, setCompact] = useState(document.body.clientWidth < 500);
 
   useResizeObserver(

@@ -33,12 +33,12 @@ export default function ReactPrism({
 }: {
   children: (ref: MutableRefObject<null>) => ReactNode;
 }) {
-  const codeRef = useRef<HTMLElement>(null);
+  const codeRef = useRef<HTMLElement>(null as unknown as HTMLElement);
 
   useEffect(() => {
     const el = codeRef.current;
     if (el) Prism.highlightElement(el);
   }, []);
 
-  return <>{children(codeRef as MutableRefObject<null>)}</>;
+  return <>{children(codeRef as unknown as MutableRefObject<null>)}</>;
 }

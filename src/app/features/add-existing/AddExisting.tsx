@@ -80,7 +80,7 @@ export function AddExistingModal({ parentId, space, requestClose }: AddExistingM
   const rooms = useRooms(mx, allRoomsAtom, mDirects);
   const directs = useDirects(mx, allRoomsAtom, mDirects);
   const roomIdToParents = useAtomValue(roomToParentsAtom);
-  const scrollRef = useRef<HTMLDivElement>(null);
+  const scrollRef = useRef<HTMLDivElement>(null as unknown as HTMLDivElement);
 
   const [selected, setSelected] = useState<string[]>([]);
 

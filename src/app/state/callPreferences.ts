@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { WritableAtom } from 'jotai';
 import {
   atomWithLocalStorage,

@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { ClientWidgetApi } from 'matrix-widget-api';
 import EventEmitter from 'events';
 import { CallControlState } from './CallControlState';

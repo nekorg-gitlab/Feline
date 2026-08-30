@@ -217,7 +217,7 @@ type UserModerationProps = {
 export function UserModeration({ userId, canKick, canBan, canInvite }: UserModerationProps) {
   const mx = useMatrixClient();
   const room = useRoom();
-  const reasonInputRef = useRef<HTMLInputElement>(null);
+  const reasonInputRef = useRef<HTMLInputElement>(null as unknown as HTMLInputElement);
 
   const getReason = useCallback((): string | undefined => {
     const reason = reasonInputRef.current?.value.trim() || undefined;

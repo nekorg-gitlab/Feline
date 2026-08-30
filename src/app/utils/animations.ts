@@ -6,7 +6,10 @@ export const MAX_ANIMATION_SPEED = 2;
 const ANIM_STYLE_ID = 'feline-animations-override';
 
 export const clampSpeed = (v: number): number =>
-  Math.max(MIN_ANIMATION_SPEED, Math.min(MAX_ANIMATION_SPEED, Number(v) || DEFAULT_ANIMATION_SPEED));
+  Math.max(
+    MIN_ANIMATION_SPEED,
+    Math.min(MAX_ANIMATION_SPEED, Number(v) || DEFAULT_ANIMATION_SPEED),
+  );
 
 export const getAnimationDuration = (enabled: boolean, speed: number): number => {
   if (!enabled) return 0;
@@ -36,7 +39,10 @@ export const applyAnimations = (enabled: boolean, speed: number): void => {
   --feline-anim-easing-emphasized: cubic-bezier(0.2, 0, 0, 1);
   --feline-anim-easing-standard: cubic-bezier(0.2, 0, 0, 1);
 }
-${enabled ? '' : `
+${
+  enabled
+    ? ''
+    : `
 *,
 *::before,
 *::after {
@@ -44,7 +50,8 @@ ${enabled ? '' : `
   animation-iteration-count: 1 !important;
   transition-duration: 0.01ms !important;
 }
-`}
+`
+}
   `.trim();
 
   const root = document.documentElement;

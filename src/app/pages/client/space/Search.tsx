@@ -14,7 +14,7 @@ import { BackRouteHandler } from '../../../components/BackRouteHandler';
 
 export function SpaceSearch() {
   const mx = useMatrixClient();
-  const scrollRef = useRef<HTMLDivElement>(null);
+  const scrollRef = useRef<HTMLDivElement>(null as unknown as HTMLDivElement);
   const space = useSpace();
   const screenSize = useScreenSizeContext();
 

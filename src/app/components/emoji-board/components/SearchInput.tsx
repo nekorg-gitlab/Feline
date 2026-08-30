@@ -14,7 +14,7 @@ export function SearchInput({
   allowTextCustomEmoji,
   onTextCustomEmojiSelect,
 }: SearchInputProps) {
-  const inputRef = useRef<HTMLInputElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null as unknown as HTMLInputElement);
 
   const handleReact = () => {
     const textEmoji = inputRef.current?.value.trim();

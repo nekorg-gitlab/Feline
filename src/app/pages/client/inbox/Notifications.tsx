@@ -597,8 +597,8 @@ export function Notifications() {
   const { navigateRoom } = useRoomNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const notificationsSearchParams = useNotificationsSearchParams(searchParams);
-  const scrollRef = useRef<HTMLDivElement>(null);
-  const scrollTopAnchorRef = useRef<HTMLDivElement>(null);
+  const scrollRef = useRef<HTMLDivElement>(null as unknown as HTMLDivElement);
+  const scrollTopAnchorRef = useRef<HTMLDivElement>(null as unknown as HTMLDivElement);
   const [refreshIntervalTime, setRefreshIntervalTime] = useState(DEFAULT_REFRESH_MS);
 
   const onlyHighlight = notificationsSearchParams.only === 'highlight';

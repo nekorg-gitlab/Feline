@@ -726,7 +726,7 @@ export function Invites() {
     return [known, unknown, spam];
   }, [mx, allRooms, invitesData]);
 
-  const containerRef = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null as unknown as HTMLDivElement);
   const [compact, setCompact] = useState(document.body.clientWidth <= COMPACT_CARD_WIDTH);
   useElementSizeObserver(
     useCallback(() => containerRef.current, []),

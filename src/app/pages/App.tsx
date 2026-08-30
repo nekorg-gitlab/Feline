@@ -64,15 +64,15 @@ function App() {
                 )}
               >
                 {(clientConfig) => (
-                    <ClientConfigProvider value={clientConfig}>
-                      <QueryClientProvider client={queryClient}>
-                        <JotaiProvider>
-                          <AnimationsSync />
-                          <RouterProvider router={createRouter(clientConfig, screenSize)} />
-                        </JotaiProvider>
-                        <ReactQueryDevtools initialIsOpen={false} />
-                      </QueryClientProvider>
-                    </ClientConfigProvider>
+                  <ClientConfigProvider value={clientConfig}>
+                    <QueryClientProvider client={queryClient}>
+                      <JotaiProvider>
+                        <AnimationsSync />
+                        <RouterProvider router={createRouter(clientConfig, screenSize)} />
+                      </JotaiProvider>
+                      <ReactQueryDevtools initialIsOpen={false} />
+                    </QueryClientProvider>
+                  </ClientConfigProvider>
                 )}
               </ClientConfigLoader>
             </FeatureCheck>

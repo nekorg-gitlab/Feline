@@ -73,7 +73,7 @@ export function AfterItemDropTarget({
   nextRoomId,
   canDrop,
 }: AfterItemDropTargetProps) {
-  const targetRef = useRef<HTMLDivElement>(null);
+  const targetRef = useRef<HTMLDivElement>(null as unknown as HTMLDivElement);
   const [dropState, setDropState] = useState<'idle' | 'allow' | 'not-allow'>('idle');
 
   useEffect(() => {

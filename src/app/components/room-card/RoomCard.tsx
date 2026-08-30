@@ -47,7 +47,7 @@ const setGridColumnCount = (grid: HTMLElement, count: GridColumnCount): void => 
 };
 
 export function RoomCardGrid({ children }: { children: ReactNode }) {
-  const gridRef = useRef<HTMLDivElement>(null);
+  const gridRef = useRef<HTMLDivElement>(null as unknown as HTMLDivElement);
 
   useElementSizeObserver(
     useCallback(() => gridRef.current, []),

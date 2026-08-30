@@ -36,7 +36,7 @@ export function ServerPicker({
   onServerChange: (server: string) => void;
 }) {
   const [serverMenuAnchor, setServerMenuAnchor] = useState<RectCords>();
-  const serverInputRef = useRef<HTMLInputElement>(null);
+  const serverInputRef = useRef<HTMLInputElement>(null as unknown as HTMLInputElement);
 
   useEffect(() => {
     // sync input with it outside server changes

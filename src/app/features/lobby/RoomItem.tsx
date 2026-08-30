@@ -316,8 +316,8 @@ export const RoomItemCard = as<'div', RoomItemCardProps>(
     const useAuthentication = useMediaAuthentication();
     const { roomId, content } = item;
     const room = getRoom(roomId);
-    const targetRef = useRef<HTMLDivElement>(null);
-    const targetHandleRef = useRef<HTMLDivElement>(null);
+    const targetRef = useRef<HTMLDivElement>(null as unknown as HTMLDivElement);
+    const targetHandleRef = useRef<HTMLDivElement>(null as unknown as HTMLDivElement);
     useDraggableItem(item, targetRef, onDragging, targetHandleRef);
 
     const joined = room?.getMyMembership() === Membership.Join;

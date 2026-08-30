@@ -290,7 +290,7 @@ function RoundnessControl() {
       ? 'Square'
       : value === MAX_ROUNDNESS
         ? 'Circle'
-            : value < 50
+        : value < 50
           ? 'Sharpness'
           : value === 50
             ? 'Default'
@@ -394,11 +394,7 @@ function RoundnessControl() {
             </Text>
           </Box>
         </Box>
-        <Box
-          direction="Column"
-          gap="200"
-          style={{ padding: `0 ${config.space.S300}` }}
-        >
+        <Box direction="Column" gap="200" style={{ padding: `0 ${config.space.S300}` }}>
           <Box
             style={{
               position: 'relative',
@@ -407,30 +403,30 @@ function RoundnessControl() {
               alignItems: 'center',
             }}
           >
-              <input
-                className="roundness-slider"
-                type="range"
-                min={MIN_ROUNDNESS}
-                max={MAX_ROUNDNESS}
-                step={1}
-                value={value}
-                onChange={(e) => handleChange(Number(e.target.value))}
-                aria-label="Roundness"
-                style={{
-                  WebkitAppearance: 'none',
-                  appearance: 'none',
-                  width: '100%',
-                  height: toRem(8),
-                  borderRadius: '9999px',
-                  background: `linear-gradient(to right, ${color.Primary.Main} 0%, ${color.Primary.Main} ${displayPercent}%, ${color.Background.Container} ${displayPercent}%, ${color.Background.Container} 100%)`,
-                  border: `1px solid ${color.SurfaceVariant.ContainerLine}`,
-                  outline: 'none',
-                  cursor: 'pointer',
-                  margin: 0,
-                  padding: 0,
-                }}
-              />
-              <style>{`
+            <input
+              className="roundness-slider"
+              type="range"
+              min={MIN_ROUNDNESS}
+              max={MAX_ROUNDNESS}
+              step={1}
+              value={value}
+              onChange={(e) => handleChange(Number(e.target.value))}
+              aria-label="Roundness"
+              style={{
+                WebkitAppearance: 'none',
+                appearance: 'none',
+                width: '100%',
+                height: toRem(8),
+                borderRadius: '9999px',
+                background: `linear-gradient(to right, ${color.Primary.Main} 0%, ${color.Primary.Main} ${displayPercent}%, ${color.Background.Container} ${displayPercent}%, ${color.Background.Container} 100%)`,
+                border: `1px solid ${color.SurfaceVariant.ContainerLine}`,
+                outline: 'none',
+                cursor: 'pointer',
+                margin: 0,
+                padding: 0,
+              }}
+            />
+            <style>{`
                 .roundness-slider::-webkit-slider-thumb {
                   -webkit-appearance: none;
                   appearance: none;
@@ -479,7 +475,7 @@ function RoundnessControl() {
                   box-shadow: 0 0 0 3px ${color.Primary.Container}, 0 1px 6px rgba(0,0,0,0.22);
                 }
               `}</style>
-            </Box>
+          </Box>
           <Box
             direction="Row"
             justifyContent="SpaceBetween"
@@ -558,7 +554,8 @@ function AnimationsControl() {
   const [animationSpeed, setAnimationSpeed] = useSetting(settingsAtom, 'animationSpeed');
   const raw = typeof animationSpeed === 'number' ? animationSpeed : DEFAULT_ANIMATION_SPEED;
   const speed = clampSpeed(raw);
-  const displayPercent = ((speed - MIN_ANIMATION_SPEED) / (MAX_ANIMATION_SPEED - MIN_ANIMATION_SPEED)) * 100;
+  const displayPercent =
+    ((speed - MIN_ANIMATION_SPEED) / (MAX_ANIMATION_SPEED - MIN_ANIMATION_SPEED)) * 100;
 
   const handleSpeedChange = (v: number) => {
     const clamped = clampSpeed(v);
@@ -714,7 +711,12 @@ function AnimationsControl() {
               }
             `}</style>
           </Box>
-          <Box direction="Row" justifyContent="SpaceBetween" alignItems="Center" style={{ padding: `0 ${config.space.S200}` }}>
+          <Box
+            direction="Row"
+            justifyContent="SpaceBetween"
+            alignItems="Center"
+            style={{ padding: `0 ${config.space.S200}` }}
+          >
             <Text size="T200" priority="300">
               Slower
             </Text>

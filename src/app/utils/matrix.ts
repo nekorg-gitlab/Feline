@@ -112,7 +112,8 @@ export const encryptFile = async (
 }> => {
   const dataBuffer = await file.arrayBuffer();
   const encryptedAttachment = await encryptAttachment(dataBuffer);
-  const encFile = new File([encryptedAttachment.data], file.name, {
+  const filename = file instanceof File ? file.name : 'file';
+  const encFile = new File([encryptedAttachment.data], filename, {
     type: file.type,
   });
   return {
@@ -132,7 +133,7 @@ export const decryptFile = async (
   return blob;
 };
 
-export type TUploadContent = File | Blob;
+export type TUploadContent = File;
 
 export type ContentUploadOptions = {
   name?: string;
@@ -319,7 +320,7 @@ export const downloadMedia = async (src: string, mx?: MatrixClient): Promise<Blo
   let token: string | undefined;
   if (mx) {
     try {
-      token = mx.getAccessToken();
+      token = mx.getAccessToken() ?? undefined;
     } catch (err) {
       if (import.meta.env.DEV) console.warn('[matrix] getAccessToken failed', err);
     }

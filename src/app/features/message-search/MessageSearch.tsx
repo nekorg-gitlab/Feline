@@ -60,8 +60,8 @@ export function MessageSearch({
   const [hour24Clock] = useSetting(settingsAtom, 'hour24Clock');
   const [dateFormatString] = useSetting(settingsAtom, 'dateFormatString');
 
-  const searchInputRef = useRef<HTMLInputElement>(null);
-  const scrollTopAnchorRef = useRef<HTMLDivElement>(null);
+  const searchInputRef = useRef<HTMLInputElement>(null as unknown as HTMLInputElement);
+  const scrollTopAnchorRef = useRef<HTMLDivElement>(null as unknown as HTMLDivElement);
   const [searchParams, setSearchParams] = useSearchParams();
   const searchPathSearchParams = useSearchPathSearchParams(searchParams);
   const { navigateRoom } = useRoomNavigate();
