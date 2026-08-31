@@ -110,6 +110,19 @@ function fixManifestBase() {
 }
 
 function securityHeaders() {
+  const csp = [
+    "default-src 'self'",
+    "script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval'",
+    "style-src 'self' 'unsafe-inline'",
+    "img-src 'self' data: blob: https: mxc:",
+    "media-src 'self' blob: https: mxc:",
+    "connect-src 'self' https: wss: blob:",
+    "font-src 'self' data:",
+    "frame-src 'self' https://www.youtube-nocookie.com https://open.spotify.com",
+    "worker-src 'self' blob:",
+    "object-src 'none'",
+    "base-uri 'self'",
+  ].join('; ');
   return {
     name: 'security-headers',
     configureServer(server) {
@@ -118,17 +131,25 @@ function securityHeaders() {
           'Permissions-Policy',
           'camera=(self), microphone=(self), display-capture=(self), geolocation=(), payment=(), usb=()',
         );
+        res.setHeader('Content-Security-Policy', csp);
         next();
       });
     },
     transformIndexHtml(html) {
-      if (!html.includes('Permissions-Policy')) {
-        return html.replace(
+      let out = html;
+      if (!out.includes('Permissions-Policy')) {
+        out = out.replace(
           '</head>',
           '  <meta http-equiv="Permissions-Policy" content="camera=(self), microphone=(self), display-capture=(self), geolocation=(), payment=(), usb=()" />\n  </head>',
         );
       }
-      return html;
+      if (!out.includes('Content-Security-Policy')) {
+        out = out.replace(
+          '</head>',
+          `  <meta http-equiv="Content-Security-Policy" content="${csp}" />\n  </head>`,
+        );
+      }
+      return out;
     },
   };
 }

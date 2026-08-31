@@ -31,6 +31,8 @@ import { PdfViewer } from './Pdf-viewer';
 import { TextViewer } from './text-viewer';
 import { testMatrixTo } from '../plugins/matrix-to';
 import { IImageContent } from '../../types/matrix/common';
+import { getEmbedsForUrls } from '../utils/embed';
+import { Embed } from './embed';
 
 type RenderMessageContentProps = {
   displayName: string;
@@ -52,7 +54,7 @@ export function RenderMessageContent({
   edited,
   getContent,
   mediaAutoLoad,
-  urlPreview,
+  urlPreview: _urlPreview,
   highlightRegex,
   htmlReactParserOptions,
   linkifyOpts,
@@ -61,12 +63,24 @@ export function RenderMessageContent({
   const renderUrlsPreview = (urls: string[]) => {
     const filteredUrls = urls.filter((url) => !testMatrixTo(url));
     if (filteredUrls.length === 0) return undefined;
+
+    const embeds = getEmbedsForUrls(filteredUrls);
+    const embedUrls = new Set(embeds.map((e) => e.url));
+    const remainingUrls = filteredUrls.filter((u) => !embedUrls.has(u));
+
+    if (embeds.length === 0 && remainingUrls.length === 0) return undefined;
+
     return (
-      <UrlPreviewHolder>
-        {filteredUrls.map((url) => (
-          <UrlPreviewCard key={url} url={url} ts={ts} />
-        ))}
-      </UrlPreviewHolder>
+      <>
+        {embeds.length > 0 && <Embed embeds={embeds} ts={ts} />}
+        {remainingUrls.length > 0 && (
+          <UrlPreviewHolder>
+            {remainingUrls.map((url) => (
+              <UrlPreviewCard key={url} url={url} ts={ts} />
+            ))}
+          </UrlPreviewHolder>
+        )}
+      </>
     );
   };
   const renderCaption = () => {
@@ -85,7 +99,7 @@ export function RenderMessageContent({
               linkifyOpts={linkifyOpts}
             />
           )}
-          renderUrlsPreview={urlPreview ? renderUrlsPreview : undefined}
+          renderUrlsPreview={renderUrlsPreview}
         />
       );
     }
@@ -141,7 +155,7 @@ export function RenderMessageContent({
             linkifyOpts={linkifyOpts}
           />
         )}
-        renderUrlsPreview={urlPreview ? renderUrlsPreview : undefined}
+        renderUrlsPreview={renderUrlsPreview}
       />
     );
   }
@@ -160,7 +174,7 @@ export function RenderMessageContent({
             linkifyOpts={linkifyOpts}
           />
         )}
-        renderUrlsPreview={urlPreview ? renderUrlsPreview : undefined}
+        renderUrlsPreview={renderUrlsPreview}
       />
     );
   }
@@ -178,7 +192,7 @@ export function RenderMessageContent({
             linkifyOpts={linkifyOpts}
           />
         )}
-        renderUrlsPreview={urlPreview ? renderUrlsPreview : undefined}
+        renderUrlsPreview={renderUrlsPreview}
       />
     );
   }
