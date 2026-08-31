@@ -23,6 +23,8 @@ import { useMemberPowerCompare } from '../../hooks/useMemberPowerCompare';
 import { CreatorChip } from './CreatorChip';
 import { getHomeChatCreatePath, withSearchParam } from '../../pages/pathUtils';
 import { DirectCreateSearchParams } from '../../pages/paths';
+import { useUserProfile } from '../../hooks/useUserProfile';
+import { BiographyDisplay } from './BiographyDisplay';
 
 type UserRoomProfileProps = {
   userId: string;
@@ -62,6 +64,7 @@ export function UserRoomProfile({ userId }: UserRoomProfileProps) {
   const avatarUrl = useAuthentication ? authAvatarUrl : directAvatarUrl;
 
   const presence = useUserPresence(userId);
+  const userProfile = useUserProfile(userId);
 
   const handleMessage = () => {
     closeUserRoomProfile();
@@ -116,6 +119,25 @@ export function UserRoomProfile({ userId }: UserRoomProfileProps) {
             {userId !== myUserId && <OptionsChip userId={userId} />}
           </Box>
         </Box>
+        {userProfile.bio && (
+          <Box
+            direction="Column"
+            gap="100"
+            style={{
+              padding: `${config.space.S200} ${config.space.S300}`,
+              backgroundColor: 'rgb(var(--folds-color-SurfaceVariant-Container))',
+              borderRadius: config.radii.R300,
+            }}
+          >
+            <Text size="L400">Biography</Text>
+            <BiographyDisplay
+              bio={userProfile.bio}
+              userId={userId}
+              displayName={displayName}
+              avatarUrl={avatarUrl}
+            />
+          </Box>
+        )}
         {ignored && <IgnoredUserAlert />}
         {member && membership === Membership.Ban && (
           <UserBanAlert
