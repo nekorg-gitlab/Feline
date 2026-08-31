@@ -56,6 +56,7 @@ import {
 } from '../../components/editor';
 import { EmojiBoard, EmojiBoardTab } from '../../components/emoji-board';
 import { UseStateProvider } from '../../components/UseStateProvider';
+import { getGifContentUrl, getGifDimensions, KlipyGif } from '../../utils/klipy';
 import {
   TUploadContent,
   encryptFile,
@@ -186,6 +187,7 @@ export const RoomInput = forwardRef<HTMLDivElement, RoomInputProps>(
     const uploadBoardHandlers = useRef<UploadBoardImperativeHandlers | undefined>(undefined);
 
     const imagePackRooms: Room[] = useImagePackRooms(roomId, roomToParents);
+    const gifQueueRef = useRef(Promise.resolve() as Promise<void>);
 
     const [toolbar, setToolbar] = useSetting(settingsAtom, 'editorToolbar');
     const [autocompleteQuery, setAutocompleteQuery] =
@@ -470,6 +472,102 @@ export const RoomInput = forwardRef<HTMLDivElement, RoomInputProps>(
       });
     };
 
+    const handleGifSelect = useCallback(
+      (gif: KlipyGif) => {
+        const task = async () => {
+          const gifUrl = getGifContentUrl(gif);
+          if (!gifUrl) throw new Error('No gif url');
+          try {
+            const res = await fetch(gifUrl);
+            if (!res.ok) throw new Error('Failed to fetch gif');
+            const blob = await res.blob();
+            const ext = gifUrl.split('.').pop()?.split('?')[0] ?? 'gif';
+            const mime =
+              blob.type ||
+              (ext === 'mp4' ? 'video/mp4' : ext === 'webm' ? 'video/webm' : 'image/gif');
+            const fileName = `${gif.slug || 'gif'}.${ext}`;
+            const file = new File([blob], fileName, { type: mime });
+
+            let uploadFile: File = file;
+            let encInfo;
+            let originalFile: File | Blob = file;
+            if (room.hasEncryptionStateEvent()) {
+              const enc = await encryptFile(file);
+              uploadFile = enc.file;
+              encInfo = enc.encInfo;
+              originalFile = enc.originalFile as File;
+            }
+
+            const data = await mx.uploadContent(uploadFile, {
+              name: file.name,
+              type: file.type,
+              includeFilename: true,
+            });
+            const mxc = data.content_uri;
+            if (!mxc) throw new Error('No mxc');
+
+            const item: TUploadItem = {
+              file: uploadFile,
+              originalFile: originalFile as File,
+              encInfo,
+              metadata: { markedAsSpoiler: false },
+            };
+
+            const isVideo = file.type.startsWith('video');
+            let content: IContent;
+            try {
+              content = isVideo
+                ? await getVideoMsgContent(mx, item, mxc)
+                : await getImageMsgContent(mx, item, mxc);
+            } catch {
+              const d = getGifDimensions(gif);
+              if (isVideo) {
+                content = {
+                  msgtype: MsgType.Video,
+                  body: gif.title || fileName,
+                  filename: fileName,
+                  info: {
+                    mimetype: file.type,
+                    size: file.size,
+                    w: d.w,
+                    h: d.h,
+                  },
+                } as IContent;
+              } else {
+                content = {
+                  msgtype: MsgType.Image,
+                  body: gif.title || fileName,
+                  filename: fileName,
+                  info: {
+                    mimetype: file.type,
+                    size: file.size,
+                    w: d.w,
+                    h: d.h,
+                  },
+                } as IContent;
+              }
+              if (encInfo) {
+                (content as any).file = { ...encInfo, url: mxc };
+              } else {
+                (content as any).url = mxc;
+              }
+            }
+            if (isVideo) {
+              (content.info as any) = { ...(content.info as any), isGif: true };
+            }
+
+            const txnId = mx.makeTxnId();
+            await mx.sendMessage(roomId, content as any, txnId);
+          } catch (e) {
+            if (import.meta.env.DEV) console.error('Gif send failed', e);
+          }
+        };
+
+        gifQueueRef.current = gifQueueRef.current.then(task, task);
+      },
+      [mx, room, roomId],
+    );
+
     return (
       <div ref={ref}>
         {selectedFiles.length > 0 && (
@@ -654,6 +752,7 @@ export const RoomInput = forwardRef<HTMLDivElement, RoomInputProps>(
                         onEmojiSelect={handleEmoticonSelect}
                         onCustomEmojiSelect={handleEmoticonSelect}
                         onStickerSelect={handleStickerSelect}
+                        onGifSelect={handleGifSelect}
                         requestClose={() => {
                           setEmojiBoardTab((t) => {
                             if (t) {
@@ -681,21 +780,24 @@ export const RoomInput = forwardRef<HTMLDivElement, RoomInputProps>(
                       </IconButton>
                     )}
                     <IconButton
+                      aria-pressed={emojiBoardTab === EmojiBoardTab.Gif}
+                      onClick={() => setEmojiBoardTab(EmojiBoardTab.Gif)}
+                      variant="SurfaceVariant"
+                      size="300"
+                      radii="300"
+                      aria-label="GIFs"
+                    >
+                      <Text size="B300">GIF</Text>
+                    </IconButton>
+                    <IconButton
                       ref={emojiBtnRef}
-                      aria-pressed={
-                        hideStickerBtn ? !!emojiBoardTab : emojiBoardTab === EmojiBoardTab.Emoji
-                      }
+                      aria-pressed={emojiBoardTab === EmojiBoardTab.Emoji}
                       onClick={() => setEmojiBoardTab(EmojiBoardTab.Emoji)}
                       variant="SurfaceVariant"
                       size="300"
                       radii="300"
                     >
-                      <Icon
-                        src={Icons.Smile}
-                        filled={
-                          hideStickerBtn ? !!emojiBoardTab : emojiBoardTab === EmojiBoardTab.Emoji
-                        }
-                      />
+                      <Icon src={Icons.Smile} filled={emojiBoardTab === EmojiBoardTab.Emoji} />
                     </IconButton>
                   </PopOut>
                 )}

@@ -2,7 +2,7 @@ import React from 'react';
 import { MsgType } from 'matrix-js-sdk';
 import { HTMLReactParserOptions } from 'html-react-parser';
 import { Opts } from 'linkifyjs';
-import { config } from 'folds';
+import { config, toRem } from 'folds';
 import {
   AudioContent,
   DownloadFile,
@@ -24,6 +24,8 @@ import {
   UnsupportedContent,
   VideoContent,
 } from './message';
+import { Attachment, AttachmentBox } from './message/attachment';
+import { GifContent } from './message/content/GifContent';
 import { UrlPreviewCard, UrlPreviewHolder } from './url-preview';
 import { Image, MediaControl, Video } from './media';
 import { ImageViewer } from './image-viewer';
@@ -33,6 +35,7 @@ import { testMatrixTo } from '../plugins/matrix-to';
 import { IImageContent } from '../../types/matrix/common';
 import { getEmbedsForUrls } from '../utils/embed';
 import { Embed } from './embed';
+import { scaleYDimension } from '../utils/common';
 
 type RenderMessageContentProps = {
   displayName: string;
@@ -218,6 +221,30 @@ export function RenderMessageContent({
   }
 
   if (msgType === MsgType.Video) {
+    const videoContent: any = getContent();
+    const isGif = !!(videoContent?.info as any)?.isGif;
+    if (isGif) {
+      const info = videoContent.info;
+      const mxcUrl = videoContent.file?.url ?? videoContent.url;
+      const height = scaleYDimension(info?.w || 400, 400, info?.h || 400);
+      if (typeof mxcUrl !== 'string') return <UnsupportedContent />;
+      return (
+        <>
+          <Attachment outlined={outlineAttachment}>
+            <AttachmentBox style={{ height: toRem(height < 48 ? 48 : height) }}>
+              <GifContent
+                body={videoContent.body || 'GIF'}
+                mimeType={info?.mimetype ?? 'video/mp4'}
+                url={mxcUrl}
+                info={info}
+                encInfo={videoContent.file}
+              />
+            </AttachmentBox>
+          </Attachment>
+          {renderCaption()}
+        </>
+      );
+    }
     return (
       <>
         <MVideo

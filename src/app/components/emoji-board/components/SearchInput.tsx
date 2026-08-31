@@ -7,12 +7,14 @@ type SearchInputProps = {
   onChange: ChangeEventHandler<HTMLInputElement>;
   allowTextCustomEmoji?: boolean;
   onTextCustomEmojiSelect?: (text: string) => void;
+  placeholder?: string;
 };
 export function SearchInput({
   query,
   onChange,
   allowTextCustomEmoji,
   onTextCustomEmojiSelect,
+  placeholder,
 }: SearchInputProps) {
   const inputRef = useRef<HTMLInputElement>(null as unknown as HTMLInputElement);
 
@@ -27,7 +29,7 @@ export function SearchInput({
       ref={inputRef}
       variant="SurfaceVariant"
       size="400"
-      placeholder={allowTextCustomEmoji ? 'Search or Text Reaction ' : 'Search'}
+      placeholder={placeholder ?? (allowTextCustomEmoji ? 'Search or Text Reaction ' : 'Search')}
       maxLength={50}
       after={
         allowTextCustomEmoji && query ? (

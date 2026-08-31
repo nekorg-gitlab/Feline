@@ -8,8 +8,9 @@ import React, {
   useEffect,
   useMemo,
   useRef,
+  useState,
 } from 'react';
-import { Box, config, Icons, Scroll } from 'folds';
+import { Box, Button, Spinner, Text, config, Icons, Scroll } from 'folds';
 import FocusTrap from 'focus-trap-react';
 import { isKeyHotkey } from 'is-hotkey';
 import { Room } from 'matrix-js-sdk';
@@ -51,6 +52,14 @@ import {
   EmojiBoardLayout,
 } from './components';
 import { EmojiBoardTab, EmojiType } from './types';
+import {
+  fetchKlipyGifs,
+  getGifPreviewPoster,
+  getGifPreviewUrl,
+  isGifVideoUrl,
+  KlipyGif,
+} from '../../utils/klipy';
+import * as gifCss from '../gif-board/styles.css';
 import { VirtualTile } from '../virtualizer';
 
 const RECENT_GROUP_ID = 'recent_group';
@@ -360,6 +369,7 @@ type EmojiBoardProps = {
   onEmojiSelect?: (unicode: string, shortcode: string) => void;
   onCustomEmojiSelect?: (mxc: string, shortcode: string) => void;
   onStickerSelect?: (mxc: string, shortcode: string, label: string) => void;
+  onGifSelect?: (gif: KlipyGif) => void;
   allowTextCustomEmoji?: boolean;
   addToRecentEmoji?: boolean;
 };
@@ -373,12 +383,14 @@ export function EmojiBoard({
   onEmojiSelect,
   onCustomEmojiSelect,
   onStickerSelect,
+  onGifSelect,
   allowTextCustomEmoji,
   addToRecentEmoji = true,
 }: EmojiBoardProps) {
   const mx = useMatrixClient();
 
   const emojiTab = tab === EmojiBoardTab.Emoji;
+  const gifTab = tab === EmojiBoardTab.Gif;
   const usage = emojiTab ? ImageUsage.Emoticon : ImageUsage.Sticker;
 
   const previewAtom = useMemo(
@@ -417,6 +429,65 @@ export function EmojiBoard({
       [search, resetSearch],
     ),
     { wait: 200 },
+  );
+
+  const [gifQuery, setGifQuery] = useState('');
+  const [gifs, setGifs] = useState<KlipyGif[]>([]);
+  const [gifPage, setGifPage] = useState(1);
+  const [gifHasNext, setGifHasNext] = useState(false);
+  const [gifLoading, setGifLoading] = useState(false);
+  const [gifError, setGifError] = useState<string | undefined>();
+
+  const loadGifs = useCallback(async (q: string, p: number, append: boolean) => {
+    setGifLoading(true);
+    setGifError(undefined);
+    try {
+      const data = await fetchKlipyGifs(q, p, 24);
+      setGifs((prev) => (append ? [...prev, ...data.data] : data.data));
+      setGifHasNext(data.has_next);
+      setGifPage(data.current_page);
+    } catch {
+      setGifError('Failed to load GIFs');
+    } finally {
+      setGifLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (gifTab) loadGifs('', 1, false);
+  }, [gifTab, loadGifs]);
+
+  const debouncedGifSearch = useDebounce(
+    useCallback(
+      (q: string) => {
+        loadGifs(q, 1, false);
+        setGifQuery(q);
+      },
+      [loadGifs],
+    ),
+    { wait: 400 },
+  );
+
+  const handleGifSearchChange: ChangeEventHandler<HTMLInputElement> = useCallback(
+    (evt) => {
+      const v = evt.target.value;
+      setGifQuery(v);
+      const trimmed = v.trim();
+      debouncedGifSearch(trimmed);
+    },
+    [debouncedGifSearch],
+  );
+
+  const handleGifLoadMore = useCallback(() => {
+    loadGifs(gifQuery.trim(), gifPage + 1, true);
+  }, [loadGifs, gifQuery, gifPage]);
+
+  const handleGifSelect = useCallback(
+    (gif: KlipyGif) => {
+      onGifSelect?.(gif);
+      requestClose();
+    },
+    [onGifSelect, requestClose],
   );
 
   const contentScrollRef = useRef<HTMLDivElement>(null);
@@ -508,10 +579,11 @@ export function EmojiBoard({
             {onTabChange && <EmojiBoardTabs tab={tab} onTabChange={onTabChange} />}
             <SearchInput
               key={tab}
-              query={result?.query}
-              onChange={handleOnChange}
-              allowTextCustomEmoji={allowTextCustomEmoji}
+              query={gifTab ? gifQuery : result?.query}
+              onChange={gifTab ? handleGifSearchChange : handleOnChange}
+              allowTextCustomEmoji={gifTab ? false : allowTextCustomEmoji}
               onTextCustomEmojiSelect={handleTextCustomEmojiSelect}
+              placeholder={gifTab ? 'Search on Klipy' : undefined}
             />
           </Box>
         }
@@ -522,58 +594,127 @@ export function EmojiBoard({
               packs={imagePacks}
               onScrollToGroup={handleScrollToGroup}
             />
-          ) : (
-            <StickerSidebar
-              activeGroupAtom={activeGroupIdAtom}
-              packs={imagePacks}
-              onScrollToGroup={handleScrollToGroup}
-            />
-          )
+          ) : undefined
         }
       >
-        <Box grow="Yes">
-          <EmojiGroupHolder
-            key={tab}
-            contentScrollRef={contentScrollRef}
-            previewAtom={previewAtom}
-            onGroupItemClick={handleGroupItemClick}
-          >
-            {searchedItems && (
-              <EmojiGroup
-                id={SEARCH_GROUP_ID}
-                label={searchedItems.length ? 'Search Results' : 'No Results found'}
+        {gifTab ? (
+          <Box grow="Yes" direction="Column" style={{ minHeight: 0 }}>
+            <Scroll size="400" hideTrack>
+              <Box
+                direction="Column"
+                gap="200"
+                style={{ padding: `${config.space.S200} ${config.space.S200} 0` }}
               >
-                {searchedItems.map(renderItem)}
-              </EmojiGroup>
-            )}
-            <div
-              ref={virtualBaseRef}
-              style={{
-                position: 'relative',
-                height: virtualizer.getTotalSize(),
-              }}
-            >
-              {vItems.map((vItem) => {
-                const group = groups[vItem.index];
-
-                return (
-                  <VirtualTile
-                    virtualItem={vItem}
-                    style={{ paddingTop: config.space.S200 }}
-                    ref={virtualizer.measureElement}
-                    key={vItem.index}
+                {gifError && (
+                  <Box justifyContent="Center" style={{ padding: config.space.S400 }}>
+                    <Text size="T300" priority="300">
+                      {gifError}
+                    </Text>
+                  </Box>
+                )}
+                <div className={gifCss.Grid}>
+                  {gifs.map((gif) => {
+                    const preview = getGifPreviewUrl(gif);
+                    const poster = getGifPreviewPoster(gif);
+                    const isVideo = isGifVideoUrl(preview);
+                    return (
+                      <button
+                        key={gif.id}
+                        type="button"
+                        className={gifCss.GifItem}
+                        onClick={() => handleGifSelect(gif)}
+                        aria-label={gif.title}
+                      >
+                        {isVideo ? (
+                          <video
+                            className={gifCss.GifImg}
+                            src={preview}
+                            poster={poster || undefined}
+                            autoPlay
+                            loop
+                            muted
+                            playsInline
+                            preload="metadata"
+                          />
+                        ) : (
+                          <img
+                            className={gifCss.GifImg}
+                            src={preview}
+                            alt={gif.title}
+                            loading="lazy"
+                          />
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+                {gifLoading && (
+                  <Box justifyContent="Center" style={{ padding: config.space.S400 }}>
+                    <Spinner size="300" variant="Secondary" fill="Soft" />
+                  </Box>
+                )}
+                {!gifLoading && gifs.length === 0 && !gifError && (
+                  <Box justifyContent="Center" style={{ padding: config.space.S400 }}>
+                    <Text size="T300">No GIFs found</Text>
+                  </Box>
+                )}
+                {gifHasNext && !gifLoading && (
+                  <Box justifyContent="Center" style={{ padding: config.space.S200 }}>
+                    <Button variant="Secondary" size="300" radii="300" onClick={handleGifLoadMore}>
+                      <Text size="B300">Load more</Text>
+                    </Button>
+                  </Box>
+                )}
+              </Box>
+            </Scroll>
+          </Box>
+        ) : (
+          <>
+            <Box grow="Yes">
+              <EmojiGroupHolder
+                key={tab}
+                contentScrollRef={contentScrollRef}
+                previewAtom={previewAtom}
+                onGroupItemClick={handleGroupItemClick}
+              >
+                {searchedItems && (
+                  <EmojiGroup
+                    id={SEARCH_GROUP_ID}
+                    label={searchedItems.length ? 'Search Results' : 'No Results found'}
                   >
-                    <EmojiGroup key={group.id} id={group.id} label={group.name}>
-                      {group.items.map(renderItem)}
-                    </EmojiGroup>
-                  </VirtualTile>
-                );
-              })}
-            </div>
-            {tab === EmojiBoardTab.Sticker && groups.length === 0 && <NoStickerPacks />}
-          </EmojiGroupHolder>
-        </Box>
-        <Preview previewAtom={previewAtom} />
+                    {searchedItems.map(renderItem)}
+                  </EmojiGroup>
+                )}
+                <div
+                  ref={virtualBaseRef}
+                  style={{
+                    position: 'relative',
+                    height: virtualizer.getTotalSize(),
+                  }}
+                >
+                  {vItems.map((vItem) => {
+                    const group = groups[vItem.index];
+
+                    return (
+                      <VirtualTile
+                        virtualItem={vItem}
+                        style={{ paddingTop: config.space.S200 }}
+                        ref={virtualizer.measureElement}
+                        key={vItem.index}
+                      >
+                        <EmojiGroup key={group.id} id={group.id} label={group.name}>
+                          {group.items.map(renderItem)}
+                        </EmojiGroup>
+                      </VirtualTile>
+                    );
+                  })}
+                </div>
+                {tab === EmojiBoardTab.Sticker && groups.length === 0 && <NoStickerPacks />}
+              </EmojiGroupHolder>
+            </Box>
+            <Preview previewAtom={previewAtom} />
+          </>
+        )}
       </EmojiBoardLayout>
     </FocusTrap>
   );
