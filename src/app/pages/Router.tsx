@@ -61,6 +61,7 @@ import { ClientNonUIFeatures } from './client/ClientNonUIFeatures';
 import { AuthRouteThemeManager, UnAuthRouteThemeManager } from './ThemeManager';
 import { ReceiveSelfDeviceVerification } from '../components/DeviceVerification';
 import { AutoRestoreBackupOnVerification } from '../components/BackupRestore';
+import { VerificationPrompt } from '../components/VerificationPrompt';
 import { RoomSettingsRenderer } from '../features/room-settings';
 import { ClientRoomsNotificationPreferences } from './client/ClientRoomsNotificationPreferences';
 import { SpaceSettingsRenderer } from '../features/space-settings';
@@ -147,6 +148,7 @@ export const createRouter = (clientConfig: ClientConfig, screenSize: ScreenSize)
                       <CreateSpaceModalRenderer />
                       <RoomSettingsRenderer />
                       <SpaceSettingsRenderer />
+                      <VerificationPrompt />
                       <ReceiveSelfDeviceVerification />
                       <AutoRestoreBackupOnVerification />
                     </ClientNonUIFeatures>

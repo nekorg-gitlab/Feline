@@ -32,9 +32,12 @@ import {
   DeviceVerificationSetup,
 } from '../../../components/DeviceVerificationSetup';
 import { stopPropagation } from '../../../utils/keyboard';
-import { useAuthMetadata } from '../../../hooks/useAuthMetadata';
-import { withSearchParam } from '../../../pages/pathUtils';
-import { useAccountManagementActions } from '../../../hooks/useAccountManagement';
+import { getFallbackSession } from '../../../state/sessions';
+import { getStoredRecoveryKey } from '../../../utils/verification';
+import FileSaver from 'file-saver';
+import { Dialog, Header } from 'folds';
+import { useDeviceList, useSplitCurrentDevice } from '../../../hooks/useDeviceList';
+import { useDeviceVerificationStatus } from '../../../hooks/useDeviceVerificationStatus';
 
 type VerificationStatusBadgeProps = {
   verificationStatus: VerificationStatus;
@@ -254,11 +257,21 @@ export function EnableVerification({ visible }: EnableVerificationProps) {
 }
 
 export function DeviceVerificationOptions() {
+  const mx = useMatrixClient();
+  const crypto = mx.getCrypto();
+  const [devices] = useDeviceList();
+  const [currentDevice] = useSplitCurrentDevice(devices);
+  const verificationStatus = useDeviceVerificationStatus(
+    crypto,
+    mx.getSafeUserId(),
+    currentDevice?.device_id,
+  );
+  const isVerified = verificationStatus === VerificationStatus.Verified;
+
   const [menuCords, setMenuCords] = useState<RectCords>();
-  const authMetadata = useAuthMetadata();
-  const accountManagementActions = useAccountManagementActions();
 
   const [reset, setReset] = useState(false);
+  const [downloadInfoOpen, setDownloadInfoOpen] = useState(false);
 
   const handleCancelReset = useCallback(() => {
     setReset(false);
@@ -268,20 +281,21 @@ export function DeviceVerificationOptions() {
     setMenuCords(event.currentTarget.getBoundingClientRect());
   };
 
-  const handleReset = () => {
+  const handleDownload = useCallback(() => {
     setMenuCords(undefined);
-
-    if (authMetadata) {
-      const authUrl = authMetadata.account_management_uri ?? authMetadata.issuer;
-      window.open(
-        withSearchParam(authUrl, {
-          action: accountManagementActions.crossSigningReset,
-        }),
-        '_blank',
-      );
+    const session = getFallbackSession();
+    if (!session) return;
+    const key = getStoredRecoveryKey(session.userId);
+    if (key) {
+      const blob = new Blob([key], { type: 'text/plain;charset=us-ascii' });
+      FileSaver.saveAs(blob, 'recovery-key.txt');
       return;
     }
+    setDownloadInfoOpen(true);
+  }, []);
 
+  const handleReset = () => {
+    setMenuCords(undefined);
     setReset(true);
   };
 
@@ -316,6 +330,19 @@ export function DeviceVerificationOptions() {
           >
             <Menu>
               <Box direction="Column" gap="100" style={{ padding: config.space.S100 }}>
+                {isVerified && (
+                  <MenuItem
+                    variant="Secondary"
+                    onClick={handleDownload}
+                    size="300"
+                    radii="300"
+                    fill="None"
+                  >
+                    <Text as="span" size="T300" truncate>
+                      Download Recovery Key
+                    </Text>
+                  </MenuItem>
+                )}
                 <MenuItem
                   variant="Critical"
                   onClick={handleReset}
@@ -343,6 +370,48 @@ export function DeviceVerificationOptions() {
               }}
             >
               <DeviceVerificationReset onCancel={handleCancelReset} />
+            </FocusTrap>
+          </OverlayCenter>
+        </Overlay>
+      )}
+      {downloadInfoOpen && (
+        <Overlay open backdrop={<OverlayBackdrop />}>
+          <OverlayCenter>
+            <FocusTrap
+              focusTrapOptions={{
+                initialFocus: false,
+                onDeactivate: () => setDownloadInfoOpen(false),
+                clickOutsideDeactivates: true,
+                escapeDeactivates: stopPropagation,
+              }}
+            >
+              <Dialog>
+                <Header
+                  style={{
+                    padding: `0 ${config.space.S200} 0 ${config.space.S400}`,
+                    borderBottomWidth: config.borderWidth.B300,
+                  }}
+                  variant="Surface"
+                  size="500"
+                >
+                  <Box grow="Yes">
+                    <Text size="H4">Download Recovery Key</Text>
+                  </Box>
+                  <IconButton size="300" radii="300" onClick={() => setDownloadInfoOpen(false)}>
+                    <Icon src={Icons.Cross} />
+                  </IconButton>
+                </Header>
+                <Box style={{ padding: config.space.S400 }} direction="Column" gap="400">
+                  <Text size="T300">
+                    No recovery key found in local storage. It may have been created on another
+                    device. Please reset your verification to generate a new recovery key that you
+                    can download and keep safe.
+                  </Text>
+                  <Button variant="Secondary" onClick={() => setDownloadInfoOpen(false)}>
+                    <Text size="B400">Okay</Text>
+                  </Button>
+                </Box>
+              </Dialog>
             </FocusTrap>
           </OverlayCenter>
         </Overlay>

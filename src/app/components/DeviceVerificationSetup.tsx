@@ -25,6 +25,10 @@ import { ActionUIA, ActionUIAFlowsLoader } from './ActionUIA';
 import { useMatrixClient } from '../hooks/useMatrixClient';
 import { useAlive } from '../hooks/useAlive';
 import { UseStateProvider } from './UseStateProvider';
+import { storeRecoveryKey, setVerificationHasReset } from '../utils/verification';
+import { useAuthMetadata } from '../hooks/useAuthMetadata';
+import { useAccountManagementActions } from '../hooks/useAccountManagement';
+import { withSearchParam } from '../pages/pathUtils';
 
 type UIACallback<T> = (
   authDict: AuthDict | null,
@@ -67,10 +71,10 @@ function makeUIAAction<T>(
   return action;
 }
 
-type SetupVerificationProps = {
+export type SetupVerificationProps = {
   onComplete: (recoveryKey: string) => void;
 };
-function SetupVerification({ onComplete }: SetupVerificationProps) {
+export function SetupVerification({ onComplete }: SetupVerificationProps) {
   const mx = useMatrixClient();
   const alive = useAlive();
 
@@ -157,6 +161,13 @@ function SetupVerification({ onComplete }: SetupVerificationProps) {
 
         await crypto.resetKeyBackup();
 
+        try {
+          const uid = mx.getSafeUserId();
+          storeRecoveryKey(uid, recoveryKeyData.encodedPrivateKey);
+        } catch {
+          // ignore storage errors
+        }
+
         onComplete(recoveryKeyData.encodedPrivateKey);
       },
       [mx, onComplete, authUploadDeviceSigningKeys],
@@ -224,10 +235,10 @@ function SetupVerification({ onComplete }: SetupVerificationProps) {
   );
 }
 
-type RecoveryKeyDisplayProps = {
+export type RecoveryKeyDisplayProps = {
   recoveryKey: string;
 };
-function RecoveryKeyDisplay({ recoveryKey }: RecoveryKeyDisplayProps) {
+export function RecoveryKeyDisplay({ recoveryKey }: RecoveryKeyDisplayProps) {
   const [show, setShow] = useState(false);
 
   const handleCopy = () => {
@@ -321,6 +332,9 @@ type DeviceVerificationResetProps = {
 };
 export const DeviceVerificationReset = forwardRef<HTMLDivElement, DeviceVerificationResetProps>(
   ({ onCancel }, ref) => {
+    const mx = useMatrixClient();
+    const authMetadata = useAuthMetadata();
+    const accountManagementActions = useAccountManagementActions();
     const [reset, setReset] = useState(false);
 
     return (
@@ -343,19 +357,27 @@ export const DeviceVerificationReset = forwardRef<HTMLDivElement, DeviceVerifica
         {reset ? (
           <Box style={{ padding: config.space.S400 }} direction="Column" gap="400">
             <UseStateProvider initial={undefined}>
-              {(recoveryKey: string | undefined, setRecoveryKey) =>
-                recoveryKey ? (
+              {(recoveryKey: string | undefined, setRecoveryKey) => {
+                if (recoveryKey) {
+                  try {
+                    const uid = mx.getSafeUserId();
+                    setVerificationHasReset(uid, true);
+                  } catch {
+                    // ignore
+                  }
+                }
+                return recoveryKey ? (
                   <RecoveryKeyDisplay recoveryKey={recoveryKey} />
                 ) : (
                   <SetupVerification onComplete={setRecoveryKey} />
-                )
-              }
+                );
+              }}
             </UseStateProvider>
           </Box>
         ) : (
           <Box style={{ padding: config.space.S400 }} direction="Column" gap="400">
             <Box direction="Column" gap="200">
-              <Text size="H1">✋🧑‍🚒🤚</Text>
+              <Icon size="400" src={Icons.Warning} style={{ color: color.Critical.Main }} />
               <Text size="T300">Resetting device verification is permanent.</Text>
               <Text size="T300">
                 Anyone you have verified with will see security alerts and your encryption backup
@@ -363,8 +385,29 @@ export const DeviceVerificationReset = forwardRef<HTMLDivElement, DeviceVerifica
                 <b>Recovery Key</b> or <b>Recovery Passphrase</b> and every device you can verify
                 from.
               </Text>
+              {authMetadata && (
+                <Text size="T200" style={{ color: color.Critical.Main }}>
+                  <b>Matrix.org:</b> You will be redirected to account management to approve. After
+                  approval (valid 10 minutes), return here and continue to generate a new recovery
+                  key.
+                </Text>
+              )}
             </Box>
-            <Button variant="Critical" onClick={() => setReset(true)}>
+            <Button
+              variant="Critical"
+              onClick={() => {
+                if (authMetadata) {
+                  const authUrl = authMetadata.account_management_uri ?? authMetadata.issuer;
+                  window.open(
+                    withSearchParam(authUrl, {
+                      action: accountManagementActions.crossSigningReset,
+                    }),
+                    '_blank',
+                  );
+                }
+                setReset(true);
+              }}
+            >
               <Text size="B400">Reset</Text>
             </Button>
           </Box>

@@ -107,7 +107,7 @@ export function SecretStorageRecoveryPassphrase({
   };
 
   return (
-    <Box as="form" onSubmit={handleSubmit} direction="Column" gap="100">
+    <Box as="form" onSubmit={handleSubmit} direction="Column" gap="100" autoComplete="off">
       <Box gap="200" alignItems="End">
         <Box grow="Yes" direction="Column" gap="100">
           <Text size="L400">Recovery Passphrase</Text>
@@ -120,6 +120,11 @@ export function SecretStorageRecoveryPassphrase({
             required
             outlined
             readOnly={loading}
+            autoComplete="off"
+            data-1p-ignore="true"
+            data-lpignore="true"
+            data-bwignore="true"
+            data-form-type="other"
           />
         </Box>
         <Box shrink="No" gap="200">
@@ -202,7 +207,7 @@ export function SecretStorageRecoveryKey({
   };
 
   return (
-    <Box as="form" onSubmit={handleSubmit} direction="Column" gap="100">
+    <Box as="form" onSubmit={handleSubmit} direction="Column" gap="100" autoComplete="off">
       <Box gap="200" alignItems="End">
         <Box grow="Yes" direction="Column" gap="100">
           <Text size="L400">Recovery Key</Text>
@@ -215,6 +220,11 @@ export function SecretStorageRecoveryKey({
             required
             outlined
             readOnly={loading}
+            autoComplete="off"
+            data-1p-ignore="true"
+            data-lpignore="true"
+            data-bwignore="true"
+            data-form-type="other"
           />
         </Box>
         <Box shrink="No" gap="200">

@@ -1,5 +1,6 @@
 import { Box, Icon, Icons, Text, as, color, config } from 'folds';
 import React from 'react';
+import { getDecryptionErrorMessage, getNotDecryptedMessage } from '../../../utils/verification';
 
 const warningStyle = { color: color.Warning.Main, opacity: config.opacity.P300 };
 const criticalStyle = { color: color.Critical.Main, opacity: config.opacity.P300 };
@@ -31,19 +32,25 @@ export const MessageFailedContent = as<'div', { children?: never }>(({ ...props 
   </Box>
 ));
 
-export const MessageBadEncryptedContent = as<'div', { children?: never }>(({ ...props }, ref) => (
-  <Box as="span" alignItems="Center" gap="100" style={warningStyle} {...props} ref={ref}>
-    <Icon size="50" src={Icons.Lock} />
-    <i>Unable to decrypt message</i>
-  </Box>
-));
+export const MessageBadEncryptedContent = as<'div', { children?: never }>(({ ...props }, ref) => {
+  const text = getDecryptionErrorMessage();
+  return (
+    <Box as="span" alignItems="Center" gap="100" style={warningStyle} {...props} ref={ref}>
+      <Icon size="50" src={Icons.Lock} />
+      <i>{text}</i>
+    </Box>
+  );
+});
 
-export const MessageNotDecryptedContent = as<'div', { children?: never }>(({ ...props }, ref) => (
-  <Box as="span" alignItems="Center" gap="100" style={warningStyle} {...props} ref={ref}>
-    <Icon size="50" src={Icons.Lock} />
-    <i>This message is not decrypted yet</i>
-  </Box>
-));
+export const MessageNotDecryptedContent = as<'div', { children?: never }>(({ ...props }, ref) => {
+  const text = getNotDecryptedMessage();
+  return (
+    <Box as="span" alignItems="Center" gap="100" style={warningStyle} {...props} ref={ref}>
+      <Icon size="50" src={Icons.Lock} />
+      <i>{text}</i>
+    </Box>
+  );
+});
 
 export const MessageBrokenContent = as<'div', { children?: never }>(({ ...props }, ref) => (
   <Box as="span" alignItems="Center" gap="100" style={criticalStyle} {...props} ref={ref}>
