@@ -58,8 +58,10 @@ mirror_to_github:
       if [ -f "$GITHUB_SSH_PRIVATE_KEY" ]; then
         cp "$GITHUB_SSH_PRIVATE_KEY" /tmp/key_input
       else
-        printf '%s' "$GITHUB_SSH_PRIVATE_KEY" | tr -d '\r' > /tmp/key_input
+        printf '%s\n' "$GITHUB_SSH_PRIVATE_KEY" | tr -d '\r' > /tmp/key_input
       fi
+      # ensure trailing newline (ssh-keygen requires it)
+      tail -c1 /tmp/key_input | od -An -tx1 | grep -q "0a" || echo "" >> /tmp/key_input
       # if base64 single line (no PEM header), decode
       if ! grep -q "BEGIN OPENSSH" /tmp/key_input 2>/dev/null; then
         if base64 -d /tmp/key_input > ~/.ssh/id_ed25519 2>/dev/null && ssh-keygen -y -f ~/.ssh/id_ed25519 >/dev/null 2>&1; then
@@ -80,11 +82,9 @@ mirror_to_github:
         else
           cp /tmp/key_input ~/.ssh/id_ed25519
         fi
-        # if still invalid, try base64 of whole PEM (user did base64 of PEM file)
-        if ! ssh-keygen -y -f ~/.ssh/id_ed25519 >/dev/null 2>&1; then
-          base64 -d /tmp/key_input > /tmp/key_b64 2>/dev/null && cp /tmp/key_b64 ~/.ssh/id_ed25519 || true
-        fi
       fi
+      # ensure trailing newline on output key too
+      tail -c1 ~/.ssh/id_ed25519 | od -An -tx1 | grep -q "0a" || echo "" >> ~/.ssh/id_ed25519
       chmod 600 ~/.ssh/id_ed25519
       echo "key lines: $(wc -l < ~/.ssh/id_ed25519) first: $(head -1 ~/.ssh/id_ed25519) last: $(tail -1 ~/.ssh/id_ed25519)"
       ssh-keygen -y -f ~/.ssh/id_ed25519 >/dev/null || (echo "ERROR: GITHUB_SSH_PRIVATE_KEY invalid - must be private key (-----BEGIN...), use: [Convert]::ToBase64String([IO.File]::ReadAllBytes(\"C:\\tmp\\mirror\")) for base64 or Get-Content -Raw for File type"; cat -A /tmp/key_input | head -c 200; echo; exit 1)
