@@ -34,6 +34,7 @@ import { DeveloperTools } from './developer-tools';
 import { About } from './about';
 import { Support } from './support';
 import { AppearancePage } from './appearance';
+import { VoiceVideoPage } from './voice-video';
 import { UseStateProvider } from '../../components/UseStateProvider';
 import { stopPropagation } from '../../utils/keyboard';
 import { LogoutDialog } from '../../components/LogoutDialog';
@@ -45,6 +46,7 @@ export enum SettingsPages {
   DevicesPage,
   EmojisStickersPage,
   AppearancePage,
+  VoiceVideoPage,
   DeveloperToolsPage,
   AboutPage,
   SupportPage,
@@ -88,6 +90,11 @@ const useSettingsMenuItems = (): SettingsMenuItem[] =>
         page: SettingsPages.AppearancePage,
         name: 'Appearance',
         icon: Icons.Bulb,
+      },
+      {
+        page: SettingsPages.VoiceVideoPage,
+        name: 'Voice & Video',
+        icon: Icons.Headphone,
       },
       {
         page: SettingsPages.DeveloperToolsPage,
@@ -183,6 +190,8 @@ export function Settings({ initialPage, requestClose }: SettingsProps) {
       return <EmojisStickers requestClose={handlePageRequestClose} />;
     if (page === SettingsPages.AppearancePage)
       return <AppearancePage requestClose={handlePageRequestClose} />;
+    if (page === SettingsPages.VoiceVideoPage)
+      return <VoiceVideoPage requestClose={handlePageRequestClose} />;
     if (page === SettingsPages.DeveloperToolsPage)
       return <DeveloperTools requestClose={handlePageRequestClose} />;
     if (page === SettingsPages.AboutPage)

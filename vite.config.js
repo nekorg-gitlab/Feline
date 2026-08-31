@@ -112,7 +112,7 @@ function fixManifestBase() {
 function securityHeaders() {
   const csp = [
     "default-src 'self'",
-    "script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval'",
+    "script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval' blob:",
     "style-src 'self' 'unsafe-inline'",
     "img-src 'self' data: blob: https: mxc:",
     "media-src 'self' blob: https: mxc:",

@@ -14,6 +14,8 @@ export enum MessageLayout {
   Bubble = 2,
 }
 
+export type NoiseSuppressionQuality = 'off' | 'low' | 'medium' | 'high';
+
 export interface Settings {
   themeId?: string;
   useSystemTheme: boolean;
@@ -54,6 +56,13 @@ export interface Settings {
   developerTools: boolean;
 
   language: AppLanguage;
+
+  microphoneDeviceId?: string;
+  speakerDeviceId?: string;
+  cameraDeviceId?: string;
+  microphoneVolume: number;
+  speakerVolume: number;
+  noiseSuppressionQuality: NoiseSuppressionQuality;
 }
 
 const defaultSettings: Settings = {
@@ -96,6 +105,13 @@ const defaultSettings: Settings = {
   developerTools: false,
 
   language: 'auto',
+
+  microphoneDeviceId: undefined,
+  speakerDeviceId: undefined,
+  cameraDeviceId: undefined,
+  microphoneVolume: 100,
+  speakerVolume: 100,
+  noiseSuppressionQuality: 'high',
 };
 
 export const getSettings = () => {
@@ -118,6 +134,20 @@ export const getSettings = () => {
     }
     if (!isAppLanguage(parsed.language)) {
       parsed.language = defaultSettings.language;
+    }
+    if (typeof parsed.microphoneVolume !== 'number' || Number.isNaN(parsed.microphoneVolume)) {
+      parsed.microphoneVolume = defaultSettings.microphoneVolume;
+    } else {
+      parsed.microphoneVolume = Math.max(0, Math.min(100, Math.round(parsed.microphoneVolume)));
+    }
+    if (typeof parsed.speakerVolume !== 'number' || Number.isNaN(parsed.speakerVolume)) {
+      parsed.speakerVolume = defaultSettings.speakerVolume;
+    } else {
+      parsed.speakerVolume = Math.max(0, Math.min(100, Math.round(parsed.speakerVolume)));
+    }
+    const validQualities: NoiseSuppressionQuality[] = ['off', 'low', 'medium', 'high'];
+    if (!validQualities.includes(parsed.noiseSuppressionQuality as NoiseSuppressionQuality)) {
+      parsed.noiseSuppressionQuality = defaultSettings.noiseSuppressionQuality;
     }
     return {
       ...defaultSettings,
