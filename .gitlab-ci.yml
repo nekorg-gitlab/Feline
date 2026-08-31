@@ -93,8 +93,13 @@ mirror_to_github:
   script:
     - git remote remove github 2>/dev/null || true
     - git remote add github git@github.com:nekorg-gitlab/Feline.git
+    # CI checkout is detached HEAD - fetch all branches so --all has something to push
+    - git fetch origin '+refs/heads/*:refs/heads/*' --prune 2>/dev/null || git fetch origin
+    - git branch -a | head -20
     - GIT_SSH_COMMAND="ssh -o StrictHostKeyChecking=accept-new -i ~/.ssh/id_ed25519" git push github --all --force
     - GIT_SSH_COMMAND="ssh -o StrictHostKeyChecking=accept-new -i ~/.ssh/id_ed25519" git push github --tags --force
+    # also ensure current HEAD is pushed if --all missed it
+    - GIT_SSH_COMMAND="ssh -o StrictHostKeyChecking=accept-new -i ~/.ssh/id_ed25519" git push github HEAD:refs/heads/main --force 2>/dev/null || true
   rules:
     - if: $CI_COMMIT_BRANCH
     - if: $CI_COMMIT_TAG
