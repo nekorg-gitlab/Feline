@@ -884,15 +884,36 @@ function SelectMessageSpacing() {
   );
 }
 
-const CUSTOM_THEME_GROUPS: { group: CustomThemeColorGroup; label: string }[] = [
-  { group: 'Background', label: 'Background' },
-  { group: 'Surface', label: 'Surface' },
-  { group: 'SurfaceVariant', label: 'Surface Variant' },
-  { group: 'Primary', label: 'Primary' },
-  { group: 'Secondary', label: 'Secondary' },
-];
+const CUSTOM_THEME_GROUPS: { group: CustomThemeColorGroup; label: string; description: string }[] =
+  [
+    {
+      group: 'Background',
+      label: 'Background',
+      description: 'App backdrop, sidebar & page background',
+    },
+    { group: 'Surface', label: 'Surface', description: 'Cards, dialogs & main content panels' },
+    {
+      group: 'SurfaceVariant',
+      label: 'Surface Variant',
+      description: 'Inputs, code blocks, chat bubbles & secondary containers',
+    },
+    {
+      group: 'Primary',
+      label: 'Primary',
+      description: 'Primary buttons, links & active highlights',
+    },
+    { group: 'Secondary', label: 'Secondary', description: 'Avatars, secondary buttons & accents' },
+  ];
 
-function CustomColorTile({ group, label }: { group: CustomThemeColorGroup; label: string }) {
+function CustomColorTile({
+  group,
+  label,
+  description,
+}: {
+  group: CustomThemeColorGroup;
+  label: string;
+  description: string;
+}) {
   const [customThemeColors, setCustomThemeColors] = useSetting(settingsAtom, 'customThemeColors');
   const value = customThemeColors?.[group];
   const initRgb = value ? rgbParts(value) : null;
@@ -979,6 +1000,7 @@ function CustomColorTile({ group, label }: { group: CustomThemeColorGroup; label
   return (
     <SettingTile
       title={label}
+      description={description}
       after={
         <HexColorPickerPopOut
           picker={
@@ -1155,8 +1177,8 @@ export function Appearance() {
           title="Custom Theme"
           description="Override individual theme colors. Pick a base color for each element; the rest of its shades are derived automatically."
         />
-        {CUSTOM_THEME_GROUPS.map(({ group, label }) => (
-          <CustomColorTile key={group} group={group} label={label} />
+        {CUSTOM_THEME_GROUPS.map(({ group, label, description }) => (
+          <CustomColorTile key={group} group={group} label={label} description={description} />
         ))}
         <SettingTile
           title="Reset Custom Theme"
