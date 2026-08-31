@@ -54,20 +54,40 @@ mirror_to_github:
         exit 0
       fi
     - |
-      # Support: raw key (multiline), base64-encoded key, or File-type variable (path)
+      # Support: raw PEM, single-line PEM (Windows clipboard), base64, or File-type variable
       if [ -f "$GITHUB_SSH_PRIVATE_KEY" ]; then
-        cp "$GITHUB_SSH_PRIVATE_KEY" ~/.ssh/id_ed25519
+        cp "$GITHUB_SSH_PRIVATE_KEY" /tmp/key_input
       else
-        printf '%s' "$GITHUB_SSH_PRIVATE_KEY" | tr -d '\r' > ~/.ssh/id_ed25519
-        # fallback: try base64 decode if raw write is invalid (masked vars strip newlines)
+        printf '%s' "$GITHUB_SSH_PRIVATE_KEY" | tr -d '\r' > /tmp/key_input
+      fi
+      # if base64 single line (no PEM header), decode
+      if ! grep -q "BEGIN OPENSSH" /tmp/key_input 2>/dev/null; then
+        if base64 -d /tmp/key_input > ~/.ssh/id_ed25519 2>/dev/null && ssh-keygen -y -f ~/.ssh/id_ed25519 >/dev/null 2>&1; then
+          echo "decoded base64 key"
+        else
+          cp /tmp/key_input ~/.ssh/id_ed25519
+        fi
+      else
+        # PEM present but maybe single-line (clipboard collapsed newlines to spaces)
+        if [ "$(wc -l < /tmp/key_input)" -eq 1 ]; then
+          # reformat: headers on own lines, body 70-char wrapped
+          awk '{
+            gsub(/-----BEGIN OPENSSH PRIVATE KEY-----/, "-----BEGIN OPENSSH PRIVATE KEY-----\n");
+            gsub(/-----END OPENSSH PRIVATE KEY-----/, "\n-----END OPENSSH PRIVATE KEY-----");
+            gsub(/ /, "\n");
+            print
+          }' /tmp/key_input | awk 'NR==1 || NR==NF {print; next} {for(i=1;i<=length;i+=70) print substr($0,i,70)}' > ~/.ssh/id_ed25519
+        else
+          cp /tmp/key_input ~/.ssh/id_ed25519
+        fi
+        # if still invalid, try base64 of whole PEM (user did base64 of PEM file)
         if ! ssh-keygen -y -f ~/.ssh/id_ed25519 >/dev/null 2>&1; then
-          printf '%s' "$GITHUB_SSH_PRIVATE_KEY" | tr -d '\r' | base64 -d > ~/.ssh/id_ed25519 2>/dev/null || true
+          base64 -d /tmp/key_input > /tmp/key_b64 2>/dev/null && cp /tmp/key_b64 ~/.ssh/id_ed25519 || true
         fi
       fi
       chmod 600 ~/.ssh/id_ed25519
-      # debug without leaking key
       echo "key lines: $(wc -l < ~/.ssh/id_ed25519) first: $(head -1 ~/.ssh/id_ed25519) last: $(tail -1 ~/.ssh/id_ed25519)"
-      ssh-keygen -y -f ~/.ssh/id_ed25519 >/dev/null || (echo "ERROR: GITHUB_SSH_PRIVATE_KEY is invalid - check GitLab variable (use -Raw + unmasked, or base64)"; exit 1)
+      ssh-keygen -y -f ~/.ssh/id_ed25519 >/dev/null || (echo "ERROR: GITHUB_SSH_PRIVATE_KEY invalid - must be private key (-----BEGIN...), use: [Convert]::ToBase64String([IO.File]::ReadAllBytes(\"C:\\tmp\\mirror\")) for base64 or Get-Content -Raw for File type"; cat -A /tmp/key_input | head -c 200; echo; exit 1)
     - git config --global user.email "ci@nekorg.gitlab.io"
     - git config --global user.name "GitLab CI"
   script:
