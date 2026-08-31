@@ -1,4 +1,5 @@
 import React, { MouseEventHandler, forwardRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   Avatar,
   Box,
@@ -46,6 +47,7 @@ type LobbyMenuProps = {
 };
 const LobbyMenu = forwardRef<HTMLDivElement, LobbyMenuProps>(
   ({ powerLevels, requestClose }, ref) => {
+    const { t } = useTranslation();
     const mx = useMatrixClient();
     const space = useSpace();
     const creators = useRoomCreators(space);
@@ -66,7 +68,7 @@ const LobbyMenu = forwardRef<HTMLDivElement, LobbyMenuProps>(
     };
 
     return (
-      <Menu ref={ref} style={{ maxWidth: toRem(160), width: '100vw' }}>
+      <Menu ref={ref} style={{ maxWidth: toRem(280), width: 'max-content', minWidth: toRem(140) }}>
         {invitePrompt && (
           <InviteUserPrompt
             room={space}
@@ -88,7 +90,7 @@ const LobbyMenu = forwardRef<HTMLDivElement, LobbyMenuProps>(
             disabled={!canInvite}
           >
             <Text style={{ flexGrow: 1 }} as="span" size="T300" truncate>
-              Invite
+              {t('Common.invite')}
             </Text>
           </MenuItem>
           <MenuItem
@@ -98,7 +100,7 @@ const LobbyMenu = forwardRef<HTMLDivElement, LobbyMenuProps>(
             radii="300"
           >
             <Text style={{ flexGrow: 1 }} as="span" size="T300" truncate>
-              Space Settings
+              {t('Common.spaceSettings')}
             </Text>
           </MenuItem>
         </Box>
@@ -117,7 +119,7 @@ const LobbyMenu = forwardRef<HTMLDivElement, LobbyMenuProps>(
                   aria-pressed={promptLeave}
                 >
                   <Text style={{ flexGrow: 1 }} as="span" size="T300" truncate>
-                    Leave Space
+                    {t('Common.leaveSpace')}
                   </Text>
                 </MenuItem>
                 {promptLeave && (
@@ -141,6 +143,7 @@ type LobbyHeaderProps = {
   powerLevels: IPowerLevels;
 };
 export function LobbyHeader({ showProfile, powerLevels }: LobbyHeaderProps) {
+  const { t } = useTranslation();
   const mx = useMatrixClient();
   const useAuthentication = useMediaAuthentication();
   const space = useSpace();
@@ -216,7 +219,7 @@ export function LobbyHeader({ showProfile, powerLevels }: LobbyHeaderProps) {
               offset={4}
               tooltip={
                 <Tooltip>
-                  <Text>Members</Text>
+                  <Text>{t('Common.members')}</Text>
                 </Tooltip>
               }
             >
@@ -237,7 +240,7 @@ export function LobbyHeader({ showProfile, powerLevels }: LobbyHeaderProps) {
             offset={4}
             tooltip={
               <Tooltip>
-                <Text>More Options</Text>
+                <Text>{t('Common.moreOptions')}</Text>
               </Tooltip>
             }
           >

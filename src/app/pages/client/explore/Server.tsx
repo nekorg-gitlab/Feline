@@ -8,6 +8,7 @@ import React, {
   useRef,
   useState,
 } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   Box,
   Button,
@@ -91,6 +92,7 @@ type SearchProps = {
   onReset: () => void;
 };
 function Search({ active, loading, searchInputRef, onSearch, onReset }: SearchProps) {
+  const { t } = useTranslation();
   const handleSearchSubmit: FormEventHandler<HTMLFormElement> = (evt) => {
     evt.preventDefault();
     const { searchInput } = evt.target as HTMLFormElement & {
@@ -252,6 +254,7 @@ type LimitButtonProps = {
   onLimitChange: (limit: string) => void;
 };
 function LimitButton({ limit, onLimitChange }: LimitButtonProps) {
+  const { t } = useTranslation();
   const [menuAnchor, setMenuAnchor] = useState<RectCords>();
 
   const handleLimitSubmit: FormEventHandler<HTMLFormElement> = (evt) => {

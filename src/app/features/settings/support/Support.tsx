@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Box, Button, Icon, Icons, Scroll, Text, toRem } from 'folds';
 import { Page, PageContent, PageHeader } from '../../../components/page';
 import { SequenceCard } from '../../../components/sequence-card';
@@ -11,6 +12,7 @@ type SupportProps = {
 };
 
 export function Support({ requestClose }: SupportProps) {
+  const { t } = useTranslation();
   const [copied, setCopied] = useState(false);
 
   const handleCopyEmail = async () => {
@@ -30,7 +32,7 @@ export function Support({ requestClose }: SupportProps) {
           <Box grow="Yes" alignItems="Center" gap="200">
             <Icon src={Icons.Heart} size="100" filled />
             <Text size="H3" truncate>
-              Support
+              {t('Common.support')}
             </Text>
           </Box>
           {requestClose && (
@@ -40,7 +42,7 @@ export function Support({ requestClose }: SupportProps) {
                 variant="Secondary"
                 size="300"
                 radii="300"
-                aria-label="Close"
+                aria-label={t('Common.close')}
               >
                 <Icon src={Icons.Cross} size="100" />
               </Button>
@@ -63,18 +65,18 @@ export function Support({ requestClose }: SupportProps) {
                 <Box direction="Column" gap="300">
                   <Box direction="Column" gap="100">
                     <Box gap="100" alignItems="End">
-                      <Text size="H3">Support Feline</Text>
+                      <Text size="H3">{t('Common.supportFeline')}</Text>
                       <Text size="T200">{VERSION_DISPLAY}</Text>
                     </Box>
                     <Text size="T300" priority="300">
-                      Feline is free and open-source. Your support keeps it running.
+                      {t('UI.felineIsFreeAndOpensourceYourSupportKeep')}
                     </Text>
                   </Box>
                 </Box>
               </Box>
 
               <Box direction="Column" gap="100">
-                <Text size="L400">Donate</Text>
+                <Text size="L400">{t('Common.donate')}</Text>
                 <SequenceCard
                   className={SequenceCardStyle}
                   variant="SurfaceVariant"
@@ -84,14 +86,13 @@ export function Support({ requestClose }: SupportProps) {
                   <Box direction="Column" gap="200">
                     <Box gap="200" alignItems="Center">
                       <Icon src={Icons.Heart} size="100" filled />
-                      <Text size="H6">PayPal</Text>
+                      <Text size="H6">{t('Common.paypal')}</Text>
                     </Box>
                     <Text size="T300" priority="300" style={{ wordBreak: 'break-all' }}>
                       felipefmavelar@gmail.com
                     </Text>
                     <Text size="T200" priority="300">
-                      Direct PayPal transfer - open PayPal and send to this email, or use the button
-                      below.
+                      {t('UI.directPaypalTransferOpenPaypalAndSendToT')}
                     </Text>
                   </Box>
                   <Box gap="200" wrap="Wrap">
@@ -106,7 +107,7 @@ export function Support({ requestClose }: SupportProps) {
                       radii="300"
                       before={<Icon src={Icons.Heart} size="100" filled />}
                     >
-                      <Text size="B300">Open PayPal</Text>
+                      <Text size="B300">{t('Common.openPaypal')}</Text>
                     </Button>
                     <Button
                       onClick={handleCopyEmail}
@@ -117,7 +118,9 @@ export function Support({ requestClose }: SupportProps) {
                       outlined
                       before={<Icon src={Icons.Mail} size="100" />}
                     >
-                      <Text size="B300">{copied ? 'Copied!' : 'Copy Email'}</Text>
+                      <Text size="B300">
+                        {copied ? `${t('Common.copied')}!` : t('UI.auto_CopyEmail')}
+                      </Text>
                     </Button>
                     <Button
                       as="a"
@@ -129,7 +132,7 @@ export function Support({ requestClose }: SupportProps) {
                       outlined
                       before={<Icon src={Icons.Mail} size="100" />}
                     >
-                      <Text size="B300">Email</Text>
+                      <Text size="B300">{t('Common.email')}</Text>
                     </Button>
                   </Box>
                 </SequenceCard>
@@ -137,7 +140,7 @@ export function Support({ requestClose }: SupportProps) {
 
               <Box direction="Column" gap="100">
                 <Text size="T400" priority="300">
-                  More options coming soon. For now PayPal is the only supported method. Questions?{' '}
+                  {t('UI.auto_MoreOptionsComingSoo')} {t('Common.questions')}?{' '}
                   <a href="mailto:felipefmavelar@gmail.com">felipefmavelar@gmail.com</a>
                 </Text>
               </Box>

@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import FocusTrap from 'focus-trap-react';
 import React from 'react';
 import { config, Menu, MenuItem, Text } from 'folds';
@@ -14,6 +15,7 @@ export function MembershipFilterMenu({
   onSelect,
   requestClose,
 }: MembershipFilterMenuProps) {
+  const { t } = useTranslation();
   const membershipFilterMenu = useMembershipFilterMenu();
 
   return (
@@ -40,7 +42,7 @@ export function MembershipFilterMenu({
               requestClose();
             }}
           >
-            <Text size="T300">{menuItem.name}</Text>
+            <Text size="T300">{t(`Common.${menuItem.name.toLowerCase()}`)}</Text>
           </MenuItem>
         ))}
       </Menu>

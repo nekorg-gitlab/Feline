@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import React, { useMemo, useState } from 'react';
 import { useAtomValue } from 'jotai';
 import { Avatar, Box, config, Icon, IconButton, Icons, IconSrc, MenuItem, Text } from 'folds';
@@ -25,37 +26,39 @@ type RoomSettingsMenuItem = {
   icon: IconSrc;
 };
 
-const useRoomSettingsMenuItems = (): RoomSettingsMenuItem[] =>
-  useMemo(
+const useRoomSettingsMenuItems = (): RoomSettingsMenuItem[] => {
+  const { t } = useTranslation();
+  return useMemo(
     () => [
       {
         page: RoomSettingsPage.GeneralPage,
-        name: 'General',
+        name: t('Common.general'),
         icon: Icons.Setting,
       },
       {
         page: RoomSettingsPage.MembersPage,
-        name: 'Members',
+        name: t('Common.members'),
         icon: Icons.User,
       },
       {
         page: RoomSettingsPage.PermissionsPage,
-        name: 'Permissions',
+        name: t('Common.permissions'),
         icon: Icons.Lock,
       },
       {
         page: RoomSettingsPage.EmojisStickersPage,
-        name: 'Emojis & Stickers',
+        name: t('UI.emojisStickers'),
         icon: Icons.Smile,
       },
       {
         page: RoomSettingsPage.DeveloperToolsPage,
-        name: 'Developer Tools',
+        name: t('Common.developerTools'),
         icon: Icons.Terminal,
       },
     ],
-    [],
+    [t],
   );
+};
 
 type RoomSettingsProps = {
   initialPage?: RoomSettingsPage;

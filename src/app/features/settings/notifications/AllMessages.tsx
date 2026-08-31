@@ -1,4 +1,5 @@
 import React, { useCallback, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Badge, Box, Text } from 'folds';
 import { ConditionKind, IPushRules, PushRuleCondition, PushRuleKind, RuleId } from 'matrix-js-sdk';
 import { useAccountData } from '../../../hooks/useAccountData';
@@ -56,6 +57,7 @@ function AllMessagesModeSwitcher({
   encrypted = false,
   oneToOne = false,
 }: PushRulesProps) {
+  const { t } = useTranslation();
   const mx = useMatrixClient();
   const defaultPushRuleData = getAllMessageDefaultRule(ruleId, encrypted, oneToOne);
   const { kind, pushRule } = usePushRule(pushRules, ruleId) ?? defaultPushRuleData;
@@ -73,6 +75,7 @@ function AllMessagesModeSwitcher({
 }
 
 export function AllMessagesNotifications() {
+  const { t } = useTranslation();
   const pushRulesEvt = useAccountData(AccountDataEvent.PushRules);
   const pushRules = useMemo(
     () => pushRulesEvt?.getContent<IPushRules>() ?? { global: {} },
@@ -82,9 +85,9 @@ export function AllMessagesNotifications() {
   return (
     <Box direction="Column" gap="100">
       <Box alignItems="Center" justifyContent="SpaceBetween" gap="200">
-        <Text size="L400">All Messages</Text>
+        <Text size="L400">{t('Common.allMessages')}</Text>
         <Box gap="100">
-          <Text size="T200">Badge: </Text>
+          <Text size="T200">{t('Common.badge')}</Text>
           <Badge radii="300" variant="Secondary" fill="Solid">
             <Text size="L400">1</Text>
           </Badge>
@@ -97,7 +100,7 @@ export function AllMessagesNotifications() {
         gap="400"
       >
         <SettingTile
-          title="1-to-1 Chats"
+          title={t('Common.n1to1Chats')}
           after={<AllMessagesModeSwitcher pushRules={pushRules} ruleId={RuleId.DM} oneToOne />}
         />
       </SequenceCard>
@@ -108,7 +111,7 @@ export function AllMessagesNotifications() {
         gap="400"
       >
         <SettingTile
-          title="1-to-1 Chats (Encrypted)"
+          title={t('Common.n1to1ChatsEncrypted')}
           after={
             <AllMessagesModeSwitcher
               pushRules={pushRules}
@@ -126,7 +129,7 @@ export function AllMessagesNotifications() {
         gap="400"
       >
         <SettingTile
-          title="Rooms"
+          title={t('Common.rooms')}
           after={<AllMessagesModeSwitcher pushRules={pushRules} ruleId={RuleId.Message} />}
         />
       </SequenceCard>
@@ -137,7 +140,7 @@ export function AllMessagesNotifications() {
         gap="400"
       >
         <SettingTile
-          title="Rooms (Encrypted)"
+          title={t('Common.roomsEncrypted')}
           after={
             <AllMessagesModeSwitcher
               pushRules={pushRules}

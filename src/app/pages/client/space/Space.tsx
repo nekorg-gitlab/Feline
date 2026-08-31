@@ -6,6 +6,7 @@ import React, {
   useRef,
   useState,
 } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useAtom, useAtomValue } from 'jotai';
 import {
   Avatar,
@@ -140,7 +141,7 @@ const SpaceMenu = forwardRef<HTMLDivElement, SpaceMenuProps>(({ room, requestClo
   };
 
   return (
-    <Menu ref={ref} style={{ maxWidth: toRem(160), width: '100vw' }}>
+    <Menu ref={ref} style={{ maxWidth: toRem(280), width: 'max-content', minWidth: toRem(140) }}>
       <Box direction="Column" gap="100" style={{ padding: config.space.S100 }}>
         {invitePrompt && room && (
           <InviteUserPrompt
@@ -244,6 +245,7 @@ const SpaceMenu = forwardRef<HTMLDivElement, SpaceMenuProps>(({ room, requestClo
 });
 
 function SpaceHeader() {
+  const { t } = useTranslation();
   const space = useSpace();
   const spaceName = useRoomName(space);
   const [menuAnchor, setMenuAnchor] = useState<RectCords>();
@@ -306,6 +308,7 @@ function SpaceHeader() {
 }
 
 function SpaceCreateRoomButton({ room }: { room: Room }) {
+  const { t } = useTranslation();
   const mx = useMatrixClient();
   const powerLevels = usePowerLevels(room);
   const creators = useRoomCreators(room);
@@ -329,6 +332,7 @@ function SpaceCreateRoomButton({ room }: { room: Room }) {
 
 type SpaceTombstoneProps = { roomId: string; replacementRoomId: string };
 export function SpaceTombstone({ roomId, replacementRoomId }: SpaceTombstoneProps) {
+  const { t } = useTranslation();
   const mx = useMatrixClient();
   const { navigateSpace } = useRoomNavigate();
 
@@ -397,6 +401,7 @@ export function SpaceTombstone({ roomId, replacementRoomId }: SpaceTombstoneProp
 }
 
 export function Space() {
+  const { t } = useTranslation();
   const mx = useMatrixClient();
   const space = useSpace();
   useNavToActivePathMapper(space.roomId);
@@ -623,7 +628,7 @@ export function Space() {
                 escapeDeactivates: stopPropagation,
               }}
             >
-              <Menu style={{ maxWidth: toRem(160), width: '100vw' }}>
+              <Menu style={{ maxWidth: toRem(280), width: 'max-content', minWidth: toRem(140) }}>
                 {emptyInvitePrompt && (
                   <InviteUserPrompt
                     room={space}

@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import React, { ReactNode, useCallback, useRef, useState } from 'react';
 import { MatrixError, Room } from 'matrix-js-sdk';
 import {
@@ -162,6 +163,7 @@ export const RoomCard = as<'div', RoomCardProps>(
     },
     ref,
   ) => {
+    const { t } = useTranslation();
     const mx = useMatrixClient();
     const useAuthentication = useMediaAuthentication();
     const joinedRoomId = useJoinedRoomId(allRooms, roomIdOrAlias);
@@ -261,7 +263,7 @@ export const RoomCard = as<'div', RoomCardProps>(
         {typeof joinedMemberCount === 'number' && (
           <Box gap="100">
             <Icon size="50" src={Icons.User} />
-            <Text size="T200">{`${millify(joinedMemberCount)} Members`}</Text>
+            <Text size="T200">{`${millify(joinedMemberCount)} ${t('Common.members')}`}</Text>
           </Box>
         )}
         {typeof joinedRoomId === 'string' && (

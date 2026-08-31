@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import React, { MouseEventHandler, ReactNode, useCallback, useRef } from 'react';
 import {
   Avatar,
@@ -196,6 +197,7 @@ function RoomProfile({
   joinRule,
   options,
 }: RoomProfileProps) {
+  const { t } = useTranslation();
   return (
     <Box grow="Yes" gap="300">
       <Avatar>
@@ -222,7 +224,10 @@ function RoomProfile({
         <Box gap="200" alignItems="Center">
           {memberCount && (
             <Box shrink="No" gap="200">
-              <Text size="T200" priority="300">{`${millify(memberCount)} Members`}</Text>
+              <Text
+                size="T200"
+                priority="300"
+              >{`${millify(memberCount)} ${t('Common.members')}`}</Text>
             </Box>
           )}
           {memberCount && topic && (

@@ -8,6 +8,7 @@ import React, {
   useMemo,
   useState,
 } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   Element,
   Text as DOMText,
@@ -232,6 +233,7 @@ export function CodeBlock({
   children: ChildNode[];
   opts: HTMLReactParserOptions;
 }) {
+  const { t } = useTranslation();
   const code = children[0];
   const attribs = code instanceof Element && code.name === 'code' ? code.attribs : undefined;
   const languageClass = attribs?.class;

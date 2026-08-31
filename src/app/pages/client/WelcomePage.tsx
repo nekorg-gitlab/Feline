@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import React, { useState } from 'react';
 import { Box, Button, Icon, Icons, Text, config, toRem } from 'folds';
 import { Page, PageHero, PageHeroSection } from '../../components/page';
@@ -6,6 +7,7 @@ import { Modal500 } from '../../components/Modal500';
 import { Support } from '../../features/settings/support';
 
 export function WelcomePage() {
+  const { t } = useTranslation();
   const [supportOpen, setSupportOpen] = useState(false);
   return (
     <Page>
@@ -18,8 +20,8 @@ export function WelcomePage() {
         <PageHeroSection>
           <PageHero
             icon={<img width="70" height="70" src={FelineSVG} alt="Feline Logo" />}
-            title="Welcome to Feline"
-            subTitle="The best matrix client ever."
+            title={t('Common.welcomeToFeline')}
+            subTitle={t('Common.theBestMatrixClientEver')}
           >
             <Box justifyContent="Center">
               <Box grow="Yes" style={{ maxWidth: toRem(300) }} direction="Column" gap="300">
@@ -31,7 +33,7 @@ export function WelcomePage() {
                   before={<Icon size="200" src={Icons.Code} />}
                 >
                   <Text as="span" size="B400" truncate>
-                    Source Code
+                    {t('Common.sourceCode')}
                   </Text>
                 </Button>
                 <Button
@@ -40,7 +42,7 @@ export function WelcomePage() {
                   before={<Icon size="200" src={Icons.Heart} />}
                 >
                   <Text as="span" size="B400" truncate>
-                    Support
+                    {t('Common.support')}
                   </Text>
                 </Button>
               </Box>

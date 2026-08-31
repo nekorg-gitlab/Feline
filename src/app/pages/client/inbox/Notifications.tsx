@@ -1,5 +1,6 @@
 /* eslint-disable react/destructuring-assignment */
 import React, { MouseEventHandler, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   Avatar,
   Box,
@@ -108,6 +109,7 @@ function NotificationSenderAvatar({
   senderId: string;
   displayName: string;
 }) {
+  const { t } = useTranslation();
   const mx = useMatrixClient();
   const useAuthentication = useMediaAuthentication();
   const senderAvatarMxc = getMemberAvatarMxc(room, senderId);

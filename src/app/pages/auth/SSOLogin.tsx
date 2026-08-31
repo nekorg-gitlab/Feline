@@ -1,4 +1,5 @@
 import { Avatar, AvatarImage, Box, Button, Text } from 'folds';
+import { useTranslation } from 'react-i18next';
 import { IIdentityProvider, SSOAction, createClient } from 'matrix-js-sdk';
 import React, { useCallback, useMemo } from 'react';
 import { useAutoDiscoveryInfo } from '../../hooks/useAutoDiscoveryInfo';
@@ -11,6 +12,7 @@ type SSOLoginProps = {
   saveScreenSpace?: boolean;
 };
 export function SSOLogin({ providers, redirectUrl, action, saveScreenSpace }: SSOLoginProps) {
+  const { t } = useTranslation();
   const discovery = useAutoDiscoveryInfo();
   const baseUrl = discovery['m.homeserver'].base_url;
   const mx = useMemo(() => createClient({ baseUrl }), [baseUrl]);

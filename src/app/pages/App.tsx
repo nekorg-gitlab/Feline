@@ -15,6 +15,8 @@ import { useCompositionEndTracking } from '../hooks/useComposingCheck';
 import { getThumbnailFallbackUrl } from '../utils/matrix';
 import { settingsAtom } from '../state/settings';
 import { applyAnimations } from '../utils/animations';
+import { applyAppLanguage } from '../i18n';
+import { resolveLanguage } from '../utils/language';
 
 const queryClient = new QueryClient();
 
@@ -23,6 +25,18 @@ function AnimationsSync() {
   useEffect(() => {
     applyAnimations(settings.animationsEnabled, settings.animationSpeed);
   }, [settings.animationsEnabled, settings.animationSpeed]);
+  return null;
+}
+
+function LanguageSync() {
+  const settings = useAtomValue(settingsAtom);
+  useEffect(() => {
+    const resolved = resolveLanguage(settings.language);
+    applyAppLanguage(settings.language).catch(() => {});
+    if (typeof document !== 'undefined') {
+      document.documentElement.lang = resolved;
+    }
+  }, [settings.language]);
   return null;
 }
 
@@ -68,6 +82,7 @@ function App() {
                     <QueryClientProvider client={queryClient}>
                       <JotaiProvider>
                         <AnimationsSync />
+                        <LanguageSync />
                         <RouterProvider router={createRouter(clientConfig, screenSize)} />
                       </JotaiProvider>
                       <ReactQueryDevtools initialIsOpen={false} />

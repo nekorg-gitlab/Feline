@@ -1,4 +1,5 @@
 import { atom } from 'jotai';
+import { AppLanguage, isAppLanguage } from '../utils/language';
 
 const STORAGE_KEY = 'settings';
 
@@ -51,6 +52,8 @@ export interface Settings {
   dateFormatString: string;
 
   developerTools: boolean;
+
+  language: AppLanguage;
 }
 
 const defaultSettings: Settings = {
@@ -91,6 +94,8 @@ const defaultSettings: Settings = {
   dateFormatString: 'D MMM YYYY',
 
   developerTools: false,
+
+  language: 'auto',
 };
 
 export const getSettings = () => {
@@ -110,6 +115,9 @@ export const getSettings = () => {
     }
     if (typeof parsed.hideBorderLines !== 'boolean') {
       parsed.hideBorderLines = defaultSettings.hideBorderLines;
+    }
+    if (!isAppLanguage(parsed.language)) {
+      parsed.language = defaultSettings.language;
     }
     return {
       ...defaultSettings,

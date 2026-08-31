@@ -1,31 +1,71 @@
 import i18n from 'i18next';
-import LanguageDetector from 'i18next-browser-languagedetector';
-import Backend, { HttpBackendOptions } from 'i18next-http-backend';
 import { initReactI18next } from 'react-i18next';
-import { trimTrailingSlash } from './utils/common';
+import { getSettings } from './state/settings';
+import { AppLanguage, resolveLanguage } from './utils/language';
+import en from './locales/en.json';
+import es from './locales/es.json';
+import ptBR from './locales/pt-BR.json';
 
-i18n
-  // i18next-http-backend
-  // loads translations from your server
-  // https://github.com/i18next/i18next-http-backend
-  .use(Backend)
-  // detect user language
-  // learn more: https://github.com/i18next/i18next-browser-languageDetector
-  .use(LanguageDetector)
-  // pass the i18n instance to react-i18next.
-  .use(initReactI18next)
-  // init i18next
-  // for all options read: https://www.i18next.com/overview/configuration-options
-  .init<HttpBackendOptions>({
-    debug: false,
-    fallbackLng: 'en',
-    interpolation: {
-      escapeValue: false, // not needed for react as it escapes by default
-    },
-    load: 'languageOnly',
-    backend: {
-      loadPath: `${trimTrailingSlash(import.meta.env.BASE_URL)}/public/locales/{{lng}}.json`,
-    },
+const resources = {
+  en: { translation: en },
+  es: { translation: es },
+  'pt-BR': { translation: ptBR },
+} as const;
+
+const getInitialLanguage = (): string => {
+  try {
+    const settings = getSettings();
+    return resolveLanguage(settings.language ?? 'auto');
+  } catch {
+    return 'en';
+  }
+};
+
+i18n.use(initReactI18next).init({
+  resources,
+  lng: getInitialLanguage(),
+  fallbackLng: 'en',
+  supportedLngs: ['en', 'es', 'pt-BR'],
+  nonExplicitSupportedLngs: false,
+  interpolation: {
+    escapeValue: false,
+  },
+  load: 'currentOnly',
+  debug: false,
+});
+
+if (typeof document !== 'undefined') {
+  document.documentElement.lang = i18n.language;
+  i18n.on('languageChanged', (lng) => {
+    document.documentElement.lang = lng;
   });
+}
+
+if (typeof window !== 'undefined') {
+  const handleSystemLanguageChange = () => {
+    try {
+      const settings = getSettings();
+      if (settings.language === 'auto') {
+        const resolved = resolveLanguage('auto');
+        if (resolved !== i18n.language) {
+          i18n.changeLanguage(resolved);
+        }
+      }
+    } catch {
+      // ignore
+    }
+  };
+
+  window.addEventListener('languagechange', handleSystemLanguageChange);
+  window.addEventListener('storage', (evt) => {
+    if (evt.key === 'settings') handleSystemLanguageChange();
+  });
+}
+
+export function applyAppLanguage(language: AppLanguage): Promise<void> {
+  const resolved = resolveLanguage(language);
+  if (resolved === i18n.language) return Promise.resolve();
+  return i18n.changeLanguage(resolved).then(() => undefined);
+}
 
 export default i18n;

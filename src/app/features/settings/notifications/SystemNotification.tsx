@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import React, { useCallback } from 'react';
 import { Box, Text, Switch, Button, color, Spinner } from 'folds';
 import { IPusherRequest } from 'matrix-js-sdk';
@@ -12,6 +13,7 @@ import { AsyncStatus, useAsyncCallback } from '../../../hooks/useAsyncCallback';
 import { useMatrixClient } from '../../../hooks/useMatrixClient';
 
 function EmailNotification() {
+  const { t } = useTranslation();
   const mx = useMatrixClient();
   const [result, refreshResult] = useEmailNotifications();
 
@@ -53,21 +55,25 @@ function EmailNotification() {
 
   return (
     <SettingTile
-      title="Email Notification"
+      title={t('Common.emailNotification')}
       description={
         <>
           {result && !result.email && (
             <Text as="span" style={{ color: color.Critical.Main }} size="T200">
-              Your account does not have any email attached.
+              {t('UI.yourAccountDoesNotHaveAnyEmailAttached')}
             </Text>
           )}
-          {result && result.email && <>Send notification to your email. {`("${result.email}")`}</>}
+          {result && result.email && (
+            <>
+              {t('UI.sendNotificationToYourEmail')} {`("${result.email}")`}
+            </>
+          )}
           {result === null && (
             <Text as="span" style={{ color: color.Critical.Main }} size="T200">
-              Unexpected Error!
+              {t('UI.unexpectedError')}
             </Text>
           )}
-          {result === undefined && 'Send notification to your email.'}
+          {result === undefined && t('UI.sendNotificationToYourEmail')}
         </>
       }
       after={
@@ -85,6 +91,7 @@ function EmailNotification() {
 }
 
 export function SystemNotification() {
+  const { t } = useTranslation();
   const notifPermission = usePermissionState('notifications', getNotificationState());
   const [showNotifications, setShowNotifications] = useSetting(settingsAtom, 'showNotifications');
   const [isNotificationSounds, setIsNotificationSounds] = useSetting(
@@ -98,7 +105,7 @@ export function SystemNotification() {
 
   return (
     <Box direction="Column" gap="100">
-      <Text size="L400">System</Text>
+      <Text size="L400">{t('Common.system')}</Text>
       <SequenceCard
         className={SequenceCardStyle}
         variant="SurfaceVariant"
@@ -106,22 +113,22 @@ export function SystemNotification() {
         gap="400"
       >
         <SettingTile
-          title="Desktop Notifications"
+          title={t('Common.desktopNotifications')}
           description={
             notifPermission === 'denied' ? (
               <Text as="span" style={{ color: color.Critical.Main }} size="T200">
                 {'Notification' in window
-                  ? 'Notification permission is blocked. Please allow notification permission from browser address bar.'
-                  : 'Notifications are not supported by the system.'}
+                  ? t('UI.notificationPermissionBlocked')
+                  : t('UI.notificationsNotSupported')}
               </Text>
             ) : (
-              <span>Show desktop notifications when message arrive.</span>
+              <span>{t('UI.showDesktopNotificationsWhenMessageArrive')}</span>
             )
           }
           after={
             notifPermission === 'prompt' ? (
               <Button size="300" radii="300" onClick={requestNotificationPermission}>
-                <Text size="B300">Enable</Text>
+                <Text size="B300">{t('Common.enable')}</Text>
               </Button>
             ) : (
               <Switch
@@ -140,8 +147,8 @@ export function SystemNotification() {
         gap="400"
       >
         <SettingTile
-          title="Notification Sound"
-          description="Play sound when new message arrive."
+          title={t('Common.notificationSound')}
+          description={t('Common.playSoundWhenNewMessageArrive')}
           after={<Switch value={isNotificationSounds} onChange={setIsNotificationSounds} />}
         />
       </SequenceCard>

@@ -48,6 +48,7 @@ import { UseStateProvider } from '../../../components/UseStateProvider';
 import { MembershipFilterMenu } from '../../../components/MembershipFilterMenu';
 import { MemberSortMenu } from '../../../components/MemberSortMenu';
 import { ScrollTopContainer } from '../../../components/scroll-top-container';
+import { useTranslation } from 'react-i18next';
 import {
   useOpenUserRoomProfile,
   useUserRoomProfileState,
@@ -75,6 +76,7 @@ type MembersProps = {
   requestClose: () => void;
 };
 export function Members({ requestClose }: MembersProps) {
+  const { t } = useTranslation();
   const mx = useMatrixClient();
   const useAuthentication = useMediaAuthentication();
   const room = useRoom();
@@ -157,7 +159,7 @@ export function Members({ requestClose }: MembersProps) {
         <Box grow="Yes" gap="200">
           <Box grow="Yes" alignItems="Center" gap="200">
             <Text size="H3" truncate>
-              {room.getJoinedMemberCount()} Members
+              {room.getJoinedMemberCount()} {t('Common.members')}
             </Text>
           </Box>
           <Box shrink="No">
@@ -182,7 +184,7 @@ export function Members({ requestClose }: MembersProps) {
                   before={<Icon size="200" src={Icons.Search} />}
                   variant="SurfaceVariant"
                   size="500"
-                  placeholder="Search"
+                  placeholder={t('Common.search')}
                   outlined
                   after={
                     result && (
@@ -197,8 +199,8 @@ export function Members({ requestClose }: MembersProps) {
                       >
                         <Text size="B300">
                           {result.items.length === 0
-                            ? 'No Results'
-                            : `${result.items.length} Results`}
+                            ? t('Common.noResults')
+                            : `${result.items.length} ${result.items.length === 1 ? t('Common.result') : t('Common.results')}`}
                         </Text>
                       </Chip>
                     )
@@ -233,7 +235,9 @@ export function Members({ requestClose }: MembersProps) {
                         radii="300"
                         before={<Icon src={Icons.Filter} size="50" />}
                       >
-                        <Text size="T200">{membershipFilter.name}</Text>
+                        <Text size="T200">
+                          {t(`Common.${membershipFilter.name.toLowerCase()}`)}
+                        </Text>
                       </Chip>
                     </PopOut>
                   )}
@@ -265,7 +269,18 @@ export function Members({ requestClose }: MembersProps) {
                         radii="300"
                         after={<Icon src={Icons.Sort} size="50" />}
                       >
-                        <Text size="T200">{memberSort.name}</Text>
+                        <Text size="T200">
+                          {t(
+                            `Common.${
+                              {
+                                'A to Z': 'aToZ',
+                                'Z to A': 'zToA',
+                                Newest: 'newest',
+                                Oldest: 'oldest',
+                              }[memberSort.name] ?? memberSort.name.toLowerCase()
+                            }`,
+                          )}
+                        </Text>
                       </Chip>
                     </PopOut>
                   )}
@@ -295,7 +310,7 @@ export function Members({ requestClose }: MembersProps) {
 
               {!fetchingMembers && !result && flattenTagMembers.length === 0 && (
                 <Text style={{ padding: config.space.S300 }} align="Center">
-                  {`No "${membershipFilter.name}" Members`}
+                  {`No "${t(`Common.${membershipFilter.name.toLowerCase()}`)}" ${t('Common.members')}`}
                 </Text>
               )}
 

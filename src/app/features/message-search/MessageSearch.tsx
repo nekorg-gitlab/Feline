@@ -1,4 +1,5 @@
 import React, { RefObject, useEffect, useMemo, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Text, Box, Icon, Icons, config, Spinner, IconButton, Line, toRem } from 'folds';
 import { useAtomValue } from 'jotai';
 import { useVirtualizer } from '@tanstack/react-virtual';
@@ -50,6 +51,7 @@ export function MessageSearch({
   senders,
   scrollRef,
 }: MessageSearchProps) {
+  const { t } = useTranslation();
   const mx = useMatrixClient();
   const mDirects = useAtomValue(mDirectAtom);
   const allRooms = useRooms(mx, allRoomsAtom, mDirects);
@@ -229,8 +231,8 @@ export function MessageSearch({
           <PageHeroSection>
             <PageHero
               icon={<Icon size="600" src={Icons.Message} />}
-              title="Search Messages"
-              subTitle="Find helpful messages in your community by searching with related keywords."
+              title={t('Common.searchMessages')}
+              subTitle={t('Common.searchMessagesDesc')}
             />
           </PageHeroSection>
         </PageHeroEmpty>
@@ -244,9 +246,7 @@ export function MessageSearch({
           gap="200"
         >
           <Icon size="200" src={Icons.Info} />
-          <Text>
-            No results found for <b>{`"${msgSearchParams.term}"`}</b>
-          </Text>
+          <Text>{t('Common.noResultsFoundFor', { term: msgSearchParams.term })}</Text>
         </Box>
       )}
 
@@ -262,7 +262,7 @@ export function MessageSearch({
       {vItems.length > 0 && (
         <Box direction="Column" gap="300">
           <Box direction="Column" gap="200">
-            <Text size="H5">{`Results for "${msgSearchParams.term}"`}</Text>
+            <Text size="H5">{t('Common.resultsFor', { term: msgSearchParams.term })}</Text>
             <Line size="300" variant="Surface" />
           </Box>
           <div

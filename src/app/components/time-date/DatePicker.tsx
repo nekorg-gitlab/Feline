@@ -1,4 +1,5 @@
 import React, { forwardRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Menu, Box, Text, Chip } from 'folds';
 import dayjs from 'dayjs';
 import * as css from './styles.css';
@@ -13,6 +14,7 @@ type DatePickerProps = {
 };
 export const DatePicker = forwardRef<HTMLDivElement, DatePickerProps>(
   ({ min, max, value, onChange }, ref) => {
+    const { t } = useTranslation();
     const selectedYear = dayjs(value).year();
     const selectedMonth = dayjs(value).month() + 1;
     const selectedDay = dayjs(value).date();

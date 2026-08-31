@@ -1,4 +1,5 @@
 import React, { useCallback, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   Box,
   Button,
@@ -50,6 +51,7 @@ import { useAccountManagementActions } from '../hooks/useAccountManagement';
 import { withSearchParam } from '../pages/pathUtils';
 
 function BigRecoveryKeyDisplay({ recoveryKey }: { recoveryKey: string }) {
+  const { t } = useTranslation();
   const [show, setShow] = useState(false);
 
   const handleCopy = () => {
@@ -114,6 +116,7 @@ function BigRecoveryKeyDisplay({ recoveryKey }: { recoveryKey: string }) {
 }
 
 function GenericRecoveryKeyFallback() {
+  const { t } = useTranslation();
   const mx = useMatrixClient();
   const [error, setError] = useState<string>();
   const [loading, setLoading] = useState(false);

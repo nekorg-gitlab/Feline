@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import React, { FormEventHandler, ReactNode, useCallback, useEffect, useState } from 'react';
 import {
   Box,
@@ -43,17 +44,18 @@ export function DeviceTilePlaceholder() {
 }
 
 function DeviceActiveTime({ ts }: { ts: number }) {
+  const { t } = useTranslation();
   const [hour24Clock] = useSetting(settingsAtom, 'hour24Clock');
   const [dateFormatString] = useSetting(settingsAtom, 'dateFormatString');
 
   return (
     <Text className={BreakWord} size="T200">
       <Text size="Inherit" as="span" priority="300">
-        {'Last activity: '}
+        {t('Common.lastActivity')}
       </Text>
       <>
-        {today(ts) && 'Today'}
-        {yesterday(ts) && 'Yesterday'}
+        {today(ts) && t('Common.today')}
+        {yesterday(ts) && t('Common.yesterday')}
         {!today(ts) && !yesterday(ts) && timeDayMonYear(ts, dateFormatString)}{' '}
         {timeHourMinute(ts, hour24Clock)}
       </>

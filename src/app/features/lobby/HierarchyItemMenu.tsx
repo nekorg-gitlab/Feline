@@ -261,7 +261,7 @@ export function HierarchyItemMenu({
                 escapeDeactivates: stopPropagation,
               }}
             >
-              <Menu style={{ maxWidth: toRem(150), width: '100vw' }}>
+              <Menu style={{ maxWidth: toRem(280), width: 'max-content', minWidth: toRem(140) }}>
                 {joined && (
                   <Box direction="Column" gap="100" style={{ padding: config.space.S100 }}>
                     {onTogglePin && (

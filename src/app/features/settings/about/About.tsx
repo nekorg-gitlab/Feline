@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Box, Text, IconButton, Icon, Icons, Scroll, Button, config, toRem } from 'folds';
 import { Page, PageContent, PageHeader } from '../../../components/page';
 import { SequenceCard } from '../../../components/sequence-card';
@@ -15,6 +16,7 @@ type AboutProps = {
   onSupportClick?: () => void;
 };
 export function About({ requestClose, onSupportClick }: AboutProps) {
+  const { t } = useTranslation();
   const mx = useMatrixClient();
   const [supportOpen, setSupportOpen] = useState(false);
 
@@ -33,7 +35,7 @@ export function About({ requestClose, onSupportClick }: AboutProps) {
           <Box grow="Yes" gap="200">
             <Box grow="Yes" alignItems="Center" gap="200">
               <Text size="H3" truncate>
-                About
+                {t('Common.about')}
               </Text>
             </Box>
             <Box shrink="No">
@@ -58,9 +60,9 @@ export function About({ requestClose, onSupportClick }: AboutProps) {
                   <Box direction="Column" gap="300">
                     <Box direction="Column" gap="100">
                       <Box gap="100" alignItems="End">
-                        <Text size="H3">Feline</Text>
+                        <Text size="H3">{t('Common.feline')}</Text>
                       </Box>
-                      <Text>The best matrix client ever.</Text>
+                      <Text>{t('Common.theBestMatrixClientEver')}</Text>
                     </Box>
 
                     <Box gap="200" wrap="Wrap">
@@ -75,7 +77,7 @@ export function About({ requestClose, onSupportClick }: AboutProps) {
                         radii="300"
                         before={<Icon src={Icons.Code} size="100" filled />}
                       >
-                        <Text size="B300">Source Code</Text>
+                        <Text size="B300">{t('Common.sourceCode')}</Text>
                       </Button>
                       <Button
                         onClick={handleSupportClick}
@@ -85,13 +87,13 @@ export function About({ requestClose, onSupportClick }: AboutProps) {
                         radii="300"
                         before={<Icon src={Icons.Heart} size="100" filled />}
                       >
-                        <Text size="B300">Support</Text>
+                        <Text size="B300">{t('Common.support')}</Text>
                       </Button>
                     </Box>
                   </Box>
                 </Box>
                 <Box direction="Column" gap="100">
-                  <Text size="L400">Options</Text>
+                  <Text size="L400">{t('Common.options')}</Text>
                   <SequenceCard
                     className={SequenceCardStyle}
                     variant="SurfaceVariant"
@@ -99,8 +101,8 @@ export function About({ requestClose, onSupportClick }: AboutProps) {
                     gap="400"
                   >
                     <SettingTile
-                      title="Clear Cache & Reload"
-                      description="Clear all your locally stored data and reload from server."
+                      title={t('UI.clearCacheReload')}
+                      description={t('UI.clearAllYourLocallyStoredDataAndReloadFr')}
                       after={
                         <Button
                           onClick={() => clearCacheAndReload(mx)}
@@ -110,14 +112,14 @@ export function About({ requestClose, onSupportClick }: AboutProps) {
                           radii="300"
                           outlined
                         >
-                          <Text size="B300">Clear Cache</Text>
+                          <Text size="B300">{t('Common.clearCache')}</Text>
                         </Button>
                       }
                     />
                   </SequenceCard>
                 </Box>
                 <Box direction="Column" gap="100">
-                  <Text size="L400">Credits</Text>
+                  <Text size="L400">{t('Common.credits')}</Text>
                   <SequenceCard
                     className={SequenceCardStyle}
                     variant="SurfaceVariant"

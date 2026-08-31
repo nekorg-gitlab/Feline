@@ -1,4 +1,5 @@
 import FocusTrap from 'focus-trap-react';
+import { useTranslation } from 'react-i18next';
 import {
   Avatar,
   Box,
@@ -135,6 +136,7 @@ type SearchProps = {
   requestClose: () => void;
 };
 export function Search({ requestClose }: SearchProps) {
+  const { t } = useTranslation();
   const mx = useMatrixClient();
   const useAuthentication = useMediaAuthentication();
   const scrollRef = useRef<HTMLDivElement>(null as unknown as HTMLDivElement);

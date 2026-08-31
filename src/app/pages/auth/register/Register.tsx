@@ -1,4 +1,5 @@
 import React, { useCallback, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Box, Button, Input, Text, color } from 'folds';
 import { SSOAction, createClient } from 'matrix-js-sdk';
 import { useAuthServer } from '../../../hooks/useAuthServer';
@@ -11,6 +12,7 @@ import { isTauri } from '../../../utils/isTauri';
 import { TokenLogin } from '../login/TokenLogin';
 
 export function Register() {
+  const { t } = useTranslation();
   const server = useAuthServer();
   const { loginFlows } = useAuthFlows();
   const { sso } = useParsedLoginFlows(loginFlows.flows);
@@ -56,10 +58,10 @@ export function Register() {
     <Box direction="Column" gap="500">
       <Box direction="Column" gap="100">
         <Text size="H2" priority="400">
-          Create Account
+          {t('Common.createAccount')}
         </Text>
         <Text size="T300" priority="300">
-          Create a new account to get started.
+          {t('UI.createANewAccountToGetStarted')}
         </Text>
       </Box>
 
@@ -74,7 +76,7 @@ export function Register() {
             fill="Solid"
           >
             <Text as="span" size="B500">
-              Register
+              {t('Common.register')}
             </Text>
           </Button>
           <Button
@@ -87,17 +89,17 @@ export function Register() {
             outlined
           >
             <Text as="span" size="B500">
-              Login
+              {t('Common.login')}
             </Text>
           </Button>
           {isTauri() && (
             <>
               <Text size="T200" priority="300" align="Center">
-                This will open your browser to continue.
+                {t('UI.thisWillOpenYourBrowserToContinue')}
               </Text>
               <Box direction="Column" gap="100">
                 <Text size="L400" priority="300">
-                  Paste login token (Tauri)
+                  {t('UI.pasteLoginTokenTauri')}
                 </Text>
                 <Input
                   value={manualToken}
@@ -115,7 +117,7 @@ export function Register() {
                   onClick={() => setSubmittedToken(manualToken.trim())}
                 >
                   <Text as="span" size="B500">
-                    Continue with Token
+                    {t('Common.continueWithToken')}
                   </Text>
                 </Button>
               </Box>

@@ -1,4 +1,5 @@
 import React, { useCallback, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Box, Button, Input, Text, color } from 'folds';
 import { useSearchParams } from 'react-router-dom';
 import { SSOAction, createClient } from 'matrix-js-sdk';
@@ -30,6 +31,7 @@ const useLoginSearchParams = (searchParams: URLSearchParams): LoginPathSearchPar
   );
 
 export function Login() {
+  const { t } = useTranslation();
   const server = useAuthServer();
   const { hashRouter } = useClientConfig();
   const { loginFlows } = useAuthFlows();
@@ -97,10 +99,10 @@ export function Login() {
     <Box direction="Column" gap="500">
       <Box direction="Column" gap="100">
         <Text size="H2" priority="400">
-          Welcome
+          {t('Common.welcome')}
         </Text>
         <Text size="T300" priority="300">
-          Log in or create an account to continue.
+          {t('UI.logInOrCreateAnAccountToContinue')}
         </Text>
       </Box>
 
@@ -115,7 +117,7 @@ export function Login() {
             fill="Solid"
           >
             <Text as="span" size="B500">
-              Login
+              {t('Common.login')}
             </Text>
           </Button>
           <Button
@@ -128,17 +130,17 @@ export function Login() {
             outlined
           >
             <Text as="span" size="B500">
-              Register
+              {t('Common.register')}
             </Text>
           </Button>
           {isTauri() && (
             <>
               <Text size="T200" priority="300" align="Center">
-                This will open your browser to continue.
+                {t('UI.thisWillOpenYourBrowserToContinue')}
               </Text>
               <Box direction="Column" gap="100">
                 <Text size="L400" priority="300">
-                  Paste login token (Tauri)
+                  {t('UI.pasteLoginTokenTauri')}
                 </Text>
                 <Input
                   value={manualToken}
@@ -156,7 +158,7 @@ export function Login() {
                   onClick={() => setSubmittedToken(manualToken.trim())}
                 >
                   <Text as="span" size="B500">
-                    Continue with Token
+                    {t('Common.continueWithToken')}
                   </Text>
                 </Button>
               </Box>

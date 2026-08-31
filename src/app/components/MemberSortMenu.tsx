@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import FocusTrap from 'focus-trap-react';
 import React from 'react';
 import { config, Menu, MenuItem, Text } from 'folds';
@@ -10,6 +11,7 @@ type MemberSortMenuProps = {
   onSelect: (index: number) => void;
 };
 export function MemberSortMenu({ selected, onSelect, requestClose }: MemberSortMenuProps) {
+  const { t } = useTranslation();
   const memberSortMenu = useMemberSortMenu();
 
   return (
@@ -36,7 +38,15 @@ export function MemberSortMenu({ selected, onSelect, requestClose }: MemberSortM
               requestClose();
             }}
           >
-            <Text size="T300">{menuItem.name}</Text>
+            <Text size="T300">
+              {t(
+                `Common.${
+                  { 'A to Z': 'aToZ', 'Z to A': 'zToA', Newest: 'newest', Oldest: 'oldest' }[
+                    menuItem.name
+                  ] ?? menuItem.name.toLowerCase()
+                }`,
+              )}
+            </Text>
           </MenuItem>
         ))}
       </Menu>

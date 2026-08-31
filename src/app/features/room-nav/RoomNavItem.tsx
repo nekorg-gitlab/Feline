@@ -104,7 +104,7 @@ const RoomNavItemMenu = forwardRef<HTMLDivElement, RoomNavItemMenuProps>(
     };
 
     return (
-      <Menu ref={ref} style={{ maxWidth: toRem(160), width: '100vw' }}>
+      <Menu ref={ref} style={{ maxWidth: toRem(280), width: 'max-content', minWidth: toRem(140) }}>
         {invitePrompt && room && (
           <InviteUserPrompt
             room={room}

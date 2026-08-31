@@ -33,6 +33,7 @@ import classNames from 'classnames';
 import * as css from './MembersDrawer.css';
 import { useMatrixClient } from '../../hooks/useMatrixClient';
 import { UseStateProvider } from '../../components/UseStateProvider';
+import { useTranslation } from 'react-i18next';
 import {
   SearchItemStrGetter,
   UseAsyncSearchOptions,
@@ -65,14 +66,15 @@ type MemberDrawerHeaderProps = {
   room: Room;
 };
 function MemberDrawerHeader({ room }: MemberDrawerHeaderProps) {
+  const { t } = useTranslation();
   const setPeopleDrawer = useSetSetting(settingsAtom, 'isPeopleDrawer');
 
   return (
     <Header className={css.MembersDrawerHeader} variant="Background" size="600">
       <Box grow="Yes" alignItems="Center" gap="200">
         <Box grow="Yes" alignItems="Center" gap="200">
-          <Text title={`${room.getJoinedMemberCount()} Members`} size="H5" truncate>
-            {`${millify(room.getJoinedMemberCount())} Members`}
+          <Text title={`${room.getJoinedMemberCount()} ${t('Common.members')}`} size="H5" truncate>
+            {`${millify(room.getJoinedMemberCount())} ${t('Common.members')}`}
           </Text>
         </Box>
         <Box shrink="No" alignItems="Center">
@@ -180,6 +182,7 @@ type MembersDrawerProps = {
   members: RoomMember[];
 };
 export function MembersDrawer({ room, members }: MembersDrawerProps) {
+  const { t } = useTranslation();
   const mx = useMatrixClient();
   const useAuthentication = useMediaAuthentication();
   const scrollRef = useRef<HTMLDivElement>(null as unknown as HTMLDivElement);
@@ -286,7 +289,9 @@ export function MembersDrawer({ room, members }: MembersDrawerProps) {
                         radii="300"
                         before={<Icon src={Icons.Filter} size="50" />}
                       >
-                        <Text size="T200">{membershipFilter.name}</Text>
+                        <Text size="T200">
+                          {t(`Common.${membershipFilter.name.toLowerCase()}`)}
+                        </Text>
                       </Chip>
                     </PopOut>
                   )}
@@ -318,7 +323,18 @@ export function MembersDrawer({ room, members }: MembersDrawerProps) {
                         radii="300"
                         after={<Icon src={Icons.Sort} size="50" />}
                       >
-                        <Text size="T200">{memberSort.name}</Text>
+                        <Text size="T200">
+                          {t(
+                            `Common.${
+                              {
+                                'A to Z': 'aToZ',
+                                'Z to A': 'zToA',
+                                Newest: 'newest',
+                                Oldest: 'oldest',
+                              }[memberSort.name] ?? memberSort.name.toLowerCase()
+                            }`,
+                          )}
+                        </Text>
                       </Chip>
                     </PopOut>
                   )}
@@ -329,7 +345,7 @@ export function MembersDrawer({ room, members }: MembersDrawerProps) {
                   ref={searchInputRef}
                   onChange={handleSearchChange}
                   style={{ paddingRight: config.space.S200 }}
-                  placeholder="Type name..."
+                  placeholder={t('Common.typeName')}
                   variant="Surface"
                   size="400"
                   radii="400"
@@ -350,9 +366,11 @@ export function MembersDrawer({ room, members }: MembersDrawerProps) {
                         }}
                         after={<Icon size="50" src={Icons.Cross} />}
                       >
-                        <Text size="B300">{`${result.items.length || 'No'} ${
-                          result.items.length === 1 ? 'Result' : 'Results'
-                        }`}</Text>
+                        <Text size="B300">
+                          {result.items.length === 0
+                            ? t('Common.noResults')
+                            : `${result.items.length} ${result.items.length === 1 ? t('Common.result') : t('Common.results')}`}
+                        </Text>
                       </Chip>
                     )
                   }
@@ -375,7 +393,9 @@ export function MembersDrawer({ room, members }: MembersDrawerProps) {
 
             {!fetchingMembers && !result && processMembers.length === 0 && (
               <Text style={{ padding: config.space.S300 }} align="Center">
-                {`No "${membershipFilter.name}" Members`}
+                {t('Common.noMembersFor', {
+                  filter: t(`Common.${membershipFilter.name.toLowerCase()}`),
+                })}
               </Text>
             )}
 

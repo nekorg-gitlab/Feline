@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { Icon, Icons } from 'folds';
 import { useNavigate } from 'react-router-dom';
 import { useAtomValue } from 'jotai';
@@ -11,6 +12,7 @@ import { ScreenSize, useScreenSizeContext } from '../../../hooks/useScreenSize';
 import { useNavToActivePathAtom } from '../../../state/hooks/navToActivePath';
 
 export function ExploreTab() {
+  const { t } = useTranslation();
   const mx = useMatrixClient();
   const screenSize = useScreenSizeContext();
   const navigate = useNavigate();

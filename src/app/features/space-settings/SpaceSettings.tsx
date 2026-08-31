@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import React, { useMemo, useState } from 'react';
 import { useAtomValue } from 'jotai';
 import { Avatar, Box, config, Icon, IconButton, Icons, IconSrc, MenuItem, Text } from 'folds';
@@ -25,37 +26,39 @@ type SpaceSettingsMenuItem = {
   icon: IconSrc;
 };
 
-const useSpaceSettingsMenuItems = (): SpaceSettingsMenuItem[] =>
-  useMemo(
+const useSpaceSettingsMenuItems = (): SpaceSettingsMenuItem[] => {
+  const { t } = useTranslation();
+  return useMemo(
     () => [
       {
         page: SpaceSettingsPage.GeneralPage,
-        name: 'General',
+        name: t('Common.general'),
         icon: Icons.Setting,
       },
       {
         page: SpaceSettingsPage.MembersPage,
-        name: 'Members',
+        name: t('Common.members'),
         icon: Icons.User,
       },
       {
         page: SpaceSettingsPage.PermissionsPage,
-        name: 'Permissions',
+        name: t('Common.permissions'),
         icon: Icons.Lock,
       },
       {
         page: SpaceSettingsPage.EmojisStickersPage,
-        name: 'Emojis & Stickers',
+        name: t('UI.emojisStickers'),
         icon: Icons.Smile,
       },
       {
         page: SpaceSettingsPage.DeveloperToolsPage,
-        name: 'Developer Tools',
+        name: t('Common.developerTools'),
         icon: Icons.Terminal,
       },
     ],
-    [],
+    [t],
   );
+};
 
 type SpaceSettingsProps = {
   initialPage?: SpaceSettingsPage;

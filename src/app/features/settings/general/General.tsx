@@ -26,11 +26,13 @@ import {
 } from 'folds';
 import { isKeyHotkey } from 'is-hotkey';
 import FocusTrap from 'focus-trap-react';
+import { useTranslation } from 'react-i18next';
 import { Page, PageContent, PageHeader } from '../../../components/page';
 import { SequenceCard } from '../../../components/sequence-card';
 import { useSetting } from '../../../state/hooks/settings';
 import { DateFormat, settingsAtom } from '../../../state/settings';
 import { SettingTile } from '../../../components/setting-tile';
+import { AppLanguage, LANGUAGE_LABELS } from '../../../utils/language';
 import { KeySymbol } from '../../../utils/key-symbol';
 import { isMacOS } from '../../../utils/user-agent';
 import { stopPropagation } from '../../../utils/keyboard';
@@ -370,6 +372,94 @@ function SelectDateFormat() {
   );
 }
 
+function Language() {
+  const { t } = useTranslation();
+  const [language, setLanguage] = useSetting(settingsAtom, 'language');
+  const [menuCords, setMenuCords] = useState<RectCords>();
+
+  const getLabel = (lang: AppLanguage) => {
+    if (lang === 'auto') {
+      const tr = t('Common.Language.auto');
+      return tr !== 'Common.Language.auto' ? tr : LANGUAGE_LABELS[lang];
+    }
+    return LANGUAGE_LABELS[lang];
+  };
+
+  const handleMenu: MouseEventHandler<HTMLButtonElement> = (evt) => {
+    setMenuCords(evt.currentTarget.getBoundingClientRect());
+  };
+
+  const handleSelect = (lang: AppLanguage) => {
+    setLanguage(lang);
+    setMenuCords(undefined);
+  };
+
+  const languages: AppLanguage[] = ['auto', 'en', 'es', 'pt-BR'];
+
+  return (
+    <Box direction="Column" gap="100">
+      <Text size="L400">{t('Settings.General.language')}</Text>
+      <SequenceCard className={SequenceCardStyle} variant="SurfaceVariant" direction="Column">
+        <SettingTile
+          title={t('Settings.General.language')}
+          description={t('Settings.General.languageDescription')}
+          after={
+            <>
+              <Button
+                size="300"
+                variant="Secondary"
+                outlined
+                fill="Soft"
+                radii="300"
+                after={<Icon size="300" src={Icons.ChevronBottom} />}
+                onClick={handleMenu}
+              >
+                <Text size="T300">{getLabel(language)}</Text>
+              </Button>
+              <PopOut
+                anchor={menuCords}
+                offset={5}
+                position="Bottom"
+                align="End"
+                content={
+                  <FocusTrap
+                    focusTrapOptions={{
+                      initialFocus: false,
+                      onDeactivate: () => setMenuCords(undefined),
+                      clickOutsideDeactivates: true,
+                      isKeyForward: (evt: KeyboardEvent) =>
+                        evt.key === 'ArrowDown' || evt.key === 'ArrowRight',
+                      isKeyBackward: (evt: KeyboardEvent) =>
+                        evt.key === 'ArrowUp' || evt.key === 'ArrowLeft',
+                      escapeDeactivates: stopPropagation,
+                    }}
+                  >
+                    <Menu>
+                      <Box direction="Column" gap="100" style={{ padding: config.space.S100 }}>
+                        {languages.map((lang) => (
+                          <MenuItem
+                            key={lang}
+                            size="300"
+                            variant={language === lang ? 'Primary' : 'Surface'}
+                            radii="300"
+                            onClick={() => handleSelect(lang)}
+                          >
+                            <Text size="T300">{getLabel(lang)}</Text>
+                          </MenuItem>
+                        ))}
+                      </Box>
+                    </Menu>
+                  </FocusTrap>
+                }
+              />
+            </>
+          }
+        />
+      </SequenceCard>
+    </Box>
+  );
+}
+
 function DateAndTime() {
   const [hour24Clock, setHour24Clock] = useSetting(settingsAtom, 'hour24Clock');
 
@@ -391,32 +481,33 @@ function DateAndTime() {
 }
 
 function Editor() {
+  const { t } = useTranslation();
   const [enterForNewline, setEnterForNewline] = useSetting(settingsAtom, 'enterForNewline');
   const [isMarkdown, setIsMarkdown] = useSetting(settingsAtom, 'isMarkdown');
   const [hideActivity, setHideActivity] = useSetting(settingsAtom, 'hideActivity');
 
   return (
     <Box direction="Column" gap="100">
-      <Text size="L400">Editor</Text>
+      <Text size="L400">{t('Settings.General.editor')}</Text>
       <SequenceCard className={SequenceCardStyle} variant="SurfaceVariant" direction="Column">
         <SettingTile
-          title="ENTER for Newline"
-          description={`Use ${
-            isMacOS() ? KeySymbol.Command : 'Ctrl'
-          } + ENTER to send message and ENTER for newline.`}
+          title={t('Settings.General.enterForNewline')}
+          description={t('Settings.General.enterForNewlineDescription', {
+            shortcut: isMacOS() ? KeySymbol.Command : 'Ctrl',
+          })}
           after={<Switch variant="Primary" value={enterForNewline} onChange={setEnterForNewline} />}
         />
       </SequenceCard>
       <SequenceCard className={SequenceCardStyle} variant="SurfaceVariant" direction="Column">
         <SettingTile
-          title="Markdown Formatting"
+          title={t('Settings.General.markdown')}
           after={<Switch variant="Primary" value={isMarkdown} onChange={setIsMarkdown} />}
         />
       </SequenceCard>
       <SequenceCard className={SequenceCardStyle} variant="SurfaceVariant" direction="Column">
         <SettingTile
-          title="Hide Typing & Read Receipts"
-          description="Turn off both typing status and read receipts to keep your activity private."
+          title={t('Settings.General.hideActivity')}
+          description={t('Settings.General.hideActivityDescription')}
           after={<Switch variant="Primary" value={hideActivity} onChange={setHideActivity} />}
         />
       </SequenceCard>
@@ -425,6 +516,7 @@ function Editor() {
 }
 
 function Messages() {
+  const { t } = useTranslation();
   const [hideMembershipEvents, setHideMembershipEvents] = useSetting(
     settingsAtom,
     'hideMembershipEvents',
@@ -438,10 +530,10 @@ function Messages() {
 
   return (
     <Box direction="Column" gap="100">
-      <Text size="L400">Messages</Text>
+      <Text size="L400">{t('Settings.General.messages')}</Text>
       <SequenceCard className={SequenceCardStyle} variant="SurfaceVariant" direction="Column">
         <SettingTile
-          title="Hide Membership Change"
+          title={t('Settings.General.hideMembershipChange')}
           after={
             <Switch
               variant="Primary"
@@ -453,7 +545,7 @@ function Messages() {
       </SequenceCard>
       <SequenceCard className={SequenceCardStyle} variant="SurfaceVariant" direction="Column">
         <SettingTile
-          title="Hide Profile Change"
+          title={t('Settings.General.hideProfileChange')}
           after={
             <Switch
               variant="Primary"
@@ -465,7 +557,7 @@ function Messages() {
       </SequenceCard>
       <SequenceCard className={SequenceCardStyle} variant="SurfaceVariant" direction="Column">
         <SettingTile
-          title="Disable Media Auto Load"
+          title={t('Settings.General.disableMediaAutoLoad')}
           after={
             <Switch
               variant="Primary"
@@ -477,7 +569,7 @@ function Messages() {
       </SequenceCard>
       <SequenceCard className={SequenceCardStyle} variant="SurfaceVariant" direction="Column">
         <SettingTile
-          title="Show Hidden Events"
+          title={t('Settings.General.showHiddenEvents')}
           after={
             <Switch variant="Primary" value={showHiddenEvents} onChange={setShowHiddenEvents} />
           }
@@ -511,6 +603,7 @@ export function General({ requestClose }: GeneralProps) {
         <Scroll hideTrack visibility="Hover">
           <PageContent>
             <Box direction="Column" gap="700">
+              <Language />
               <DateAndTime />
               <Editor />
               <Messages />

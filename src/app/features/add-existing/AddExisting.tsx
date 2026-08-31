@@ -1,4 +1,5 @@
 import FocusTrap from 'focus-trap-react';
+import { useTranslation } from 'react-i18next';
 import {
   Avatar,
   Box,
@@ -71,6 +72,7 @@ type AddExistingModalProps = {
   requestClose: () => void;
 };
 export function AddExistingModal({ parentId, space, requestClose }: AddExistingModalProps) {
+  const { t } = useTranslation();
   const mx = useMatrixClient();
   const useAuthentication = useMediaAuthentication();
   const alive = useAlive();
