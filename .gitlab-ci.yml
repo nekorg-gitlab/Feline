@@ -53,7 +53,21 @@ mirror_to_github:
         echo "GITHUB_SSH_PRIVATE_KEY not set - skipping mirror (add it in GitLab > Settings > CI/CD > Variables)"
         exit 0
       fi
-    - echo "$GITHUB_SSH_PRIVATE_KEY" | tr -d '\r' > ~/.ssh/id_ed25519 && chmod 600 ~/.ssh/id_ed25519
+    - |
+      # Support: raw key (multiline), base64-encoded key, or File-type variable (path)
+      if [ -f "$GITHUB_SSH_PRIVATE_KEY" ]; then
+        cp "$GITHUB_SSH_PRIVATE_KEY" ~/.ssh/id_ed25519
+      else
+        printf '%s' "$GITHUB_SSH_PRIVATE_KEY" | tr -d '\r' > ~/.ssh/id_ed25519
+        # fallback: try base64 decode if raw write is invalid (masked vars strip newlines)
+        if ! ssh-keygen -y -f ~/.ssh/id_ed25519 >/dev/null 2>&1; then
+          printf '%s' "$GITHUB_SSH_PRIVATE_KEY" | tr -d '\r' | base64 -d > ~/.ssh/id_ed25519 2>/dev/null || true
+        fi
+      fi
+      chmod 600 ~/.ssh/id_ed25519
+      # debug without leaking key
+      echo "key lines: $(wc -l < ~/.ssh/id_ed25519) first: $(head -1 ~/.ssh/id_ed25519) last: $(tail -1 ~/.ssh/id_ed25519)"
+      ssh-keygen -y -f ~/.ssh/id_ed25519 >/dev/null || (echo "ERROR: GITHUB_SSH_PRIVATE_KEY is invalid - check GitLab variable (use -Raw + unmasked, or base64)"; exit 1)
     - git config --global user.email "ci@nekorg.gitlab.io"
     - git config --global user.name "GitLab CI"
   script:
