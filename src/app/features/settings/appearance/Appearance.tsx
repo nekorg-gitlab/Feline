@@ -1143,147 +1143,158 @@ export function Appearance() {
   };
 
   return (
-    <Box direction="Column" gap="100">
-      <Text size="L400">Appearance</Text>
-      <SequenceCard
-        className={SequenceCardStyle}
-        variant="SurfaceVariant"
-        direction="Column"
-        gap="400"
-      >
-        <SettingTile
-          title="System Theme"
-          description="Choose between light and dark theme based on system preference."
-          after={<Switch variant="Primary" value={systemTheme} onChange={setSystemTheme} />}
-        />
-        {systemTheme && <SystemThemePreferences />}
-      </SequenceCard>
+    <Box direction="Column" gap="700">
+      <Box direction="Column" gap="100">
+        <Text size="L400">Theme</Text>
+        <SequenceCard
+          className={SequenceCardStyle}
+          variant="SurfaceVariant"
+          direction="Column"
+          gap="400"
+        >
+          <SettingTile
+            title="System Theme"
+            description="Choose between light and dark theme based on system preference."
+            after={<Switch variant="Primary" value={systemTheme} onChange={setSystemTheme} />}
+          />
+          {systemTheme && <SystemThemePreferences />}
+        </SequenceCard>
 
-      <SequenceCard className={SequenceCardStyle} variant="SurfaceVariant" direction="Column">
-        <SettingTile
-          title="Theme"
-          description="Theme to use when system theme is not enabled."
-          after={<SelectTheme disabled={systemTheme} />}
-        />
-      </SequenceCard>
+        <SequenceCard className={SequenceCardStyle} variant="SurfaceVariant" direction="Column">
+          <SettingTile
+            title="Theme"
+            description="Theme to use when system theme is not enabled."
+            after={<SelectTheme disabled={systemTheme} />}
+          />
+        </SequenceCard>
 
-      <SequenceCard
-        className={SequenceCardStyle}
-        variant="SurfaceVariant"
-        direction="Column"
-        gap="400"
-      >
-        <SettingTile
-          title="Custom Theme"
-          description="Override individual theme colors. Pick a base color for each element; the rest of its shades are derived automatically."
-        />
-        {CUSTOM_THEME_GROUPS.map(({ group, label, description }) => (
-          <CustomColorTile key={group} group={group} label={label} description={description} />
-        ))}
-        <SettingTile
-          title="Reset Custom Theme"
-          description="Clear all custom colors and revert to the selected theme."
-          after={
-            <Button
-              size="300"
-              variant="Secondary"
-              fill="Soft"
-              radii="400"
-              onClick={handleResetCustomTheme}
-            >
-              <Text size="B300">Reset All</Text>
-            </Button>
-          }
-        />
-      </SequenceCard>
+        <SequenceCard
+          className={SequenceCardStyle}
+          variant="SurfaceVariant"
+          direction="Column"
+          gap="400"
+        >
+          <SettingTile
+            title="Custom Theme"
+            description="Override individual theme colors. Pick a base color for each element; the rest of its shades are derived automatically."
+          />
+          {CUSTOM_THEME_GROUPS.map(({ group, label, description }) => (
+            <CustomColorTile key={group} group={group} label={label} description={description} />
+          ))}
+          <SettingTile
+            title="Reset Custom Theme"
+            description="Clear all custom colors and revert to the selected theme."
+            after={
+              <Button
+                size="300"
+                variant="Secondary"
+                fill="Soft"
+                radii="400"
+                onClick={handleResetCustomTheme}
+              >
+                <Text size="B300">Reset All</Text>
+              </Button>
+            }
+          />
+        </SequenceCard>
+      </Box>
 
-      <SequenceCard className={SequenceCardStyle} variant="SurfaceVariant" direction="Column">
-        <SettingTile title="Page Zoom" after={<PageZoomInput />} />
-      </SequenceCard>
+      <Box direction="Column" gap="100">
+        <Text size="L400">Display</Text>
+        <SequenceCard className={SequenceCardStyle} variant="SurfaceVariant" direction="Column">
+          <SettingTile title="Page Zoom" after={<PageZoomInput />} />
+        </SequenceCard>
 
-      <SequenceCard className={SequenceCardStyle} variant="SurfaceVariant" direction="Column">
-        <SettingTile
-          title="Monochrome Mode"
-          after={<Switch variant="Primary" value={monochromeMode} onChange={setMonochromeMode} />}
-        />
-      </SequenceCard>
+        <SequenceCard className={SequenceCardStyle} variant="SurfaceVariant" direction="Column">
+          <SettingTile
+            title="Monochrome Mode"
+            after={<Switch variant="Primary" value={monochromeMode} onChange={setMonochromeMode} />}
+          />
+        </SequenceCard>
 
-      <SequenceCard className={SequenceCardStyle} variant="SurfaceVariant" direction="Column">
-        <SettingTile
-          title="Twitter Emoji"
-          after={<Switch variant="Primary" value={twitterEmoji} onChange={setTwitterEmoji} />}
-        />
-      </SequenceCard>
+        <SequenceCard className={SequenceCardStyle} variant="SurfaceVariant" direction="Column">
+          <SettingTile
+            title="Hide Border Lines"
+            description="Remove the thin lines that separate panes and headers for a cleaner look."
+            after={
+              <Switch
+                variant="Primary"
+                value={hideBorderLines}
+                onChange={(v) => {
+                  setHideBorderLines(v);
+                  applyBorders(v);
+                }}
+              />
+            }
+          />
+        </SequenceCard>
 
-      <SequenceCard className={SequenceCardStyle} variant="SurfaceVariant" direction="Column">
-        <SettingTile
-          title="Hide Border Lines"
-          description="Remove the thin lines that separate panes and headers for a cleaner look."
-          after={
-            <Switch
-              variant="Primary"
-              value={hideBorderLines}
-              onChange={(v) => {
-                setHideBorderLines(v);
-                applyBorders(v);
-              }}
-            />
-          }
-        />
-      </SequenceCard>
+        <SequenceCard
+          className={SequenceCardStyle}
+          variant="SurfaceVariant"
+          direction="Column"
+          gap="400"
+        >
+          <RoundnessControl />
+        </SequenceCard>
 
-      <SequenceCard className={SequenceCardStyle} variant="SurfaceVariant" direction="Column">
-        <SettingTile title="Message Layout" after={<SelectMessageLayout />} />
-      </SequenceCard>
+        <SequenceCard
+          className={SequenceCardStyle}
+          variant="SurfaceVariant"
+          direction="Column"
+          gap="400"
+        >
+          <AnimationsControl />
+        </SequenceCard>
+      </Box>
 
-      <SequenceCard className={SequenceCardStyle} variant="SurfaceVariant" direction="Column">
-        <SettingTile title="Message Spacing" after={<SelectMessageSpacing />} />
-      </SequenceCard>
+      <Box direction="Column" gap="100">
+        <Text size="L400">Messages</Text>
+        <SequenceCard className={SequenceCardStyle} variant="SurfaceVariant" direction="Column">
+          <SettingTile title="Message Layout" after={<SelectMessageLayout />} />
+        </SequenceCard>
 
-      <SequenceCard className={SequenceCardStyle} variant="SurfaceVariant" direction="Column">
-        <SettingTile
-          title="Legacy Username Color"
-          after={
-            <Switch
-              variant="Primary"
-              value={legacyUsernameColor}
-              onChange={setLegacyUsernameColor}
-            />
-          }
-        />
-      </SequenceCard>
+        <SequenceCard className={SequenceCardStyle} variant="SurfaceVariant" direction="Column">
+          <SettingTile title="Message Spacing" after={<SelectMessageSpacing />} />
+        </SequenceCard>
 
-      <SequenceCard className={SequenceCardStyle} variant="SurfaceVariant" direction="Column">
-        <SettingTile
-          title="Url Preview"
-          after={<Switch variant="Primary" value={urlPreview} onChange={setUrlPreview} />}
-        />
-      </SequenceCard>
+        <SequenceCard className={SequenceCardStyle} variant="SurfaceVariant" direction="Column">
+          <SettingTile
+            title="Legacy Username Color"
+            after={
+              <Switch
+                variant="Primary"
+                value={legacyUsernameColor}
+                onChange={setLegacyUsernameColor}
+              />
+            }
+          />
+        </SequenceCard>
+      </Box>
 
-      <SequenceCard className={SequenceCardStyle} variant="SurfaceVariant" direction="Column">
-        <SettingTile
-          title="Url Preview in Encrypted Room"
-          after={<Switch variant="Primary" value={encUrlPreview} onChange={setEncUrlPreview} />}
-        />
-      </SequenceCard>
+      <Box direction="Column" gap="100">
+        <Text size="L400">Content</Text>
+        <SequenceCard className={SequenceCardStyle} variant="SurfaceVariant" direction="Column">
+          <SettingTile
+            title="Twitter Emoji"
+            after={<Switch variant="Primary" value={twitterEmoji} onChange={setTwitterEmoji} />}
+          />
+        </SequenceCard>
 
-      <SequenceCard
-        className={SequenceCardStyle}
-        variant="SurfaceVariant"
-        direction="Column"
-        gap="400"
-      >
-        <RoundnessControl />
-      </SequenceCard>
+        <SequenceCard className={SequenceCardStyle} variant="SurfaceVariant" direction="Column">
+          <SettingTile
+            title="Url Preview"
+            after={<Switch variant="Primary" value={urlPreview} onChange={setUrlPreview} />}
+          />
+        </SequenceCard>
 
-      <SequenceCard
-        className={SequenceCardStyle}
-        variant="SurfaceVariant"
-        direction="Column"
-        gap="400"
-      >
-        <AnimationsControl />
-      </SequenceCard>
+        <SequenceCard className={SequenceCardStyle} variant="SurfaceVariant" direction="Column">
+          <SettingTile
+            title="Url Preview in Encrypted Room"
+            after={<Switch variant="Primary" value={encUrlPreview} onChange={setEncUrlPreview} />}
+          />
+        </SequenceCard>
+      </Box>
     </Box>
   );
 }
