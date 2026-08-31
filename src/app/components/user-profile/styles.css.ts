@@ -26,22 +26,16 @@ export const UserHeroCover = style({
   transform: 'scale(2)',
 });
 
-export const UserHeroAvatarContainer = style({
-  position: 'relative',
-  height: toRem(29),
-});
+export const UserHeroAvatarContainer = style({});
 export const UserAvatarContainer = style({
-  position: 'absolute',
-  left: config.space.S400,
-  top: 0,
-  transform: 'translateY(-50%)',
+  display: 'inline-flex',
   backgroundColor: color.Surface.Container,
-  borderRadius: config.radii.Pill,
+  borderRadius: config.radii.R400,
   overflow: 'hidden',
   isolation: 'isolate',
 });
 export const UserHeroAvatar = style({
-  borderRadius: config.radii.Pill,
+  borderRadius: config.radii.R400,
   overflow: 'hidden',
   boxShadow: `0 0 0 ${config.borderWidth.B600} ${color.Surface.Container}`,
   selectors: {

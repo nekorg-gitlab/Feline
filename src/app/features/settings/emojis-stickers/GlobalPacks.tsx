@@ -188,7 +188,7 @@ function GlobalPackSelector({
                           description={<span className={LineClamp2}>{pack.meta.attribution}</span>}
                           before={
                             <Box alignItems="Center" gap="300">
-                              <Avatar size="300" radii="300">
+                              <Avatar size="300" radii="400">
                                 {avatarUrl ? (
                                   <AvatarImage style={{ objectFit: 'contain' }} src={avatarUrl} />
                                 ) : (
@@ -389,7 +389,7 @@ export function GlobalPacks({ onViewPack }: GlobalPacksProps) {
                   <Icon src={Icons.Cross} size="100" />
                 </IconButton>
               )}
-              <Avatar size="300" radii="300">
+              <Avatar size="300" radii="400">
                 {avatarUrl ? (
                   <AvatarImage style={{ objectFit: 'contain' }} src={avatarUrl} />
                 ) : (

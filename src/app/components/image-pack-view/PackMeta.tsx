@@ -220,7 +220,7 @@ export function ImagePackProfileEdit({ meta, onCancel, onSave }: ImagePackProfil
         />
       </Box>
       <Box gap="300">
-        <Button type="submit" variant="Success" size="300" radii="300" disabled={uploadingAvatar}>
+        <Button type="submit" variant="Success" size="300" radii="400" disabled={uploadingAvatar}>
           <Text size="B300">Save</Text>
         </Button>
         <Button

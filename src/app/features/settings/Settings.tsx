@@ -204,7 +204,7 @@ export function Settings({ initialPage, requestClose }: SettingsProps) {
           <PageNav size="300">
             <PageNavHeader outlined={false}>
               <Box grow="Yes" gap="200">
-                <Avatar size="200" radii="300">
+                <Avatar size="200" radii="400">
                   <UserAvatar
                     userId={userId}
                     src={avatarUrl}

@@ -542,7 +542,7 @@ function FolderSpaceAvatar({ space }: { space: Room }) {
   const authUrl = useAuthenticatedMxcUrl(space.getMxcAvatarUrl() ?? undefined, 96, 96, 'crop');
   const avatarUrl = useAuthentication ? authUrl : directUrl;
   return (
-    <SidebarAvatar size="200" radii="300">
+    <SidebarAvatar size="200" radii="400">
       <RoomAvatar
         roomId={space.roomId}
         src={avatarUrl ?? undefined}

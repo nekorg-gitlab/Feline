@@ -42,7 +42,7 @@ export const DropTarget = style({
       },
     },
     '&[data-drop-child=true]': {
-      outline: `${config.borderWidth.B700} solid ${color.Success.Main}`,
+      boxShadow: `0 0 0 ${config.borderWidth.B700} ${color.Success.Main}`,
       borderRadius: config.radii.R400,
     },
     '&[data-drop-above=true]::after, &[data-drop-below=true]::after': {
@@ -194,7 +194,7 @@ export const SidebarFolder = recipe({
       minHeight: toRem(42),
       display: 'flex',
       flexWrap: 'wrap',
-      outline: `${config.borderWidth.B300} solid ${color.Background.ContainerLine}`,
+      border: `${config.borderWidth.B300} solid ${color.Background.ContainerLine}`,
       position: 'relative',
 
       selectors: {

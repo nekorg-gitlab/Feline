@@ -100,7 +100,7 @@ function ProfileAvatar({ profile, userId }: ProfileProps) {
         </Text>
       }
       after={
-        <Avatar size="500" radii="300">
+        <Avatar size="500" radii="400">
           <UserAvatar
             userId={userId}
             src={avatarUrl}

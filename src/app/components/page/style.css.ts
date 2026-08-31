@@ -121,34 +121,20 @@ export const PageContentCenter = style([
 ]);
 
 export const Page = style({
-  borderRadius: 'var(--feline-chat-radius, 0)',
+  borderRadius: 0,
   overflow: 'hidden',
   isolation: 'isolate',
   backgroundColor: color.Surface.Container,
-  boxShadow: `0 0 0 1px ${color.Surface.Container}`,
-  '@media': {
-    'screen and (max-width: 750px)': {
-      borderRadius: 0,
-      boxShadow: 'none',
-    },
-  },
 });
 
 export const ChatPane = style({
-  borderRadius: 'var(--feline-chat-radius, 0)',
+  borderRadius: 0,
   overflow: 'hidden',
   isolation: 'isolate',
   backgroundColor: color.Surface.Container,
-  boxShadow: `0 0 0 1px ${color.Surface.Container}`,
   display: 'flex',
   flexDirection: 'column',
   flexGrow: 1,
   minHeight: 0,
   minWidth: 0,
-  '@media': {
-    'screen and (max-width: 750px)': {
-      borderRadius: 0,
-      boxShadow: 'none',
-    },
-  },
 });

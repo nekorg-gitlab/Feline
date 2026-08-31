@@ -276,7 +276,7 @@ export function AddExistingModal({ parentId, space, requestClose }: AddExistingM
                               disabled={applyingChanges}
                               aria-pressed={selectedItem}
                               before={
-                                <Avatar size="200" radii={dm ? '400' : '300'}>
+                                <Avatar size="200" radii="400">
                                   {dm || room.isSpaceRoom() ? (
                                     <RoomAvatar
                                       roomId={room.roomId}

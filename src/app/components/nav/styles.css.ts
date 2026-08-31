@@ -68,15 +68,13 @@ const NavItemBase = style({
       backgroundColor: ContainerActive,
     },
     [`&:has(.${NavLink}:focus-visible)`]: {
-      outline: `${config.borderWidth.B600} solid ${ContainerLine}`,
-      outlineOffset: `calc(-1 * ${config.borderWidth.B600})`,
+      boxShadow: `inset 0 0 0 ${config.borderWidth.B600} ${ContainerLine}`,
     },
   },
   '@supports': {
     [`not selector(:has(.${NavLink}:focus-visible))`]: {
       ':focus-within': {
-        outline: `${config.borderWidth.B600} solid ${ContainerLine}`,
-        outlineOffset: `calc(-1 * ${config.borderWidth.B600})`,
+        boxShadow: `inset 0 0 0 ${config.borderWidth.B600} ${ContainerLine}`,
       },
     },
   },

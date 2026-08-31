@@ -78,7 +78,7 @@ export function SSOLogin({ providers, redirectUrl, action, saveScreenSpace }: SS
               outlined
               before={
                 iconUrl && (
-                  <Avatar size="200" radii="300">
+                  <Avatar size="200" radii="400">
                     <AvatarImage src={iconUrl} alt={name} />
                   </Avatar>
                 )

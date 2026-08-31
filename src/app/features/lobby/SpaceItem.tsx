@@ -44,7 +44,7 @@ function SpaceProfileLoading() {
   return (
     <Box gap="200" alignItems="Center">
       <Box grow="Yes" gap="200" alignItems="Center" className={css.HeaderChipPlaceholder}>
-        <Avatar className={styleCss.AvatarPlaceholder} size="200" radii="300" />
+        <Avatar className={styleCss.AvatarPlaceholder} size="200" radii="400" />
         <Box
           className={styleCss.LinePlaceholder}
           shrink="No"
@@ -67,7 +67,7 @@ function InaccessibleSpaceProfile({ roomId, suggested }: InaccessibleSpaceProfil
       variant="Surface"
       size="500"
       before={
-        <Avatar size="200" radii="300">
+        <Avatar size="200" radii="400">
           <RoomAvatar
             roomId={roomId}
             renderFallback={() => (
@@ -126,7 +126,7 @@ function UnjoinedSpaceProfile({
       onClick={join}
       disabled={!canJoin}
       before={
-        <Avatar size="200" radii="300">
+        <Avatar size="200" radii="400">
           <RoomAvatar
             roomId={roomId}
             src={avatarUrl}
@@ -190,7 +190,7 @@ function SpaceProfile({
       variant="Surface"
       size="500"
       before={
-        <Avatar size="200" radii="300">
+        <Avatar size="200" radii="400">
           <RoomAvatar
             roomId={roomId}
             src={avatarUrl}

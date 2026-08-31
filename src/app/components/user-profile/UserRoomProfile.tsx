@@ -73,30 +73,41 @@ export function UserRoomProfile({ userId }: UserRoomProfileProps) {
 
   return (
     <Box direction="Column">
-      <UserHero
-        userId={userId}
-        avatarUrl={avatarUrl}
-        presence={presence && presence.lastActiveTs !== 0 ? presence : undefined}
-      />
-      <Box direction="Column" gap="500" style={{ padding: config.space.S400 }}>
-        <Box direction="Column" gap="400">
-          <Box gap="400" alignItems="Start">
-            <UserHeroName displayName={displayName} userId={userId} />
-            {userId !== myUserId && (
-              <Box shrink="No">
-                <Button
-                  size="300"
-                  variant="Primary"
-                  fill="Solid"
-                  radii="300"
-                  before={<Icon size="50" src={Icons.Message} filled />}
-                  onClick={handleMessage}
-                >
-                  <Text size="B300">Message</Text>
-                </Button>
-              </Box>
-            )}
+      <Box
+        direction="Row"
+        gap="400"
+        alignItems="Center"
+        style={{ padding: config.space.S400, paddingBottom: config.space.S200 }}
+      >
+        <UserHero
+          userId={userId}
+          avatarUrl={avatarUrl}
+          presence={presence && presence.lastActiveTs !== 0 ? presence : undefined}
+        />
+        <Box grow="Yes" direction="Column" gap="0">
+          <UserHeroName displayName={displayName} userId={userId} />
+        </Box>
+        {userId !== myUserId && (
+          <Box shrink="No">
+            <Button
+              size="300"
+              variant="Primary"
+              fill="Solid"
+              radii="300"
+              before={<Icon size="50" src={Icons.Message} filled />}
+              onClick={handleMessage}
+            >
+              <Text size="B300">Message</Text>
+            </Button>
           </Box>
+        )}
+      </Box>
+      <Box
+        direction="Column"
+        gap="500"
+        style={{ padding: config.space.S400, paddingTop: config.space.S200 }}
+      >
+        <Box direction="Column" gap="400">
           <Box alignItems="Center" gap="200" wrap="Wrap">
             {server && <ServerChip server={server} />}
             <ShareChip userId={userId} />

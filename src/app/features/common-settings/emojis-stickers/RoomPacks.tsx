@@ -146,7 +146,7 @@ function PackAvatar({ avatarMxc }: { avatarMxc?: string }) {
   const authUrl = useAuthenticatedMxcUrl(avatarMxc);
   const avatarUrl = useAuthentication ? authUrl : directUrl;
   return (
-    <Avatar size="300" radii="300">
+    <Avatar size="300" radii="400">
       {avatarUrl ? (
         <AvatarImage style={{ objectFit: 'contain' }} src={avatarUrl} />
       ) : (

@@ -47,7 +47,7 @@ export function UserPack({ onViewPack }: UserPackProps) {
           title={userPack?.meta.name ?? 'Unknown'}
           description={userPack?.meta.attribution}
           before={
-            <Avatar size="300" radii="300">
+            <Avatar size="300" radii="400">
               {avatarUrl ? (
                 <AvatarImage style={{ objectFit: 'contain' }} src={avatarUrl} />
               ) : (

@@ -195,7 +195,7 @@ export function RoomProfileEdit({
           )}
         </Box>
         <Box shrink="No">
-          <Avatar size="500" radii="300">
+          <Avatar size="500" radii="400">
             <RoomAvatar
               roomId={room.roomId}
               src={avatarUrl}
@@ -340,7 +340,7 @@ export function RoomProfile({ permissions }: RoomProfileProps) {
               )}
             </Box>
             <Box shrink="No">
-              <Avatar size="500" radii="300">
+              <Avatar size="500" radii="400">
                 <RoomAvatar
                   roomId={room.roomId}
                   src={avatarUrl}

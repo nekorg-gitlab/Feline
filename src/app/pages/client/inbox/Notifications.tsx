@@ -452,7 +452,7 @@ function RoomNotificationsGroupComp({
     <Box direction="Column" gap="200">
       <Header size="300">
         <Box gap="200" grow="Yes">
-          <Avatar size="200" radii="300">
+          <Avatar size="200" radii="400">
             <RoomAvatar
               roomId={room.roomId}
               src={roomAvatarUrl}

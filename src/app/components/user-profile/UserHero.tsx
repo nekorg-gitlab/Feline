@@ -14,7 +14,6 @@ import classNames from 'classnames';
 import FocusTrap from 'focus-trap-react';
 import * as css from './styles.css';
 import { UserAvatar } from '../user-avatar';
-import colorMXID from '../../../util/colorMXID';
 import { getMxIdLocalPart } from '../../utils/matrix';
 import { BreakWord, LineClamp3 } from '../../styles/Text.css';
 import { UserPresence } from '../../hooks/useUserPresence';
@@ -32,17 +31,6 @@ export function UserHero({ userId, avatarUrl, presence }: UserHeroProps) {
 
   return (
     <Box direction="Column" className={css.UserHero}>
-      <div
-        className={css.UserHeroCoverContainer}
-        style={{
-          backgroundColor: colorMXID(userId),
-          filter: avatarUrl ? undefined : 'brightness(50%)',
-        }}
-      >
-        {avatarUrl && (
-          <img className={css.UserHeroCover} src={avatarUrl} alt={userId} draggable="false" />
-        )}
-      </div>
       <div className={css.UserHeroAvatarContainer}>
         <AvatarPresence
           className={css.UserAvatarContainer}
@@ -55,7 +43,7 @@ export function UserHero({ userId, avatarUrl, presence }: UserHeroProps) {
             onClick={avatarUrl ? () => setViewAvatar(avatarUrl) : undefined}
             className={css.UserHeroAvatar}
             size="500"
-            radii="Pill"
+            radii="400"
           >
             <UserAvatar
               className={css.UserHeroAvatarImg}

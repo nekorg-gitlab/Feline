@@ -102,7 +102,7 @@ export function RoomSettings({ initialPage, requestClose }: RoomSettingsProps) {
           <PageNav size="300">
             <PageNavHeader outlined={false}>
               <Box grow="Yes" gap="200">
-                <Avatar size="200" radii="300">
+                <Avatar size="200" radii="400">
                   <RoomAvatar
                     roomId={room.roomId}
                     src={avatarUrl}

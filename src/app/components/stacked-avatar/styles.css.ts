@@ -1,15 +1,24 @@
-import { ComplexStyleRule } from '@vanilla-extract/css';
+import { ComplexStyleRule, createVar } from '@vanilla-extract/css';
 import { recipe, RecipeVariants } from '@vanilla-extract/recipes';
 import { color, config, ContainerColor, toRem } from 'folds';
 
+const outlineWidth = createVar();
+const outlineColor = createVar();
+
 const getVariant = (variant: ContainerColor): ComplexStyleRule => ({
-  outlineColor: color[variant].Container,
+  vars: {
+    [outlineColor]: color[variant].Container,
+  },
 });
 
 export const StackedAvatar = recipe({
   base: {
+    vars: {
+      [outlineWidth]: config.borderWidth.B500,
+      [outlineColor]: color.Surface.Container,
+    },
     backgroundColor: color.Surface.Container,
-    outlineStyle: 'solid',
+    boxShadow: `0 0 0 ${outlineWidth} ${outlineColor}`,
     selectors: {
       '&:first-child': {
         marginLeft: 0,
@@ -23,20 +32,28 @@ export const StackedAvatar = recipe({
   variants: {
     size: {
       '200': {
+        vars: {
+          [outlineWidth]: config.borderWidth.B300,
+        },
         marginLeft: toRem(-6),
-        outlineWidth: config.borderWidth.B300,
       },
       '300': {
+        vars: {
+          [outlineWidth]: config.borderWidth.B400,
+        },
         marginLeft: toRem(-9),
-        outlineWidth: config.borderWidth.B400,
       },
       '400': {
+        vars: {
+          [outlineWidth]: config.borderWidth.B500,
+        },
         marginLeft: toRem(-10.5),
-        outlineWidth: config.borderWidth.B500,
       },
       '500': {
+        vars: {
+          [outlineWidth]: config.borderWidth.B600,
+        },
         marginLeft: toRem(-13),
-        outlineWidth: config.borderWidth.B600,
       },
     },
     variant: {
