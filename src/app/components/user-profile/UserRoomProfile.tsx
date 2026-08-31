@@ -25,11 +25,13 @@ import { getHomeChatCreatePath, withSearchParam } from '../../pages/pathUtils';
 import { DirectCreateSearchParams } from '../../pages/paths';
 import { useUserProfile } from '../../hooks/useUserProfile';
 import { BiographyDisplay } from './BiographyDisplay';
+import { useTranslation } from 'react-i18next';
 
 type UserRoomProfileProps = {
   userId: string;
 };
 export function UserRoomProfile({ userId }: UserRoomProfileProps) {
+  const { t } = useTranslation();
   const mx = useMatrixClient();
   const useAuthentication = useMediaAuthentication();
   const navigate = useNavigate();
@@ -129,7 +131,7 @@ export function UserRoomProfile({ userId }: UserRoomProfileProps) {
               borderRadius: config.radii.R300,
             }}
           >
-            <Text size="L400">Biography</Text>
+            <Text size="L400">{t('Common.biography')}</Text>
             <BiographyDisplay
               bio={userProfile.bio}
               userId={userId}

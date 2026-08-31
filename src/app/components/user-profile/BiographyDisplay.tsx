@@ -18,6 +18,7 @@ import {
 import parse from 'html-react-parser';
 import FocusTrap from 'focus-trap-react';
 import classNames from 'classnames';
+import { useTranslation } from 'react-i18next';
 import { useMatrixClient } from '../../hooks/useMatrixClient';
 import { sanitizeCustomHtml } from '../../utils/sanitize';
 import { getReactCustomHtmlParser, LINKIFY_OPTS } from '../../plugins/react-custom-html-parser';
@@ -35,6 +36,7 @@ type BiographyDisplayProps = {
 };
 
 export function BiographyDisplay({ bio, userId, displayName, avatarUrl }: BiographyDisplayProps) {
+  const { t } = useTranslation();
   const mx = useMatrixClient();
   const containerRef = useRef<HTMLDivElement>(null);
   const [isOverflow, setIsOverflow] = useState(false);
@@ -116,7 +118,7 @@ export function BiographyDisplay({ bio, userId, displayName, avatarUrl }: Biogra
               radii="300"
               onClick={() => setOpen(true)}
             >
-              <Text size="B300">Show More</Text>
+              <Text size="B300">{t('Common.showMore')}</Text>
             </Button>
           </Box>
         )}
@@ -154,7 +156,7 @@ export function BiographyDisplay({ bio, userId, displayName, avatarUrl }: Biogra
               >
                 <Box grow="Yes" alignItems="Center" gap="200">
                   <Text size="H4" truncate>
-                    {displayName ?? username ?? 'Biography'}
+                    {displayName ?? username ?? t('Common.biography')}
                   </Text>
                 </Box>
                 <IconButton size="300" radii="300" onClick={() => setOpen(false)}>
@@ -210,7 +212,7 @@ export function BiographyDisplay({ bio, userId, displayName, avatarUrl }: Biogra
                       </Box>
                     )}
                     <Box direction="Column" gap="200">
-                      {!userId && <Text size="L400">Biography</Text>}
+                      {!userId && <Text size="L400">{t('Common.biography')}</Text>}
                       <Text
                         size="T300"
                         style={{

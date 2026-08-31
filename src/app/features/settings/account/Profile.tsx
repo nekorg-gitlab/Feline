@@ -322,6 +322,7 @@ function ProfileDisplayName({ profile, userId }: ProfileProps) {
 }
 
 function ProfileBiography({ profile, userId }: ProfileProps) {
+  const { t } = useTranslation();
   const mx = useMatrixClient();
   const useAuthentication = useMediaAuthentication();
   const [supportsExtended, setSupportsExtended] = useState<boolean | null>(null);
@@ -475,13 +476,13 @@ function ProfileBiography({ profile, userId }: ProfileProps) {
       <SettingTile
         title={
           <Text as="span" size="L400">
-            Profile Biography
+            {t('Common.profileBiography')}
           </Text>
         }
       >
         <Box direction="Column" gap="200">
           <Text size="T300" priority="400">
-            Your homeserver does not support extended profiles (MSC4133). Biography cannot be saved.
+            {t('Common.biographyHomeserverNotSupported')}
           </Text>
           {profile.bio && (
             <Box
@@ -505,7 +506,7 @@ function ProfileBiography({ profile, userId }: ProfileProps) {
     <SettingTile
       title={
         <Text as="span" size="L400">
-          Profile Biography
+          {t('Common.profileBiography')}
         </Text>
       }
     >
