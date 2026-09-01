@@ -35,7 +35,7 @@ import { Membership } from '../../../types/matrix/room';
 import * as css from './RoomItem.css';
 import * as styleCss from './style.css';
 import { AsyncStatus, useAsyncCallback } from '../../hooks/useAsyncCallback';
-import { getDirectRoomAvatarUrl, getRoomAvatarUrl } from '../../utils/room';
+import { getDirectAvatarMxc, getDirectRoomAvatarUrl, getRoomAvatarUrl } from '../../utils/room';
 import { ItemDraggableTarget, useDraggableItem } from './DnD';
 import { mxcUrlToHttp } from '../../utils/matrix';
 import { useMediaAuthentication } from '../../hooks/useMediaAuthentication';
@@ -328,7 +328,7 @@ export const RoomItemCard = as<'div', RoomItemCardProps>(
     const joined = room?.getMyMembership() === Membership.Join;
 
     const roomAvatarMxcForAuth = dm
-      ? (room?.getAvatarFallbackMember()?.getMxcAvatarUrl() ?? room?.getMxcAvatarUrl() ?? undefined)
+      ? (getDirectAvatarMxc(mx, roomId) ?? room?.getMxcAvatarUrl() ?? undefined)
       : (room?.getMxcAvatarUrl() ?? undefined);
     const directRoomAvatarUrl = dm
       ? room

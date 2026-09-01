@@ -16,6 +16,7 @@ import { usePreviousValue } from '../../hooks/usePreviousValue';
 import { useMatrixClient } from '../../hooks/useMatrixClient';
 import { getInboxInvitesPath, getInboxNotificationsPath } from '../pathUtils';
 import {
+  getDirectAvatarMxc,
   getMemberDisplayName,
   getNotificationType,
   getUnreadInfo,
@@ -213,8 +214,7 @@ function MessageNotifications() {
       }
 
       if (showNotifications && notificationPermission('granted')) {
-        const avatarMxc =
-          room.getAvatarFallbackMember()?.getMxcAvatarUrl() ?? room.getMxcAvatarUrl();
+        const avatarMxc = getDirectAvatarMxc(mx, room.roomId) ?? room.getMxcAvatarUrl();
         notify({
           roomName: room.name ?? 'Unknown',
           roomAvatar: avatarMxc

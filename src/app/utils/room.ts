@@ -16,6 +16,8 @@ import {
   RelationType,
   Room,
   RoomMember,
+  RoomNameState,
+  RoomNameType,
 } from 'matrix-js-sdk';
 import { CryptoBackend } from 'matrix-js-sdk/lib/common-crypto/CryptoBackend';
 import { AccountDataEvent } from '../../types/matrix/accountData';
@@ -70,6 +72,90 @@ export const isDirectInvite = (room: Room | null, myUserId: string | null): bool
   const memberEvent = me?.events?.member;
   const content = memberEvent?.getContent();
   return content?.is_direct === true;
+};
+
+export const getDirectUserId = (mx: MatrixClient, roomId: string): string | undefined => {
+  const mDirectEvent = getAccountData(mx, AccountDataEvent.Direct);
+  const userIdToDirects = mDirectEvent?.getContent<Record<string, string[]>>();
+
+  if (userIdToDirects && typeof userIdToDirects === 'object') {
+    for (const [userId, directs] of Object.entries(userIdToDirects)) {
+      if (Array.isArray(directs) && directs.includes(roomId)) {
+        return userId;
+      }
+    }
+  }
+
+  const room = mx.getRoom(roomId);
+  if (room) {
+    if (isDirectInvite(room, mx.getUserId())) {
+      const inviter = room.getDMInviter();
+      if (inviter) return inviter;
+    }
+
+    if (room.getMyMembership() === 'invite') {
+      const inviter = room.getDMInviter();
+      if (inviter) return inviter;
+    }
+  }
+
+  return undefined;
+};
+
+export const getDirectUserName = (
+  mx: MatrixClient,
+  roomId: string,
+  dmUserId: string,
+  oldName?: string,
+): string => {
+  const room = mx.getRoom(roomId);
+  const member = room?.getMember(dmUserId);
+  if (member?.name && member.name !== dmUserId) {
+    return member.name;
+  }
+
+  const user = mx.getUser(dmUserId);
+  if (user?.displayName) {
+    return user.displayName;
+  }
+  if (user?.rawDisplayName) {
+    return user.rawDisplayName;
+  }
+
+  if (oldName) {
+    return oldName;
+  }
+
+  if (member?.name) {
+    return member.name;
+  }
+
+  return dmUserId;
+};
+
+export const createRoomNameGenerator = (mx: MatrixClient) => {
+  return (roomId: string, state: RoomNameState): string | null => {
+    if (state.type === RoomNameType.Actual) {
+      return state.name;
+    }
+
+    const dmUserId = getDirectUserId(mx, roomId);
+    if (dmUserId) {
+      const name = getDirectUserName(
+        mx,
+        roomId,
+        dmUserId,
+        state.type === RoomNameType.EmptyRoom ? state.oldName : undefined,
+      );
+
+      if (state.type === RoomNameType.Generated && state.subtype === 'Inviting') {
+        return `Inviting ${name}`;
+      }
+      return name;
+    }
+
+    return null;
+  };
 };
 
 export const isSpace = (room: Room | null): boolean => {
@@ -312,13 +398,31 @@ export const getRoomAvatarUrl = (
     : undefined;
 };
 
+export const getDirectAvatarMxc = (mx: MatrixClient, roomId: string): string | undefined => {
+  const room = mx.getRoom(roomId);
+  const fallbackAvatar = room?.getAvatarFallbackMember()?.getMxcAvatarUrl();
+  if (fallbackAvatar) return fallbackAvatar;
+
+  const dmUserId = getDirectUserId(mx, roomId);
+  if (dmUserId) {
+    const member = room?.getMember(dmUserId);
+    const memberAvatar = member?.getMxcAvatarUrl();
+    if (memberAvatar) return memberAvatar;
+
+    const user = mx.getUser(dmUserId);
+    if (user?.avatarUrl) return user.avatarUrl;
+  }
+
+  return undefined;
+};
+
 export const getDirectRoomAvatarUrl = (
   mx: MatrixClient,
   room: Room,
   size: 32 | 96 = 32,
   useAuthentication = false,
 ): string | undefined => {
-  const mxcUrl = room.getAvatarFallbackMember()?.getMxcAvatarUrl();
+  const mxcUrl = getDirectAvatarMxc(mx, room.roomId);
 
   if (!mxcUrl) {
     return getRoomAvatarUrl(mx, room, size, useAuthentication);

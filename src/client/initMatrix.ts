@@ -1,5 +1,6 @@
 import { createClient, MatrixClient, IndexedDBStore, IndexedDBCryptoStore } from 'matrix-js-sdk';
 
+import { createRoomNameGenerator } from '../app/utils/room';
 import { cryptoCallbacks } from './secretStorageKeys';
 import { clearNavToActivePathStore } from '../app/state/navToActivePath';
 import { pushSessionToSW } from '../sw-session';
@@ -32,6 +33,7 @@ export const initClient = async (session: Session): Promise<MatrixClient> => {
     cryptoCallbacks: cryptoCallbacks as any,
     verificationMethods: ['m.sas.v1'],
     logger: getFilteredLogger() as never,
+    roomNameGenerator: (roomId, state) => createRoomNameGenerator(mx)(roomId, state),
   });
 
   await indexedDBStore.startup();
