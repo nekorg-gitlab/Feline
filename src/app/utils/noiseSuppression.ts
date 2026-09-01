@@ -36,7 +36,7 @@ export const NOISE_SUPPRESSION_OPTIONS: {
   {
     value: 'low',
     label: 'Low',
-    description: 'Light cleanup — lowest CPU',
+    description: 'Light cleanup - lowest CPU',
   },
   {
     value: 'medium',
@@ -46,7 +46,7 @@ export const NOISE_SUPPRESSION_OPTIONS: {
   {
     value: 'high',
     label: 'High',
-    description: 'Strongest cleanup — highest CPU',
+    description: 'Strongest cleanup - highest CPU',
   },
 ];
 

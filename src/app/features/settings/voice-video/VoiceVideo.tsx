@@ -124,7 +124,7 @@ function DeviceSelector({ label, devices, kind, value, onChange }: DeviceSelecto
                     setCords(undefined);
                   }}
                 >
-                  <Text size="T300">Default — {label}</Text>
+                  <Text size="T300">Default - {label}</Text>
                 </MenuItem>
                 {filtered.map((d) => (
                   <MenuItem
@@ -467,7 +467,7 @@ function MicMonitor({
             </Text>
             <LevelBar level={rawLevel} color={color.Success.Main} />
             <Text size="T200" priority="300" style={{ minWidth: toRem(32), textAlign: 'right' }}>
-              {active ? `${rawLevel}%` : '—'}
+              {active ? `${rawLevel}%` : '-'}
             </Text>
             <Button
               size="300"
@@ -488,7 +488,7 @@ function MicMonitor({
               </Text>
               <LevelBar level={procLevel} color={color.Success.Main} />
               <Text size="T200" priority="300" style={{ minWidth: toRem(32), textAlign: 'right' }}>
-                {active ? `${procLevel}%` : '—'}
+                {active ? `${procLevel}%` : '-'}
               </Text>
               <Button
                 size="300"
@@ -507,7 +507,7 @@ function MicMonitor({
               </Text>
               <LevelBar level={rawLevel} color={color.Critical.Main} />
               <Text size="T200" priority="300" style={{ minWidth: toRem(32), textAlign: 'right' }}>
-                {active ? `${rawLevel}%` : '—'}
+                {active ? `${rawLevel}%` : '-'}
               </Text>
               <Button
                 size="300"
@@ -530,10 +530,10 @@ function MicMonitor({
         {playingMode && (
           <Text size="T200" priority="300">
             {playingMode === 'after'
-              ? 'Playing after suppression — you should hear denoised audio.'
+              ? 'Playing after suppression - you should hear denoised audio.'
               : quality === 'off'
-                ? 'Playing your mic — you should hear yourself.'
-                : 'Playing before suppression — raw microphone.'}
+                ? 'Playing your mic - you should hear yourself.'
+                : 'Playing before suppression - raw microphone.'}
           </Text>
         )}
       </Box>
@@ -542,7 +542,7 @@ function MicMonitor({
       <audio ref={audioElRef} autoPlay playsInline style={{ display: 'none' }} />
       {!active && (
         <Text size="T200" style={{ color: color.Critical.Main }}>
-          Microphone unavailable — check permission and device.
+          Microphone unavailable - check permission and device.
         </Text>
       )}
     </Box>

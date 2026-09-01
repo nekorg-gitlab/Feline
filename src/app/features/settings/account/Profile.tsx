@@ -591,7 +591,7 @@ function ProfileBiography({ profile, userId }: ProfileProps) {
               style={{ color: overLimit ? 'rgb(var(--folds-color-Critical-600))' : undefined }}
             >
               {byteLength.toLocaleString()} / {BIO_MAX_BYTES.toLocaleString()} bytes
-              {overLimit && ' — too large!'}
+              {overLimit && ' - too large!'}
             </Text>
             {bioDraft && (
               <Button

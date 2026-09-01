@@ -538,7 +538,7 @@ export function VerificationPrompt() {
                       gap="100"
                     >
                       <Text size="T200" style={{ color: color.Success.Main }}>
-                        <b>Check your other device!</b> A verification popup is waiting — compare
+                        <b>Check your other device!</b> A verification popup is waiting, compare
                         emojis to finish.
                       </Text>
                     </Box>
