@@ -300,7 +300,7 @@ function MicMonitor({
             deviceId: deviceId ? { exact: deviceId } : undefined,
             echoCancellation: false,
             noiseSuppression: false,
-            autoGainControl: true,
+            autoGainControl: false,
           } as MediaTrackConstraints,
         });
         if (cancelled) {
@@ -784,7 +784,6 @@ export function VoiceVideo() {
   );
   const [speakerDeviceId, setSpeakerDeviceId] = useSetting(settingsAtom, 'speakerDeviceId');
   const [cameraDeviceId, setCameraDeviceId] = useSetting(settingsAtom, 'cameraDeviceId');
-  const [microphoneVolume, setMicrophoneVolume] = useSetting(settingsAtom, 'microphoneVolume');
   const [speakerVolume, setSpeakerVolume] = useSetting(settingsAtom, 'speakerVolume');
   const [noiseQuality] = useSetting(settingsAtom, 'noiseSuppressionQuality');
 
@@ -836,10 +835,6 @@ export function VoiceVideo() {
             }
           />
           <Box direction="Column" gap="200">
-            <Box gap="200" alignItems="Center" justifyContent="SpaceBetween">
-              <Text size="T300">Input Volume</Text>
-              <VolumeSlider value={microphoneVolume} onChange={setMicrophoneVolume} />
-            </Box>
             <MicMonitor
               deviceId={microphoneDeviceId}
               quality={noiseQuality}

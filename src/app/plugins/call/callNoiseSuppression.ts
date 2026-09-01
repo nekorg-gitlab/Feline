@@ -17,7 +17,18 @@ export function installNoiseSuppressionPatch(
   const active = new Set<{ destroy: () => void; ctx: AudioContext; raw: MediaStream }>();
 
   const patched = async (constraints: MediaStreamConstraints): Promise<MediaStream> => {
-    const rawStream = await nativeGUM(constraints);
+    let effectiveConstraints: MediaStreamConstraints = constraints;
+    if (constraints.audio) {
+      const audioOpt: MediaTrackConstraints =
+        typeof constraints.audio === 'boolean' ? {} : { ...(constraints.audio as MediaTrackConstraints) };
+      (audioOpt as unknown as Record<string, unknown>).autoGainControl = false;
+      (audioOpt as unknown as Record<string, unknown>).noiseSuppression = false;
+      (audioOpt as unknown as Record<string, unknown>).echoCancellation = false;
+      (audioOpt as unknown as Record<string, unknown>).googAutoGainControl = false;
+      (audioOpt as unknown as Record<string, unknown>).googNoiseSuppression = false;
+      effectiveConstraints = { ...constraints, audio: audioOpt };
+    }
+    const rawStream = await nativeGUM(effectiveConstraints);
     const quality = getQuality();
     const shouldDenoise = !!constraints.audio && quality !== 'off';
     if (!shouldDenoise) return rawStream;

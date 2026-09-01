@@ -66,9 +66,11 @@ export async function createDenoisedStream(
   const denoiser = await model.createStreamDenoiser(inputStream, {
     audioContext: options?.audioContext,
   });
-  // Keep AGC enabled for audible output
   try {
-    denoiser.agcEnabled = true;
+    denoiser.agcEnabled = false;
+  } catch {}
+  try {
+    denoiser.hpfEnabled = false;
   } catch {}
   return {
     outputStream: denoiser.outputStream,
