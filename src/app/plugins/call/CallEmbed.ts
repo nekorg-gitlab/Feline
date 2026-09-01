@@ -27,6 +27,8 @@ import {
 } from './types';
 import { CallControl } from './CallControl';
 import { CallControlState } from './CallControlState';
+import { installNoiseSuppressionPatch } from './callNoiseSuppression';
+import { getSettings } from '../../state/settings';
 
 export class CallEmbed {
   private mx: MatrixClient;
@@ -48,6 +50,8 @@ export class CallEmbed {
   private eventsToFeed = new WeakSet<MatrixEvent>();
 
   private readonly disposables: Array<() => void> = [];
+
+  private noiseSuppressionCleanup: (() => void) | null = null;
 
   static getIntent(dm: boolean, ongoing: boolean, video?: boolean): ElementCallIntent {
     if (dm && ongoing) {
@@ -175,9 +179,28 @@ export class CallEmbed {
     const controlState = initialControlState ?? new CallControlState(true, false, true);
     this.control = new CallControl(controlState, call, iframe);
     this.control.startObserving();
-    iframe.onload = () => {
-      this.control.startObserving();
+    const installNoiseSuppression = () => {
+      try {
+        if (this.noiseSuppressionCleanup) this.noiseSuppressionCleanup();
+        this.noiseSuppressionCleanup = installNoiseSuppressionPatch(iframe, () => {
+          try {
+            return getSettings().noiseSuppressionQuality;
+          } catch {
+            return 'off';
+          }
+        });
+      } catch {}
     };
+    iframe.addEventListener('load', () => {
+      this.control.startObserving();
+      installNoiseSuppression();
+    });
+    if (iframe.contentWindow?.document?.readyState === 'complete') {
+      installNoiseSuppression();
+    } else {
+      setTimeout(installNoiseSuppression, 200);
+      setTimeout(installNoiseSuppression, 1000);
+    }
 
     let initialMediaEvent = true;
     this.disposables.push(
@@ -265,6 +288,12 @@ export class CallEmbed {
     this.disposables.forEach((disposable) => {
       disposable();
     });
+    if (this.noiseSuppressionCleanup) {
+      try {
+        this.noiseSuppressionCleanup();
+      } catch {}
+      this.noiseSuppressionCleanup = null;
+    }
     this.call.stop();
     this.container.removeChild(this.iframe);
     this.control.dispose();
