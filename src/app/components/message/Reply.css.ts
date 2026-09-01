@@ -58,7 +58,7 @@ export const ReplyAvatar = style({
   position: 'relative',
   width: toRem(16),
   height: toRem(16),
-  borderRadius: config.radii.Pill,
+  borderRadius: config.radii.R300,
   overflow: 'hidden',
   flexShrink: 0,
   display: 'flex',
