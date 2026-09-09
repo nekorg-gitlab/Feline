@@ -13,6 +13,19 @@ export const Sidebar = style([
     display: 'flex',
     flexDirection: 'column',
     color: color.Background.OnContainer,
+
+    '@media': {
+      'screen and (max-width: 750px)': {
+        width: '100%',
+        minHeight: 'var(--feline-tabbar-height, 60px)',
+        maxHeight: 'var(--feline-tabbar-height, 60px)',
+        flexDirection: 'row',
+        alignItems: 'center',
+        overflow: 'hidden',
+        borderRight: 'none',
+        borderTop: `var(--feline-divider-width, ${config.borderWidth.B300}) solid ${color.Background.ContainerLine}`,
+      },
+    },
   },
 ]);
 
@@ -26,6 +39,17 @@ export const SidebarStack = style([
     alignItems: 'center',
     gap: config.space.S300,
     padding: `${config.space.S300} 0`,
+
+    '@media': {
+      'screen and (max-width: 750px)': {
+        width: 'auto',
+        flexShrink: 0,
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: config.space.S100,
+        padding: `${toRem(4)} ${config.space.S100} ${toRem(8)}`,
+      },
+    },
   },
 ]);
 
@@ -95,6 +119,18 @@ export const SidebarItem = recipe({
           width: toRem(3),
         },
       },
+      '@media': {
+        'screen and (max-width: 750px)': {
+          selectors: {
+            '&:hover': {
+              transform: `translateY(${toRem(-PUSH_X)})`,
+            },
+            '&::before': {
+              content: 'none',
+            },
+          },
+        },
+      },
     },
     Disabled,
     DropTarget,
@@ -109,6 +145,26 @@ export const SidebarItem = recipe({
           },
           '&:hover::before': {
             width: toRem(3 + PUSH_X),
+          },
+        },
+        '@media': {
+          'screen and (max-width: 750px)': {
+            selectors: {
+              '&::before': {
+                content: '',
+                display: 'block',
+                left: '50%',
+                top: 'auto',
+                bottom: toRem(-5),
+                width: toRem(4),
+                height: toRem(4),
+                borderRadius: '50%',
+                transform: 'translateX(-50%)',
+              },
+              '&:hover::before': {
+                width: toRem(4),
+              },
+            },
           },
         },
       },
@@ -219,6 +275,17 @@ export const SidebarFolder = recipe({
         alignItems: 'center',
         gap: config.space.S200,
         borderRadius: config.radii.R500,
+        '@media': {
+          'screen and (max-width: 750px)': {
+            flexDirection: 'row',
+            alignItems: 'center',
+            gap: config.space.S100,
+            padding: `0 ${config.space.S100}`,
+            maxWidth: '45vw',
+            overflowX: 'auto',
+            overflowY: 'hidden',
+          },
+        },
       },
     },
   },

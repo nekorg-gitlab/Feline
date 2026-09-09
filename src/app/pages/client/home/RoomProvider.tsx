@@ -7,6 +7,7 @@ import { JoinBeforeNavigate } from '../../../features/join-before-navigate';
 import { useHomeRooms } from './useHomeRooms';
 import { useDirectRooms } from '../direct/useDirectRooms';
 import { useSearchParamsViaServers } from '../../../hooks/router/useSearchParamsViaServers';
+import { decodePathParam } from '../../pathUtils';
 
 export function HomeRouteRoomProvider({ children }: { children: ReactNode }) {
   const mx = useMatrixClient();
@@ -14,10 +15,8 @@ export function HomeRouteRoomProvider({ children }: { children: ReactNode }) {
   const directs = useDirectRooms();
 
   const { roomIdOrAlias: rawRoomIdOrAlias, eventId: rawEventId } = useParams();
-  const roomIdOrAlias = rawRoomIdOrAlias
-    ? (globalThis as any).decodeURIComponent(rawRoomIdOrAlias)
-    : undefined;
-  const eventId = rawEventId ? (globalThis as any).decodeURIComponent(rawEventId) : undefined;
+  const roomIdOrAlias = rawRoomIdOrAlias ? decodePathParam(rawRoomIdOrAlias) : undefined;
+  const eventId = rawEventId ? decodePathParam(rawEventId) : undefined;
   const viaServers = useSearchParamsViaServers();
   const roomId = useSelectedRoom();
   const room = mx.getRoom(roomId);

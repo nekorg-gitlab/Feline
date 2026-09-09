@@ -930,13 +930,8 @@ export function RoomTimeline({ room, eventId, roomInputRef, editor }: RoomTimeli
     [mx, room, editor],
   );
 
-  const handleReplyClick: MouseEventHandler<HTMLButtonElement> = useCallback(
-    (evt, startThread = false) => {
-      const replyId = evt.currentTarget.getAttribute('data-event-id');
-      if (!replyId) {
-        if (import.meta.env.DEV) console.warn('Button should have "data-event-id" attribute!');
-        return;
-      }
+  const startReply = useCallback(
+    (replyId: string, startThread = false) => {
       const replyEvt = room.findEventById(replyId);
       if (!replyEvt) return;
       const editedReply = getEditedEvent(replyId, replyEvt, room.getUnfilteredTimelineSet());
@@ -958,6 +953,23 @@ export function RoomTimeline({ room, eventId, roomInputRef, editor }: RoomTimeli
       }
     },
     [room, setReplyDraft, editor],
+  );
+
+  const handleReplyClick: MouseEventHandler<HTMLButtonElement> = useCallback(
+    (evt, startThread = false) => {
+      const replyId = evt.currentTarget.getAttribute('data-event-id');
+      if (!replyId) {
+        if (import.meta.env.DEV) console.warn('Button should have "data-event-id" attribute!');
+        return;
+      }
+      startReply(replyId, startThread);
+    },
+    [startReply],
+  );
+
+  const handleSwipeReply = useCallback(
+    (replyId: string) => startReply(replyId, false),
+    [startReply],
   );
 
   const handleReactionToggle = useCallback(
@@ -1035,6 +1047,7 @@ export function RoomTimeline({ room, eventId, roomInputRef, editor }: RoomTimeli
             onUserClick={handleUserClick}
             onUsernameClick={handleUsernameClick}
             onReplyClick={handleReplyClick}
+            onSwipeReply={handleSwipeReply}
             onReactionToggle={handleReactionToggle}
             onEditId={handleEdit}
             reply={
@@ -1117,6 +1130,7 @@ export function RoomTimeline({ room, eventId, roomInputRef, editor }: RoomTimeli
             onUserClick={handleUserClick}
             onUsernameClick={handleUsernameClick}
             onReplyClick={handleReplyClick}
+            onSwipeReply={handleSwipeReply}
             onReactionToggle={handleReactionToggle}
             onEditId={handleEdit}
             reply={
@@ -1235,6 +1249,7 @@ export function RoomTimeline({ room, eventId, roomInputRef, editor }: RoomTimeli
             onUserClick={handleUserClick}
             onUsernameClick={handleUsernameClick}
             onReplyClick={handleReplyClick}
+            onSwipeReply={handleSwipeReply}
             onReactionToggle={handleReactionToggle}
             reactions={
               reactionRelations && (

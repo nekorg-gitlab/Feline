@@ -28,6 +28,7 @@ import {
 import { CallEmbed, useCallControlState } from '../../plugins/call';
 import { useResizeObserver } from '../../hooks/useResizeObserver';
 import { stopPropagation } from '../../utils/keyboard';
+import { screenShareUnavailableReason, supportsScreenShare } from '../../utils/mediaCapabilities';
 import { AsyncStatus, useAsyncCallback } from '../../hooks/useAsyncCallback';
 
 type CallControlsProps = {
@@ -49,6 +50,9 @@ export function CallControls({ callEmbed }: CallControlsProps) {
   const { microphone, video, sound, screenshare, spotlight } = useCallControlState(
     callEmbed.control,
   );
+
+  const canScreenshare = supportsScreenShare();
+  const screenshareReason = canScreenshare ? undefined : (screenShareUnavailableReason() ?? '');
 
   const [cords, setCords] = useState<RectCords>();
 
@@ -108,6 +112,8 @@ export function CallControls({ callEmbed }: CallControlsProps) {
             <VideoButton enabled={video} onToggle={handleVideoToggle} />
             <ScreenShareButton
               enabled={screenshare}
+              disabled={!canScreenshare}
+              disabledReason={screenshareReason}
               onToggle={() => callEmbed.control.toggleScreenshare()}
             />
           </Box>

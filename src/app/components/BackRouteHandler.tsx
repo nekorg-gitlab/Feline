@@ -1,6 +1,12 @@
 import { ReactNode, useCallback } from 'react';
 import { matchPath, useLocation, useNavigate } from 'react-router-dom';
-import { getExplorePath, getHomePath, getInboxPath, getSpacePath } from '../pages/pathUtils';
+import {
+  decodePathParam,
+  getExplorePath,
+  getHomePath,
+  getInboxPath,
+  getSpacePath,
+} from '../pages/pathUtils';
 import { EXPLORE_PATH, HOME_PATH, INBOX_PATH, SPACE_PATH } from '../pages/paths';
 
 type BackRouteHandlerProps = {
@@ -33,8 +39,7 @@ export function BackRouteHandler({ children }: BackRouteHandlerProps) {
       location.pathname,
     );
     const encodedSpaceIdOrAlias = spaceMatch?.params.spaceIdOrAlias;
-    const decodedSpaceIdOrAlias =
-      encodedSpaceIdOrAlias && (globalThis as any).decodeURIComponent(encodedSpaceIdOrAlias);
+    const decodedSpaceIdOrAlias = encodedSpaceIdOrAlias && decodePathParam(encodedSpaceIdOrAlias);
 
     if (decodedSpaceIdOrAlias) {
       navigate(getSpacePath(decodedSpaceIdOrAlias));

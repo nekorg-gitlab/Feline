@@ -25,6 +25,11 @@ import { SequenceCardStyle } from '../styles.css';
 import { NOISE_SUPPRESSION_OPTIONS } from '../../../utils/noiseSuppression';
 import { stopPropagation } from '../../../utils/keyboard';
 import NotificationSound from '../../../../../public/sound/notification.ogg';
+import {
+  getMicrophoneConstraints,
+  requestCameraStream,
+  supportsAudioOutputSelection,
+} from '../../../utils/mediaCapabilities';
 
 function useMediaDevices() {
   const [devices, setDevices] = useState<MediaDeviceInfo[]>([]);
@@ -49,14 +54,26 @@ function useMediaDevices() {
   }, [refresh]);
 
   const requestPermission = useCallback(async () => {
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: true });
-      stream.getTracks().forEach((t) => t.stop());
+    // Mobile WebViews often grant/deny mic and camera independently, so fall
+    // back to single-kind requests instead of failing the whole prompt.
+    const tryKind = async (constraints: MediaStreamConstraints) => {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia(constraints);
+        stream.getTracks().forEach((t) => t.stop());
+        return true;
+      } catch {
+        return false;
+      }
+    };
+    const both = await tryKind({ audio: true, video: true });
+    if (!both) {
+      const audio = await tryKind({ audio: true });
+      const video = await tryKind({ video: true });
+      setPermission(audio || video ? 'granted' : 'denied');
+    } else {
       setPermission('granted');
-      await refresh();
-    } catch {
-      setPermission('denied');
     }
+    await refresh();
   }, [refresh]);
 
   return { devices, permission, refresh, requestPermission };
@@ -296,12 +313,7 @@ function MicMonitor({
       cleanup();
       try {
         const inputStream = await navigator.mediaDevices.getUserMedia({
-          audio: {
-            deviceId: deviceId ? { exact: deviceId } : undefined,
-            echoCancellation: false,
-            noiseSuppression: false,
-            autoGainControl: false,
-          } as MediaTrackConstraints,
+          audio: getMicrophoneConstraints(deviceId),
         });
         if (cancelled) {
           inputStream.getTracks().forEach((t) => t.stop());
@@ -612,9 +624,7 @@ function CameraPreview({ deviceId }: { deviceId?: string }) {
 
   const start = useCallback(async () => {
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({
-        video: deviceId ? { deviceId: { exact: deviceId } } : true,
-      });
+      const stream = await requestCameraStream(deviceId);
       streamRef.current = stream;
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
@@ -783,6 +793,7 @@ export function VoiceVideo() {
 
   const hasLabels = useMemo(() => devices.some((d) => !!d.label), [devices]);
   const needsPermission = !hasLabels && permission !== 'granted';
+  const canSelectOutput = supportsAudioOutputSelection();
 
   return (
     <Box direction="Column" gap="700">
@@ -846,15 +857,21 @@ export function VoiceVideo() {
         >
           <SettingTile
             title="Speaker"
-            description="Default output device for call audio and notification sounds."
+            description={
+              canSelectOutput
+                ? 'Default output device for call audio and notification sounds.'
+                : 'Output follows the system audio route (speaker, earpiece, Bluetooth).'
+            }
             after={
-              <DeviceSelector
-                label="Speaker"
-                devices={devices}
-                kind="audiooutput"
-                value={speakerDeviceId}
-                onChange={(id) => setSpeakerDeviceId(id || undefined)}
-              />
+              canSelectOutput ? (
+                <DeviceSelector
+                  label="Speaker"
+                  devices={devices}
+                  kind="audiooutput"
+                  value={speakerDeviceId}
+                  onChange={(id) => setSpeakerDeviceId(id || undefined)}
+                />
+              ) : undefined
             }
           />
           <Box direction="Column" gap="200">

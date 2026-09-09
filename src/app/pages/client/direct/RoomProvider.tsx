@@ -5,16 +5,15 @@ import { IsDirectRoomProvider, RoomProvider } from '../../../hooks/useRoom';
 import { useMatrixClient } from '../../../hooks/useMatrixClient';
 import { JoinBeforeNavigate } from '../../../features/join-before-navigate';
 import { useDirectRooms } from './useDirectRooms';
+import { decodePathParam } from '../../pathUtils';
 
 export function DirectRouteRoomProvider({ children }: { children: ReactNode }) {
   const mx = useMatrixClient();
   const rooms = useDirectRooms();
 
   const { roomIdOrAlias: rawRoomIdOrAlias, eventId: rawEventId } = useParams();
-  const roomIdOrAlias = rawRoomIdOrAlias
-    ? (globalThis as any).decodeURIComponent(rawRoomIdOrAlias)
-    : undefined;
-  const eventId = rawEventId ? (globalThis as any).decodeURIComponent(rawEventId) : undefined;
+  const roomIdOrAlias = rawRoomIdOrAlias ? decodePathParam(rawRoomIdOrAlias) : undefined;
+  const eventId = rawEventId ? decodePathParam(rawEventId) : undefined;
   const roomId = useSelectedRoom();
   const room = mx.getRoom(roomId);
 

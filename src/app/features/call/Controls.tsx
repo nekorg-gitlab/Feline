@@ -126,15 +126,28 @@ export function VideoButton({ enabled, onToggle }: VideoButtonProps) {
 type ScreenShareButtonProps = {
   enabled: boolean;
   onToggle: () => void;
+  disabled?: boolean;
+  disabledReason?: string;
 };
-export function ScreenShareButton({ enabled, onToggle }: ScreenShareButtonProps) {
+export function ScreenShareButton({
+  enabled,
+  onToggle,
+  disabled,
+  disabledReason,
+}: ScreenShareButtonProps) {
   return (
     <TooltipProvider
       position="Top"
       delay={500}
       tooltip={
         <Tooltip>
-          <Text size="T200">{enabled ? 'Stop Screenshare' : 'Start Screenshare'}</Text>
+          <Text size="T200">
+            {disabled && disabledReason
+              ? disabledReason
+              : enabled
+                ? 'Stop Screenshare'
+                : 'Start Screenshare'}
+          </Text>
         </Tooltip>
       }
     >
@@ -147,6 +160,7 @@ export function ScreenShareButton({ enabled, onToggle }: ScreenShareButtonProps)
           size="400"
           onClick={() => onToggle()}
           outlined
+          disabled={disabled}
         >
           <Icon size="400" src={Icons.ScreenShare} filled={enabled} />
         </IconButton>

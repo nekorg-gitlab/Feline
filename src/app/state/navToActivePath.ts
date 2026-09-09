@@ -6,6 +6,7 @@ import {
   getLocalStorageItem,
   setLocalStorageItem,
 } from './utils/atomWithLocalStorage';
+import { normalizeStoredPathname } from '../pages/pathUtils';
 
 const NAV_TO_ACTIVE_PATH = 'navToActivePath';
 
@@ -42,7 +43,17 @@ export const makeNavToActivePathAtom = (userId: string): NavToActivePathAtom => 
   );
 
   const navToActivePathAtom = atom<NavToActivePath, [NavToActivePathAction], undefined>(
-    (get) => get(baseNavToActivePathAtom),
+    (get) => {
+      const stored = get(baseNavToActivePathAtom);
+      // Heal entries persisted while encoding bugs stacked extra `%25`
+      // layers, so tab clicks never navigate to unresolvable paths.
+      const healed = new Map<string, Path>();
+      stored.forEach((path, navId) => {
+        const pathname = normalizeStoredPathname(path.pathname);
+        healed.set(navId, pathname === path.pathname ? path : { ...path, pathname });
+      });
+      return healed;
+    },
     (get, set, action) => {
       if (action.type === 'DELETE') {
         set(
@@ -57,7 +68,11 @@ export const makeNavToActivePathAtom = (userId: string): NavToActivePathAtom => 
         set(
           baseNavToActivePathAtom,
           produce(get(baseNavToActivePathAtom), (draft) => {
-            draft.set(action.navId, action.path);
+            const pathname = normalizeStoredPathname(action.path.pathname);
+            draft.set(
+              action.navId,
+              pathname === action.path.pathname ? action.path : { ...action.path, pathname },
+            );
           }),
         );
       }

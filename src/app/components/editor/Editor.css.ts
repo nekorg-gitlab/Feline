@@ -19,7 +19,22 @@ export const EditorOptions = style([
   },
 ]);
 
-export const EditorTextareaScroll = style({});
+export const EditorTextareaScroll = style({
+  selectors: {
+    // The composer must never show a scrollbar. folds' Scroll always sets
+    // `overflow-y: scroll`, which paints a native stepper bar in some
+    // Chromium/GTK configurations despite the size="0" hiding rules, so
+    // override it here with higher specificity (`div&` beats folds' classes
+    // regardless of style injection order).
+    'div&': {
+      overflowY: 'auto',
+      scrollbarWidth: 'none',
+    },
+    'div&::-webkit-scrollbar': {
+      display: 'none',
+    },
+  },
+});
 
 export const EditorTextarea = style([
   DefaultReset,

@@ -7,6 +7,7 @@ import { useSelectedSpace } from '../../../hooks/router/useSelectedSpace';
 import { SpaceProvider } from '../../../hooks/useSpace';
 import { JoinBeforeNavigate } from '../../../features/join-before-navigate';
 import { useSearchParamsViaServers } from '../../../hooks/router/useSearchParamsViaServers';
+import { decodePathParam } from '../../pathUtils';
 
 type RouteSpaceProviderProps = {
   children: ReactNode;
@@ -16,9 +17,7 @@ export function RouteSpaceProvider({ children }: RouteSpaceProviderProps) {
   const joinedSpaces = useSpaces(mx, allRoomsAtom);
 
   const { spaceIdOrAlias: rawSpaceIdOrAlias } = useParams();
-  const spaceIdOrAlias = rawSpaceIdOrAlias
-    ? (globalThis as any).decodeURIComponent(rawSpaceIdOrAlias)
-    : undefined;
+  const spaceIdOrAlias = rawSpaceIdOrAlias ? decodePathParam(rawSpaceIdOrAlias) : undefined;
   const viaServers = useSearchParamsViaServers();
 
   const selectedSpaceId = useSelectedSpace();

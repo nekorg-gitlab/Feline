@@ -335,3 +335,189 @@ header {
 [class*='_4yxtfd'] {
   transition: opacity var(--feline-anim-duration) var(--feline-anim-easing);
 }
+
+/* ---- Native-app mobile layer ---- */
+:root {
+  --feline-safe-top: env(safe-area-inset-top, 0px);
+  --feline-safe-right: env(safe-area-inset-right, 0px);
+  --feline-safe-bottom: env(safe-area-inset-bottom, 0px);
+  --feline-safe-left: env(safe-area-inset-left, 0px);
+  --feline-tabbar-height: 60px;
+  --feline-vkb-height: 0px;
+}
+
+html,
+body {
+  overscroll-behavior: none;
+}
+
+body {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  touch-action: manipulation;
+  -webkit-font-smoothing: antialiased;
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  overflow: hidden;
+  background-color: var(--feline-app-bg, #000);
+  /* App shell is not selectable; message bodies and inputs opt back in. */
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+
+input,
+textarea,
+[contenteditable],
+[data-feline-selectable] {
+  -webkit-user-select: text;
+  user-select: text;
+  -webkit-touch-callout: default;
+}
+
+[data-feline-selectable] * {
+  -webkit-user-select: text;
+  user-select: text;
+}
+
+#root {
+  height: 100%;
+  height: 100dvh;
+  height: calc(100dvh - var(--feline-vkb-height, 0px));
+  padding-top: var(--feline-safe-top);
+  padding-left: var(--feline-safe-left);
+  padding-right: var(--feline-safe-right);
+  overflow: hidden;
+}
+
+/* Momentum scrolling + contained overscroll for every scroll region */
+[class*='_1h6qg8y'],
+[class*='Scroll'],
+div[data-feline-scroll] {
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+}
+
+/* Bottom tab bar host (ClientLayout nav on mobile) */
+[data-feline-client-nav] {
+  padding-bottom: var(--feline-safe-bottom);
+}
+
+/* Sheet-style entrance for overlays on small screens */
+@keyframes feline-sheetIn {
+  from {
+    opacity: 0;
+    transform: translateY(24px) scale(0.99);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes feline-roomIn {
+  from {
+    opacity: 0.6;
+    transform: translateX(32px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@media (max-width: 750px) {
+  /* Room drill-in feels like a native push transition */
+  .feline-page-stack > [class*='Page'],
+  div[class*='ChatPane'] {
+    animation: feline-roomIn var(--feline-anim-duration-slow) var(--feline-anim-easing) forwards;
+  }
+
+  /* Keep floating menus/dialogs inside the viewport with safe padding */
+  [role='menu'],
+  [role='dialog'],
+  [role='alertdialog'] {
+    max-width: calc(100vw - 16px - var(--feline-safe-left) - var(--feline-safe-right));
+    max-height: calc(
+      100dvh - 32px - var(--feline-safe-top) - var(--feline-safe-bottom) -
+        var(--feline-vkb-height, 0px)
+    );
+  }
+
+  [role='dialog'],
+  [role='alertdialog'] {
+    animation: feline-sheetIn var(--feline-anim-duration-slow) var(--feline-anim-easing) forwards !important;
+  }
+
+  /* Prevent iOS auto-zoom on focus + keep composer usable with keyboard open */
+  input,
+  select,
+  textarea {
+    font-size: max(16px, 1em);
+  }
+
+  /* Full-width lists, room takes the whole screen */
+  div[class*='PageNav'] {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+
+  /* Bottom tab bar reserves space so lists never hide behind it */
+  [data-feline-has-tabbar='true'] {
+    padding-bottom: calc(var(--feline-tabbar-height) + var(--feline-safe-bottom));
+  }
+
+  /* Sidebar rail becomes a horizontal bottom tab bar */
+  [data-feline-sidebar-separator] {
+    display: none !important;
+  }
+
+  /* folds Scroll is a bare overflow div: force its tab items into one row */
+  div[data-feline-tab-scroll] {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 4px;
+    flex: 1 1 0%;
+    min-width: 0;
+    min-height: 0;
+    height: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
+  }
+
+  div[data-feline-tab-scroll] > * {
+    flex-shrink: 0;
+  }
+
+  /* Let the scrollable tab region shrink inside the fixed-height bar */
+  div[data-feline-sidebar='tabbar'] > * {
+    min-width: 0;
+    min-height: 0;
+  }
+}
+
+/* Coarse pointers: comfortable touch targets, no sticky hover states */
+@media (pointer: coarse) {
+  button,
+  a,
+  [role='button'] {
+    min-height: 40px;
+  }
+
+  button:hover:not(:active),
+  a:hover:not(:active) {
+    text-decoration: none;
+  }
+
+  * {
+    -webkit-tap-highlight-color: transparent;
+  }
+}
+
+/* Keyboard open: hide tab bar so the composer stays visible */
+#root[data-keyboard-open='true'] [data-feline-client-nav] {
+  display: none;
+}

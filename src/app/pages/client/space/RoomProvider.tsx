@@ -13,6 +13,7 @@ import { useSearchParamsViaServers } from '../../../hooks/router/useSearchParams
 import { mDirectAtom } from '../../../state/mDirectList';
 import { settingsAtom } from '../../../state/settings';
 import { useSetting } from '../../../state/hooks/settings';
+import { decodePathParam } from '../../pathUtils';
 
 export function SpaceRouteRoomProvider({ children }: { children: ReactNode }) {
   const mx = useMatrixClient();
@@ -23,10 +24,8 @@ export function SpaceRouteRoomProvider({ children }: { children: ReactNode }) {
   const allRooms = useAtomValue(allRoomsAtom);
 
   const { roomIdOrAlias: rawRoomIdOrAlias, eventId: rawEventId } = useParams();
-  const roomIdOrAlias = rawRoomIdOrAlias
-    ? (globalThis as any).decodeURIComponent(rawRoomIdOrAlias)
-    : undefined;
-  const eventId = rawEventId ? (globalThis as any).decodeURIComponent(rawEventId) : undefined;
+  const roomIdOrAlias = rawRoomIdOrAlias ? decodePathParam(rawRoomIdOrAlias) : undefined;
+  const eventId = rawEventId ? decodePathParam(rawEventId) : undefined;
   const viaServers = useSearchParamsViaServers();
   const roomId = useSelectedRoom();
   const room = mx.getRoom(roomId);

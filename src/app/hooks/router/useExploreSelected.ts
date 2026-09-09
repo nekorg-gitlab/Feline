@@ -1,5 +1,5 @@
 import { useMatch, useParams } from 'react-router-dom';
-import { getExplorePath } from '../../pages/pathUtils';
+import { decodePathParam, getExplorePath } from '../../pages/pathUtils';
 
 export const useExploreSelected = (): boolean => {
   const match = useMatch({
@@ -13,7 +13,7 @@ export const useExploreSelected = (): boolean => {
 
 export const useExploreServer = (): string | undefined => {
   const { server: rawServer } = useParams();
-  const server = rawServer ? (globalThis as any).decodeURIComponent(rawServer) : undefined;
+  const server = rawServer ? decodePathParam(rawServer) : undefined;
 
   return server;
 };

@@ -20,13 +20,13 @@ import { callChatAtom } from '../../state/callEmbed';
 import { CallChatView } from './CallChatView';
 import { useCallEmbed } from '../../hooks/useCallEmbed';
 import { useCallMembers, useCallSession } from '../../hooks/useCall';
-import { getHomePath } from '../../pages/pathUtils';
+import { getHomePath, decodePathParam } from '../../pages/pathUtils';
 import { useSelectedSpace } from '../../hooks/router/useSelectedSpace';
 import * as css from '../../components/page/style.css';
 
 export function Room() {
   const { eventId: rawEventId } = useParams();
-  const eventId = rawEventId ? (globalThis as any).decodeURIComponent(rawEventId) : undefined;
+  const eventId = rawEventId ? decodePathParam(rawEventId) : undefined;
   const room = useRoom();
   const mx = useMatrixClient();
   const navigate = useNavigate();

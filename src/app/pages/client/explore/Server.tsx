@@ -38,7 +38,7 @@ import { useMatrixClient } from '../../../hooks/useMatrixClient';
 import { RoomTopicViewer } from '../../../components/room-topic-viewer';
 import { RoomCard, RoomCardBase, RoomCardGrid } from '../../../components/room-card';
 import { ExploreServerPathSearchParams } from '../../paths';
-import { getExploreServerPath, withSearchParam } from '../../pathUtils';
+import { getExploreServerPath, withSearchParam, decodePathParam } from '../../pathUtils';
 import * as css from './style.css';
 import { allRoomsAtom } from '../../../state/room-list/roomList';
 import { useRoomNavigate } from '../../../hooks/useRoomNavigate';
@@ -345,7 +345,7 @@ function LimitButton({ limit, onLimitChange }: LimitButtonProps) {
 
 export function PublicRooms() {
   const { server: rawServer } = useParams();
-  const server = rawServer ? (globalThis as any).decodeURIComponent(rawServer) : undefined;
+  const server = rawServer ? decodePathParam(rawServer) : undefined;
   const mx = useMatrixClient();
   const userId = mx.getUserId();
   const userServer = userId && getMxIdServer(userId);

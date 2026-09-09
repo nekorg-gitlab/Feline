@@ -29,6 +29,57 @@ import { HashRouterConfig } from '../hooks/useClientConfig';
 
 export const joinPathComponent = (path: Path): string => path.pathname + path.search + path.hash;
 
+/**
+ * Fully decode a route param capture.
+ *
+ * `generatePath` encodes params while our `get*Path` helpers pre-encode them,
+ * so URLs in the address bar end up double-encoded. `useParams` strips one
+ * layer (consumers decode the second manually), but `matchPath` captures do
+ * NOT decode at all — decode until stable so re-navigation never stacks
+ * extra `%25` layers.
+ */
+export const decodePathParam = (value: string): string => {
+  let current = value;
+  for (let i = 0; i < 4; i += 1) {
+    let decoded: string;
+    try {
+      decoded = decodeURIComponent(current);
+    } catch {
+      return current;
+    }
+    if (decoded === current) return decoded;
+    current = decoded;
+  }
+  return current;
+};
+
+/**
+ * Collapse redundant URL-encoding in a stored pathname back to the canonical
+ * form (each segment double-encoded: `encodeURIComponent` + `generatePath`).
+ * Old entries written while encoding bugs existed (e.g. triple-encoded
+ * `%252523…`) resolve to unresolvable rooms/spaces; normalizing lets them
+ * work again instead of landing on Join prompts.
+ */
+export const normalizeStoredPathname = (pathname: string): string =>
+  pathname
+    .split('/')
+    .map((segment) => {
+      if (!segment) return segment;
+      let current = segment;
+      for (let i = 0; i < 4; i += 1) {
+        let decoded: string;
+        try {
+          decoded = decodeURIComponent(current);
+        } catch {
+          break;
+        }
+        if (decoded === current) break;
+        current = decoded;
+      }
+      return encodeURIComponent(encodeURIComponent(current));
+    })
+    .join('/');
+
 export const withSearchParam = <T extends Record<string, string>>(
   path: string,
   searchParam: T,

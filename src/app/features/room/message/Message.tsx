@@ -29,6 +29,7 @@ import React, {
   MouseEventHandler,
   ReactNode,
   useCallback,
+  useRef,
   useState,
 } from 'react';
 import FocusTrap from 'focus-trap-react';
@@ -69,6 +70,7 @@ import { AsyncStatus, useAsyncCallback } from '../../../hooks/useAsyncCallback';
 import { EmojiBoard } from '../../../components/emoji-board';
 import { ReactionViewer } from '../reaction-viewer';
 import { MessageEditor } from './MessageEditor';
+import { useSwipeToReply } from './useSwipeToReply';
 import { UserAvatar } from '../../../components/user-avatar';
 import { copyToClipboard } from '../../../utils/dom';
 import { stopPropagation } from '../../../utils/keyboard';
@@ -673,6 +675,7 @@ export type MessageProps = {
     ev: Parameters<MouseEventHandler<HTMLButtonElement>>[0],
     startThread?: boolean,
   ) => void;
+  onSwipeReply?: (eventId: string) => void;
   onEditId?: (eventId?: string) => void;
   onReactionToggle: (targetEventId: string, key: string, shortcode?: string) => void;
   reply?: ReactNode;
@@ -704,6 +707,7 @@ export const Message = as<'div', MessageProps>(
       onUserClick,
       onUsernameClick,
       onReplyClick,
+      onSwipeReply,
       onReactionToggle,
       onEditId,
       reply,
@@ -817,7 +821,12 @@ export const Message = as<'div', MessageProps>(
     );
 
     const bodyOnlyJSX = (
-      <Box direction="Column" alignSelf="Start" style={{ maxWidth: '100%' }}>
+      <Box
+        direction="Column"
+        alignSelf="Start"
+        style={{ maxWidth: '100%' }}
+        data-feline-selectable="true"
+      >
         {edit && onEditId ? (
           <MessageEditor
             style={{
@@ -838,7 +847,12 @@ export const Message = as<'div', MessageProps>(
     );
 
     const msgContentJSX = (
-      <Box direction="Column" alignSelf="Start" style={{ maxWidth: '100%' }}>
+      <Box
+        direction="Column"
+        alignSelf="Start"
+        style={{ maxWidth: '100%' }}
+        data-feline-selectable="true"
+      >
         {reply}
         {edit && onEditId ? (
           <MessageEditor
@@ -896,6 +910,15 @@ export const Message = as<'div', MessageProps>(
 
     const isThreadedMessage = mEvent.threadRootId !== undefined;
 
+    const swipeTrackRef = useRef<HTMLDivElement | null>(null);
+    const swipeHintRef = useRef<HTMLDivElement | null>(null);
+    const swipeReplyId = !edit && !mEvent.isRedacted() && onSwipeReply ? mEvent.getId() : undefined;
+    const swipeHandlers = useSwipeToReply(
+      swipeTrackRef,
+      swipeHintRef,
+      swipeReplyId && onSwipeReply ? () => onSwipeReply(swipeReplyId) : undefined,
+    );
+
     return (
       <MessageBase
         className={classNames(css.MessageBase, className, {
@@ -909,8 +932,14 @@ export const Message = as<'div', MessageProps>(
         {...props}
         {...hoverProps}
         {...focusWithinProps}
+        {...swipeHandlers}
         ref={ref}
       >
+        {swipeReplyId && (
+          <div aria-hidden className={css.SwipeReplyHint} ref={swipeHintRef}>
+            <Icon size="200" src={Icons.ReplyArrow} />
+          </div>
+        )}
         {!edit && (hover || !!menuAnchor || !!emojiBoardAnchor) && (
           <div className={css.MessageOptionsBase}>
             <Menu className={css.MessageOptionsBar} variant="SurfaceVariant">
@@ -1152,30 +1181,46 @@ export const Message = as<'div', MessageProps>(
           </div>
         )}
         {messageLayout === MessageLayout.Compact && (
-          <CompactLayout before={headerJSX} onContextMenu={handleContextMenu}>
-            {msgContentJSX}
-          </CompactLayout>
+          <div ref={swipeTrackRef}>
+            <CompactLayout before={headerJSX} onContextMenu={handleContextMenu}>
+              {msgContentJSX}
+            </CompactLayout>
+          </div>
         )}
         {messageLayout === MessageLayout.Bubble && (
-          <Box direction="Column">
-            {reply && (
-              <Box style={{ paddingLeft: toRem(48), paddingBottom: toRem(2) }}>{reply}</Box>
-            )}
-            <BubbleLayout before={avatarJSX} header={headerJSX} onContextMenu={handleContextMenu}>
-              {bodyOnlyJSX}
-            </BubbleLayout>
-          </Box>
+          <div ref={swipeTrackRef}>
+            <Box direction="Column">
+              {reply && (
+                <Box
+                  style={{ paddingLeft: toRem(48), paddingBottom: toRem(2) }}
+                  data-feline-selectable="true"
+                >
+                  {reply}
+                </Box>
+              )}
+              <BubbleLayout before={avatarJSX} header={headerJSX} onContextMenu={handleContextMenu}>
+                {bodyOnlyJSX}
+              </BubbleLayout>
+            </Box>
+          </div>
         )}
         {messageLayout !== MessageLayout.Compact && messageLayout !== MessageLayout.Bubble && (
-          <Box direction="Column">
-            {reply && (
-              <Box style={{ paddingLeft: toRem(48), paddingBottom: toRem(2) }}>{reply}</Box>
-            )}
-            <ModernLayout before={avatarJSX} onContextMenu={handleContextMenu}>
-              {headerJSX}
-              {bodyOnlyJSX}
-            </ModernLayout>
-          </Box>
+          <div ref={swipeTrackRef}>
+            <Box direction="Column">
+              {reply && (
+                <Box
+                  style={{ paddingLeft: toRem(48), paddingBottom: toRem(2) }}
+                  data-feline-selectable="true"
+                >
+                  {reply}
+                </Box>
+              )}
+              <ModernLayout before={avatarJSX} onContextMenu={handleContextMenu}>
+                {headerJSX}
+                {bodyOnlyJSX}
+              </ModernLayout>
+            </Box>
+          </div>
         )}
       </MessageBase>
     );

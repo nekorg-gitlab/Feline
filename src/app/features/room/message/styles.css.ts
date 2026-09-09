@@ -1,5 +1,5 @@
 import { style } from '@vanilla-extract/css';
-import { DefaultReset, config, toRem } from 'folds';
+import { DefaultReset, color, config, toRem } from 'folds';
 
 export const MessageBase = style({
   position: 'relative',
@@ -7,6 +7,27 @@ export const MessageBase = style({
 export const MessageBaseBubbleCollapsed = style({
   paddingTop: 0,
 });
+
+export const SwipeReplyHint = style([
+  DefaultReset,
+  {
+    position: 'absolute',
+    left: toRem(2),
+    top: '50%',
+    width: toRem(28),
+    height: toRem(28),
+    marginTop: toRem(-14),
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: '50%',
+    backgroundColor: color.SurfaceVariant.Container,
+    color: color.SurfaceVariant.OnContainer,
+    opacity: 0,
+    pointerEvents: 'none',
+    zIndex: 1,
+  },
+]);
 
 export const MessageOptionsBase = style([
   DefaultReset,

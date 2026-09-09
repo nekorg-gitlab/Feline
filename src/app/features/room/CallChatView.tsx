@@ -6,10 +6,11 @@ import { Page, PageHeader } from '../../components/page';
 import { callChatAtom } from '../../state/callEmbed';
 import { RoomView } from './RoomView';
 import { ScreenSize, useScreenSizeContext } from '../../hooks/useScreenSize';
+import { decodePathParam } from '../../pages/pathUtils';
 
 export function CallChatView() {
   const { eventId: rawEventId } = useParams();
-  const eventId = rawEventId ? (globalThis as any).decodeURIComponent(rawEventId) : undefined;
+  const eventId = rawEventId ? decodePathParam(rawEventId) : undefined;
   const setChat = useSetAtom(callChatAtom);
   const screenSize = useScreenSizeContext();
 
