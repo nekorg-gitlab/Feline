@@ -137,7 +137,6 @@ export function ManualVerificationTile({
           throw new Error('Unexpected Error! Crypto object not found.');
         }
 
-        // Pre-check for subtle availability to give friendly error before bootstrap
         if (!globalThis.crypto?.subtle) {
           throw new Error(
             'Your browser does not support the required cryptography extensions. Please use a secure (HTTPS) context.',

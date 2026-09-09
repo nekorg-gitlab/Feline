@@ -59,7 +59,6 @@ export const AsyncSearch = <TSearchItem extends object | string | number>(
   const find = (query: string, sessionTimestamp: number) => {
     const findingCount = resultList.length;
     sessionScheduleId = undefined;
-    // return if find session got reset
     if (sessionTimestamp !== sessionStartTimestamp) return;
 
     sessionStartTimestamp = window.performance.now();

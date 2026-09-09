@@ -239,8 +239,6 @@ function IncomingCallListener({ callEmbed, joined }: IncomingCallListenerProps) 
 
   const handleTimelineEvent: EventTimelineSetHandlerMap[RoomEvent.Timeline] = useCallback(
     async (event, room, toStartOfTimeline, removed, data) => {
-      // only process rtc notification reference events.
-      // we do not want to wait to decrypt all events.
       if (event.getRelation()?.rel_type !== RelationType.Reference) return;
       if (room?.isCallRoom()) return;
 

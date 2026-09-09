@@ -339,7 +339,6 @@ function MicMonitor({
             const p = computeRmsLevel(pAnalyser, procData);
             setProcLevel(p);
           } else {
-            // when off or not ready, keep proc in sync with raw so they match (expected)
             setProcLevel(quality === 'off' ? r : r);
           }
           rafRef.current = requestAnimationFrame(tick);
@@ -371,7 +370,6 @@ function MicMonitor({
               procSrc.connect(procAnalyser);
               procAnalyserRef.current = procAnalyser;
               hasProc = true;
-              // if currently playing after, switch to denoised stream live
               if (playingMode === 'after' && audioElRef.current) {
                 const el = audioElRef.current;
                 const maybeSink = el as HTMLAudioElement & {
@@ -385,9 +383,7 @@ function MicMonitor({
                 await el.play().catch(() => {});
               }
             }
-          } catch {
-            // keep raw as proc on failure
-          }
+          } catch {}
         }
 
         if (!outputStreamRef.current) outputStreamRef.current = outputStream;
@@ -411,14 +407,12 @@ function MicMonitor({
       if (ctxRef.current?.state === 'suspended') {
         await ctxRef.current.resume().catch(() => {});
       }
-      // toggle off if same mode already playing
       if (playingMode === mode) {
         el.pause();
         el.srcObject = null;
         setPlayingMode(null);
         return;
       }
-      // stop previous if different mode
       if (playingMode) {
         el.pause();
         el.srcObject = null;

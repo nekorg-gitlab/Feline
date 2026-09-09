@@ -11,9 +11,7 @@ export type ImageEditorProps = {
 
 export const ImageEditor = as<'div', ImageEditorProps>(
   ({ className, name, url, requestClose, ...props }, ref) => {
-    const handleApply = () => {
-      //
-    };
+    const handleApply = () => {};
 
     return (
       <Box

@@ -67,8 +67,6 @@ const useCanDropLobbyItem = (
   const canDropSpace: CanDropCallback = useCallback(
     (item, container) => {
       if (!('space' in container.item)) {
-        // can not drop around rooms.
-        // space can only be drop around other spaces
         return false;
       }
 
@@ -98,8 +96,6 @@ const useCanDropLobbyItem = (
       const draggingOutsideSpace = item.parentId !== containerSpaceId;
       const restrictedItem = mx.getRoom(item.roomId)?.getJoinRule() === JoinRule.Restricted;
 
-      // check and do not allow restricted room to be dragged outside
-      // current space if can't change `m.room.join_rules` `content.allow`
       if (draggingOutsideSpace && restrictedItem) {
         const itemPowerLevels = roomsPowerLevels.get(item.roomId) ?? {};
         const itemCreators = getRoomCreatorsForRoomId(mx, item.roomId);
@@ -131,11 +127,9 @@ const useCanDropLobbyItem = (
   const canDrop: CanDropCallback = useCallback(
     (item, container): boolean => {
       if (item.roomId === container.item.roomId || item.roomId === container.nextRoomId) {
-        // can not drop before or after itself
         return false;
       }
 
-      // if we are dragging a space
       if ('space' in item) {
         return canDropSpace(item, container);
       }
@@ -296,7 +290,6 @@ export function Lobby() {
           'space' in containerItem ? containerItem.roomId : containerItem.parentId;
         const itemContent = item.content;
 
-        // remove from current space
         if (item.parentId !== containerParentId) {
           mx.sendStateEvent(item.parentId, StateEvent.SpaceChild as any, {}, item.roomId);
         }
@@ -306,8 +299,6 @@ export function Lobby() {
           itemRoom.getJoinRule() === JoinRule.Restricted &&
           item.parentId !== containerParentId
         ) {
-          // change join rule allow parameter when dragging
-          // restricted room from one space to another
           const joinRuleContent = getStateEvent(
             itemRoom,
             StateEvent.RoomJoinRules,

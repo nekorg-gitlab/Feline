@@ -43,8 +43,6 @@ export const getUIAFlowForStages = (uiaFlows: UIAFlow[], stages: string[]): UIAF
     .filter((flow) => {
       if (flow.stages.length < stages.length) return false;
       if (flow.stages.length > stages.length) {
-        // As a valid flow can also have m.login.dummy type,
-        // we will pick one extra length flow only if it has dummy
         if (flow.stages.length > stages.length + 1) return false;
         if (stages.includes(AuthType.Dummy)) return false;
         if (flow.stages.includes(AuthType.Dummy)) return true;

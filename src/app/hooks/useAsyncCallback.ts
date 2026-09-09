@@ -37,20 +37,12 @@ export const useAsync = <TData, TError, TArgs extends unknown[]>(
 ): AsyncCallback<TArgs, TData> => {
   const alive = useAlive();
 
-  // Tracks the request number.
-  // If two or more requests are made subsequently
-  // we will throw all old request's response after they resolved.
   const reqNumberRef = useRef(0);
 
   const callback: AsyncCallback<TArgs, TData> = useCallback(
     async (...args) => {
       queueMicrotask(() => {
-        // Warning: flushSync was called from inside a lifecycle method.
-        // React cannot flush when React is already rendering.
-        // Consider moving this call to a scheduler task or micro task.
         flushSync(() => {
-          // flushSync because
-          // https://github.com/facebook/react/issues/26713#issuecomment-1872085134
           onStateChange({
             status: AsyncStatus.Loading,
           });

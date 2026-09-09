@@ -69,7 +69,6 @@ export function AudioContent({
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   const [currentTime, setCurrentTime] = useState(0);
-  // duration in seconds. (NOTE: info.duration is in milliseconds)
   const infoDuration = info.duration ?? 0;
   const [duration, setDuration] = useState((infoDuration >= 0 ? infoDuration : 0) / 1000);
 

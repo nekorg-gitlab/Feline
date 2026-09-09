@@ -661,12 +661,10 @@ export function SpaceTabs({ scrollRef }: SpaceTabsProps) {
             typeof containerItem === 'object' &&
             item.folder.id === containerItem.folder.id;
 
-          // remove draggable space from current position or folder
           if (!sameFolders && matchDest(i, item)) {
             if (typeof item === 'object' && item.spaceId) {
               const folderContent = item.folder.content.filter((s) => s !== item.spaceId);
               if (folderContent.length === 0) {
-                // remove open state from local storage
                 setOpenedFolder({ type: 'DELETE', id: item.folder.id });
                 return;
               }
@@ -678,8 +676,6 @@ export function SpaceTabs({ scrollRef }: SpaceTabsProps) {
             return;
           }
           if (matchDest(i, containerItem)) {
-            // we can make child only if
-            // container item is space or closed folder
             if (instructionType === 'make-child') {
               const child: string[] = itemAsFolderContent(item);
               if (typeof containerItem === 'string') {
@@ -697,8 +693,6 @@ export function SpaceTabs({ scrollRef }: SpaceTabsProps) {
               return;
             }
 
-            // drop inside opened folder
-            // or reordering inside same folder
             if (typeof containerItem === 'object' && containerItem.spaceId) {
               const child = itemAsFolderContent(item);
               const newContent: string[] = [];
@@ -725,7 +719,6 @@ export function SpaceTabs({ scrollRef }: SpaceTabsProps) {
               return;
             }
 
-            // drop above or below space or closed/opened folder
             if (typeof item === 'string') {
               if (instructionType === 'reorder-below') newItems.push(i);
               newItems.push(item);
@@ -735,7 +728,6 @@ export function SpaceTabs({ scrollRef }: SpaceTabsProps) {
                 newItems.push(item.spaceId);
               }
               if (sameFolders && typeof i === 'object') {
-                // remove from folder if placing around itself
                 const newI = { ...i, content: i.content.filter((sId) => sId !== item.spaceId) };
                 if (newI.content.length > 0) newItems.push(newI);
               } else {

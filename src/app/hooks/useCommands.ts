@@ -461,7 +461,6 @@ export const useCommands = (mx: MatrixClient, room: Room): CommandRecord => {
               undefined,
             );
             const { end, chunk } = response;
-            // remove until the latest event;
             token = end;
 
             const eventsToDelete = chunk.filter(

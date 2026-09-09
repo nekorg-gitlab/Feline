@@ -88,7 +88,6 @@ export function AuthLayout() {
     if (server) discoverServer(server);
   }, [discoverServer, server]);
 
-  // if server is mismatches with path server, update path
   useEffect(() => {
     if (!urlEncodedServer || tryDecodeURIComponent(urlEncodedServer) !== server) {
       navigate(

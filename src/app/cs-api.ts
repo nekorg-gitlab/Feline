@@ -42,8 +42,6 @@ export const autoDiscovery = async (
   const [err, response] = await to(request(autoDiscoveryUrl, { method: 'GET' }));
 
   if (err || response.status === 404) {
-    // AutoDiscoveryAction.IGNORE
-    // We will use default value for IGNORE action
     return [
       undefined,
       {

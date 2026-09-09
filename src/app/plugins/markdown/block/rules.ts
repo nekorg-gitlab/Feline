@@ -10,17 +10,11 @@ export const HeadingRule: BlockMDRule = {
   },
 };
 
-// opening fence: 3 or more backticks
-// capture the exact fence length in group 1
-// optional info string in group 2
-// code content in group 3
-// closing fence must match the exact same fence sequence via \1
 const CODEBLOCK_REG_1 = /^(`{3,})(?!`)(\S*)\n((?:.*\n)+?)\1 *(?!.)\n?/m;
 export const CodeBlockRule: BlockMDRule = {
   match: (text) => text.match(CODEBLOCK_REG_1),
   html: (match) => {
     const [, fence, g1, g2] = match;
-    // use last identifier after dot, e.g. for "example.json" gets us "json" as language code.
     const langCode = g1 ? g1.substring(g1.lastIndexOf('.') + 1) : null;
     const filename = g1 !== langCode ? g1 : null;
     const classNameAtt = langCode ? ` class="language-${langCode}"` : '';
@@ -124,33 +118,22 @@ function buildList(lines: ParsedLine[], parseInline?: (s: string) => string): st
 
     const content = parseInline ? parseInline(line.content) : line.content;
 
-    // FIRST ITEM
     if (!prev) {
       html += openList(line);
       stack.push(line.listType);
-    }
-
-    // DEEPER INDENT > open nested list
-    else if (line.indent > prev.indent) {
+    } else if (line.indent > prev.indent) {
       html += openList(line);
       stack.push(line.listType);
-    }
-
-    // SAME LEVEL
-    else if (line.indent === prev.indent) {
+    } else if (line.indent === prev.indent) {
       html += '</li>';
 
-      // different list type
       if (line.listType !== prev.listType) {
         html += closeList(stack.pop()!);
 
         html += openList(line);
         stack.push(line.listType);
       }
-    }
-
-    // GOING BACK UP
-    else if (line.indent < prev.indent) {
+    } else if (line.indent < prev.indent) {
       html += '</li>';
 
       while (stack.length > line.indent + 1) {
@@ -168,7 +151,6 @@ function buildList(lines: ParsedLine[], parseInline?: (s: string) => string): st
 
     html += `<li><p>${content}</p>`;
 
-    // LAST ITEM cleanup
     if (!next) {
       html += '</li>';
 

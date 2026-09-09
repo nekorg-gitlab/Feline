@@ -105,9 +105,6 @@ export function PasswordResetForm({ defaultEmail }: PasswordResetFormProps) {
   if (resetPasswordError) waitingToVerifyEmail = false;
   if (resetPasswordState.status === AsyncStatus.Loading) waitingToVerifyEmail = false;
 
-  // We only support UIA m.login.password stage for reset password
-  // So we will assume to process it as soon as
-  // we have 401 with no error on initial request.
   useEffect(() => {
     if (formData && ongoingAuthData && !flowErrorCode) {
       handleResetPassword(

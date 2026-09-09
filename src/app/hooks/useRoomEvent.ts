@@ -28,12 +28,6 @@ const useFetchEvent = (room: Room, eventId: string) => {
   return fetchEventCallback;
 };
 
-/**
- *
- * @param room
- * @param eventId
- * @returns `MatrixEvent`, `undefined` means loading, `null` means failure
- */
 export const useRoomEvent = (
   room: Room,
   eventId: string,

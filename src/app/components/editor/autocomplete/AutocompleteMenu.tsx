@@ -17,7 +17,6 @@ export function AutocompleteMenu({ headerContent, requestClose, children }: Auto
 
   const handleDeactivate = () => {
     if (alive()) {
-      // Defer to avoid colliding with Slate's DOM sync after mention insertion
       setTimeout(() => {
         if (alive()) {
           try {

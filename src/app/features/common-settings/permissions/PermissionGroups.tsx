@@ -46,8 +46,6 @@ export function PermissionGroups({
   );
 
   useEffect(() => {
-    // reset permission update if component rerender
-    // as permission location object reference has changed
     setPermissionUpdate(new Map());
   }, [permissionGroups]);
 

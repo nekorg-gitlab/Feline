@@ -23,12 +23,6 @@ const LeveledRules = [
   EscapeRule,
 ];
 
-/**
- * Parses inline markdown text into HTML using defined rules.
- *
- * @param text - The markdown text to be parsed.
- * @returns The parsed HTML or the original text if no markdown was found.
- */
 export const parseInlineMD: InlineMDParser = (text) => {
   if (text === '') return text;
   let result: string | undefined;

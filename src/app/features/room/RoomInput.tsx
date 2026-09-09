@@ -443,7 +443,6 @@ export const RoomInput = forwardRef<HTMLDivElement, RoomInputProps>(
 
     const handleCloseAutocomplete = useCallback(() => {
       setAutocompleteQuery(undefined);
-      // Defer focus to allow Slate DOM to sync after mention insertion
       setTimeout(() => {
         try {
           ReactEditor.focus(editor);

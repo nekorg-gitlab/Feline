@@ -175,15 +175,6 @@ export const toPlainText = (node: Descendant | Descendant[], isMarkdown: boolean
   return elementToPlainText(node, children);
 };
 
-/**
- * Check if customHtml is equals to plainText
- * by replacing `<br/>` with `/n` in customHtml
- * and sanitizing plainText before comparison
- * because text are sanitized in customHtml
- * @param customHtml string
- * @param plain string
- * @returns boolean
- */
 export const customHtmlEqualsPlainText = (customHtml: string, plain: string): boolean =>
   customHtml.replace(/<br\/>/g, '\n') === sanitizeText(plain);
 

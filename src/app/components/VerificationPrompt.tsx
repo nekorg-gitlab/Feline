@@ -141,10 +141,6 @@ function GenericRecoveryKeyFallback() {
         keyId = undefined;
       }
       if (!keyId) {
-        // fallback: try to find any m.secret_storage.key.* from account data
-        // We scan by trying to get account data for known key ids is not possible,
-        // so we try to use the decoded key with bootstrap directly without stored id
-        // As last resort, show error asking to reset
         throw new Error(
           'No recovery key ID found on your account. If you have lost your key, please use Reset.',
         );
@@ -356,8 +352,6 @@ export function VerificationPrompt() {
     useCallback((req) => {
       if (req.isSelfVerification) {
         setHasIncomingVerification(true);
-        // auto-hide our prompt so the SAS dialog is visible
-        // user can still close SAS and our prompt will reappear if still unverified
       }
     }, []),
   );
@@ -391,7 +385,6 @@ export function VerificationPrompt() {
     [handleResetComplete],
   );
 
-  // Show big new key after reset (very big)
   if (newRecoveryKey) {
     return (
       <Overlay open backdrop={<OverlayBackdrop />}>
@@ -432,7 +425,6 @@ export function VerificationPrompt() {
     );
   }
 
-  // Setup flow after confirming reset
   if (resetSetupOpen) {
     const handleCancelSetup = () => {
       setResetSetupOpen(false);

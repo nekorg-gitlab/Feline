@@ -35,10 +35,6 @@ export const getRustCryptoPrefix = (userId: string) =>
   isLegacyDbUser(userId) ? LEGACY_RUST_PREFIX : `feline-${userId}`;
 
 export const initClient = async (session: Session): Promise<MatrixClient> => {
-  // Recovery for installs that ran multi-account code before legacy-DB
-  // preservation existed: if there is a single session, no legacy flag, the
-  // old pre-multi-account DB still exists and no per-user DB was created yet,
-  // point this user back at the old DBs so cache and crypto keys are kept.
   if (!getLegacyDbUserId()) {
     const sessions = getSessions();
     if (sessions.length === 1 && sessions[0].userId === session.userId) {
@@ -48,9 +44,7 @@ export const initClient = async (session: Session): Promise<MatrixClient> => {
         if (names.has(LEGACY_SYNC_STORE) && !names.has(`feline-sync-${session.userId}`)) {
           claimLegacyDbUser(session.userId);
         }
-      } catch {
-        // ignore; fall through to per-user stores
-      }
+      } catch {}
     }
   }
 
@@ -133,9 +127,7 @@ export const removePerUserLocalData = (userId: string) => {
   try {
     localStorage.removeItem(`feline:verification:choice:${userId}`);
     localStorage.removeItem(`feline:recoveryKey:${userId}`);
-  } catch {
-    // ignore
-  }
+  } catch {}
 };
 
 export const cleanupLoggedOutSession = async (userId: string, mx?: MatrixClient) => {
@@ -143,9 +135,7 @@ export const cleanupLoggedOutSession = async (userId: string, mx?: MatrixClient)
     mx.stopClient();
     try {
       await mx.clearStores({ cryptoDatabasePrefix: getRustCryptoPrefix(userId) });
-    } catch {
-      // ignore
-    }
+    } catch {}
   }
   removePerUserLocalData(userId);
   await deleteIndexedDBsForUser(userId);

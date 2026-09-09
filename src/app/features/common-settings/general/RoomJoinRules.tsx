@@ -90,8 +90,6 @@ export function RoomJoinRules({ permissions }: RoomJoinRulesProps) {
             .filter((parentId) => roomParents?.has(parentId));
 
           if (parents.length === 0 && space && roomParents) {
-            // if no m.space.parent found
-            // find parent in current space
             const selectedParents = subspaces.filter((rId) => roomParents.has(rId));
             if (roomParents.has(space.roomId)) {
               selectedParents.push(space.roomId);

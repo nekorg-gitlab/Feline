@@ -72,7 +72,6 @@ export class CallWidgetDriver extends WidgetDriver {
         stateKey,
       );
     } else if (eventType === EventType.RoomRedaction) {
-      // special case: extract the `redacts` property and call redact
       r = await this.mx.redactEvent(roomId, content.redacts);
     } else {
       r = await this.mx.sendEvent(
@@ -111,7 +110,6 @@ export class CallWidgetDriver extends WidgetDriver {
 
     let r: SendDelayedEventResponse | null;
     if (stateKey !== null) {
-      // state event
       r = await this.mx._unstable_sendDelayedStateEvent(
         roomId,
         delayOpts,
@@ -120,7 +118,6 @@ export class CallWidgetDriver extends WidgetDriver {
         stateKey,
       );
     } else {
-      // message event
       r = await this.mx._unstable_sendDelayedEvent(
         roomId,
         delayOpts,
@@ -157,7 +154,6 @@ export class CallWidgetDriver extends WidgetDriver {
       const crypto = this.mx.getCrypto();
       if (!crypto) throw new Error('E2EE not enabled');
 
-      // attempt to re-batch these up into a single request
       const invertedContentMap: { [content: string]: { userId: string; deviceId: string }[] } = {};
 
       // eslint-disable-next-line no-restricted-syntax

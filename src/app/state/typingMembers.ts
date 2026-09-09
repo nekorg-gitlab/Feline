@@ -87,8 +87,6 @@ export const roomIdToTypingMembersAtom = atom<
         produce(rToTyping, (draft) => putTypingMember(draft, action)),
       );
 
-      // remove typing receipt after some timeout
-      // to prevent stuck typing members
       setTimeout(() => {
         const { roomId, userId } = action;
         const timeout = timeoutReceipt(

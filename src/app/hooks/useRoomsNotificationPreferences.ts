@@ -113,7 +113,6 @@ export const setRoomNotificationPreference = async (
   mode: RoomNotificationMode,
   previousMode: RoomNotificationMode,
 ): Promise<void> => {
-  // remove the old preference
   if (
     previousMode === RoomNotificationMode.AllMessages ||
     previousMode === RoomNotificationMode.SpecialMessages
@@ -124,7 +123,6 @@ export const setRoomNotificationPreference = async (
     await mx.deletePushRule('global', PushRuleKind.Override, roomId);
   }
 
-  // set new preference
   if (mode === RoomNotificationMode.Unset) {
     return;
   }

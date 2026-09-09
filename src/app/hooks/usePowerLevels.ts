@@ -177,10 +177,6 @@ export const useGetMemberPowerLevel = (powerLevels: IPowerLevels) => {
   return callback;
 };
 
-/**
- * Permissions
- */
-
 type DefaultPermissionLocation = {
   user: true;
   key?: string;

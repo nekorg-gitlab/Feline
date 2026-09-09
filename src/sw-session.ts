@@ -10,13 +10,11 @@ export function pushSessionToSW(baseUrl?: string, accessToken?: string) {
     }
   };
 
-  // Prefer controller, but fallback to ready/active for first load when controller is not yet set
   if (navigator.serviceWorker.controller) {
     send(navigator.serviceWorker.controller as unknown as ServiceWorker);
     return;
   }
 
-  // Fallback: try ready/active (handles first load before SW claims)
   navigator.serviceWorker.ready
     .then((reg) => send(reg.active ?? reg.waiting ?? reg.installing ?? null))
     .catch((err) => {

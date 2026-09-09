@@ -54,12 +54,9 @@ export const withOriginBaseUrl = (baseUrl: string, path: string): string =>
   `${trimTrailingSlash(baseUrl)}${path}`;
 
 export const getAppPathFromHref = (baseUrl: string, href: string): string => {
-  // if hash is in baseUrl means we are using hashRouter
   const baseHashIndex = baseUrl.indexOf('#');
   if (baseHashIndex > -1) {
     const hrefHashIndex = href.indexOf('#');
-    // href may/not have "/" around "#"
-    // we need to take care of this when extracting app path
     const trimmedBaseUrl = trimLeadingSlash(baseUrl.slice(baseHashIndex + 1));
     const trimmedHref = trimLeadingSlash(href.slice(hrefHashIndex + 1));
 

@@ -164,9 +164,7 @@ export function SetupVerification({ onComplete }: SetupVerificationProps) {
         try {
           const uid = mx.getSafeUserId();
           storeRecoveryKey(uid, recoveryKeyData.encodedPrivateKey);
-        } catch {
-          // ignore storage errors
-        }
+        } catch {}
 
         onComplete(recoveryKeyData.encodedPrivateKey);
       },
@@ -362,9 +360,7 @@ export const DeviceVerificationReset = forwardRef<HTMLDivElement, DeviceVerifica
                   try {
                     const uid = mx.getSafeUserId();
                     setVerificationHasReset(uid, true);
-                  } catch {
-                    // ignore
-                  }
+                  } catch {}
                 }
                 return recoveryKey ? (
                   <RecoveryKeyDisplay recoveryKey={recoveryKey} />

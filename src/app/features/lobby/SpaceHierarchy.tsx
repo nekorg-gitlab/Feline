@@ -103,7 +103,6 @@ export const SpaceHierarchy = forwardRef<HTMLDivElement, SpaceHierarchyProps>(
 
     let childItems = roomItems?.filter((i) => !subspaces.has(i.roomId));
     if (!spacePermissions?.stateEvent(StateEvent.SpaceChild, mx.getSafeUserId())) {
-      // hide unknown rooms for normal user
       childItems = childItems?.filter((i) => {
         const forbidden = error instanceof MatrixError ? error.errcode === 'M_FORBIDDEN' : false;
         const inaccessibleRoom = !rooms.get(i.roomId) && !fetching && (error ? forbidden : true);

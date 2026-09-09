@@ -26,22 +26,8 @@ export type ScrollToOptions = {
   stopInView?: boolean;
 };
 
-/**
- * Scrolls the page to a specified element in the DOM.
- *
- * @param {HTMLElement} element - The DOM element to scroll to.
- * @param {ScrollToOptions} [opts] - Optional configuration for the scroll behavior (e.g., smooth scrolling, alignment).
- * @returns {boolean} - Returns `true` if the scroll was successful, otherwise returns `false`.
- */
 export type ScrollToElement = (element: HTMLElement, opts?: ScrollToOptions) => boolean;
 
-/**
- * Scrolls the page to an item at the specified index within a scrollable container.
- *
- * @param {number} index - The index of the item to scroll to.
- * @param {ScrollToOptions} [opts] - Optional configuration for the scroll behavior (e.g., smooth scrolling, alignment).
- * @returns {boolean} - Returns `true` if the scroll was successful, otherwise returns `false`.
- */
 export type ScrollToItem = (index: number, opts?: ScrollToOptions) => boolean;
 
 type HandleObserveAnchor = (element: HTMLElement | null) => void;
@@ -189,8 +175,6 @@ export const useVirtualPaginator = <TScrollElement extends HTMLElement>(
     count,
   });
   if (propRef.current.count !== count) {
-    // Clear restoreScrollRef on count change
-    // As restoreScrollRef.current.anchorItem might changes
     restoreScrollRef.current = undefined;
   }
   propRef.current = {
@@ -238,8 +222,6 @@ export const useVirtualPaginator = <TScrollElement extends HTMLElement>(
       const { range: currentRange, limit: currentLimit, count: currentCount } = propRef.current;
 
       if (index < 0 || index >= currentCount) return false;
-      // index is not in range change range
-      // and trigger scrollToItem in layoutEffect hook
       if (index < currentRange.start || index >= currentRange.end) {
         onRangeChange({
           start: Math.max(index - currentLimit, 0),
@@ -252,7 +234,6 @@ export const useVirtualPaginator = <TScrollElement extends HTMLElement>(
         return true;
       }
 
-      // find target or it's previous rendered element to scroll to
       const targetItems = generateItems({ start: currentRange.start, end: index + 1 });
       const targetItem = targetItems.reverse().find((i) => getItemElement(i) !== undefined);
       const itemElement = targetItem && getItemElement(targetItem);
@@ -352,9 +333,6 @@ export const useVirtualPaginator = <TScrollElement extends HTMLElement>(
   const observeBackAnchor = useObserveAnchorHandle(intersectionObserver, Direction.Backward);
   const observeFrontAnchor = useObserveAnchorHandle(intersectionObserver, Direction.Forward);
 
-  // Restore scroll when local pagination.
-  // restoreScrollRef.current only gets set
-  // when paginate() changes range itself
   useLayoutEffect(() => {
     const scrollEl = getScrollElement();
     if (!restoreScrollRef.current || !scrollEl) return;
@@ -377,8 +355,6 @@ export const useVirtualPaginator = <TScrollElement extends HTMLElement>(
     restoreScrollRef.current = undefined;
   }, [range, getScrollElement, getItemElement]);
 
-  // When scrollToItem index was not in range.
-  // Scroll to item after range changes.
   useLayoutEffect(() => {
     if (scrollToItemRef.current === undefined) return;
     const { index, opts } = scrollToItemRef.current;
@@ -389,13 +365,8 @@ export const useVirtualPaginator = <TScrollElement extends HTMLElement>(
     scrollToItemRef.current = undefined;
   }, [range, scrollToItem]);
 
-  // Continue pagination to fill view height with scroll items
-  // check if pagination anchor are in visible view height
-  // and trigger pagination
   useEffect(() => {
     if (initialRenderRef.current) {
-      // Do not trigger pagination on initial render
-      // anchor intersection observable will trigger pagination on mount
       initialRenderRef.current = false;
       return;
     }

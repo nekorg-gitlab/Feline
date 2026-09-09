@@ -51,9 +51,7 @@ if (typeof window !== 'undefined') {
           i18n.changeLanguage(resolved);
         }
       }
-    } catch {
-      // ignore
-    }
+    } catch {}
   };
 
   window.addEventListener('languagechange', handleSystemLanguageChange);

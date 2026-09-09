@@ -530,7 +530,6 @@ export function EmojiBoard({
     virtualizer.scrollToIndex(groupIndex, { align: 'start' });
   };
 
-  // sync active sidebar tab with scroll
   useEffect(() => {
     const scrollElement = contentScrollRef.current;
     if (scrollElement) {
@@ -543,7 +542,6 @@ export function EmojiBoard({
     }
   }, [vItems, groups, setActiveGroupId, result?.query]);
 
-  // reset scroll position on search
   useEffect(() => {
     const scrollElement = contentScrollRef.current;
     if (scrollElement) {
@@ -551,7 +549,6 @@ export function EmojiBoard({
     }
   }, [result?.query]);
 
-  // reset scroll position on tab change
   useEffect(() => {
     if (groups.length > 0) {
       virtualizer.scrollToIndex(0, { align: 'start' });

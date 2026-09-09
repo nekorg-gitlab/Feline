@@ -32,7 +32,6 @@ export function SpaceRouteRoomProvider({ children }: { children: ReactNode }) {
   const room = mx.getRoom(roomId);
 
   if (!room || !allRooms.includes(room.roomId)) {
-    // room is not joined
     return (
       <JoinBeforeNavigate
         roomIdOrAlias={roomIdOrAlias!}
@@ -43,7 +42,6 @@ export function SpaceRouteRoomProvider({ children }: { children: ReactNode }) {
   }
 
   if (developerTools && room.isSpaceRoom() && room.roomId === space.roomId) {
-    // allow to view space timeline
     return (
       <RoomProvider key={room.roomId} value={room}>
         <IsDirectRoomProvider value={mDirects.has(room.roomId)}>{children}</IsDirectRoomProvider>
@@ -53,7 +51,6 @@ export function SpaceRouteRoomProvider({ children }: { children: ReactNode }) {
 
   if (!getAllParents(roomToParents, room.roomId).has(space.roomId)) {
     if (getSpaceChildren(space).includes(room.roomId)) {
-      // fill missing roomToParent mapping
       setRoomToParents({
         type: 'PUT',
         parent: space.roomId,

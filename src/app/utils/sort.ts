@@ -20,8 +20,6 @@ export const factoryRoomIdByAtoZ =
     let aName = mx.getRoom(a)?.name ?? '';
     let bName = mx.getRoom(b)?.name ?? '';
 
-    // remove "#" from the room name
-    // To ignore it in sorting
     aName = aName.replace(/#/g, '');
     bName = bName.replace(/#/g, '');
 

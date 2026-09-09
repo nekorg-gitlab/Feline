@@ -300,16 +300,13 @@ export function RoomNavItem({
       mx.getSafeUserId(),
     );
 
-    // Do not join if missing permissions or no livekit support or no webRTC support
     if (!hasCallPermission || !livekitSupport(autoDiscoveryInfo) || !webRTCSupported()) {
       return;
     }
 
-    // Do not join if already in call
     if (callEmbed) {
       return;
     }
-    // Start call in second click
     if (selected) {
       evt.preventDefault();
       startCall(room, callPref);

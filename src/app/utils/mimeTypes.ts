@@ -112,11 +112,9 @@ export const getBlobSafeMimeType = (mimeType: string) => {
   if (!ALLOWED_BLOB_MIME_TYPES.includes(type)) {
     return FALLBACK_MIMETYPE;
   }
-  // Required for Chromium browsers
   if (type === 'video/quicktime') {
     return 'video/mp4';
   }
-  // Fixes missing playback for Ogg audio
   if (type === 'application/ogg') {
     return 'audio/ogg';
   }

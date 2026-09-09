@@ -214,10 +214,6 @@ const useNotificationTimeline = (
     [paginationLimit, onlyHighlight, fetchNotifications, allJoinedRooms],
   );
 
-  /**
-   * Reload timeline silently i.e without setting to default
-   * before fetching notifications from start
-   */
   const silentReloadTimeline: SilentReloadTimeline = useCallback(async () => {
     const data = await fetchNotifications(
       undefined,

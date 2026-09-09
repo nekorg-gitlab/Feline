@@ -32,16 +32,16 @@ import {
   UnreadInfo,
 } from '../../types/matrix/room';
 
+const getRoomState = (room: Room) => room.getLiveTimeline().getState(EventTimeline.FORWARDS);
+
 export const getStateEvent = (
   room: Room,
   eventType: StateEvent,
   stateKey = '',
-): MatrixEvent | undefined =>
-  room.getLiveTimeline().getState(EventTimeline.FORWARDS)?.getStateEvents(eventType, stateKey) ??
-  undefined;
+): MatrixEvent | undefined => getRoomState(room)?.getStateEvents(eventType, stateKey) ?? undefined;
 
 export const getStateEvents = (room: Room, eventType: StateEvent): MatrixEvent[] =>
-  room.getLiveTimeline().getState(EventTimeline.FORWARDS)?.getStateEvents(eventType) ?? [];
+  getRoomState(room)?.getStateEvents(eventType) ?? [];
 
 export const getAccountData = (
   mx: MatrixClient,
@@ -49,56 +49,32 @@ export const getAccountData = (
 ): MatrixEvent | undefined => mx.getAccountData(eventType as any);
 
 export const getMDirects = (mDirectEvent: MatrixEvent): Set<string> => {
-  const roomIds = new Set<string>();
-  const userIdToDirects = mDirectEvent?.getContent();
-
-  if (userIdToDirects === undefined) return roomIds;
-
-  Object.keys(userIdToDirects).forEach((userId) => {
-    const directs = userIdToDirects[userId];
-    if (Array.isArray(directs)) {
-      directs.forEach((id) => {
-        if (typeof id === 'string') roomIds.add(id);
-      });
-    }
-  });
-
-  return roomIds;
+  const userIdToDirects = mDirectEvent?.getContent() ?? {};
+  return new Set(
+    Object.values(userIdToDirects).flatMap((directs: unknown) =>
+      Array.isArray(directs) ? directs.filter((id): id is string => typeof id === 'string') : [],
+    ),
+  );
 };
 
-export const isDirectInvite = (room: Room | null, myUserId: string | null): boolean => {
-  if (!room || !myUserId) return false;
-  const me = room.getMember(myUserId);
-  const memberEvent = me?.events?.member;
-  const content = memberEvent?.getContent();
-  return content?.is_direct === true;
-};
+export const isDirectInvite = (room: Room | null, myUserId: string | null): boolean =>
+  !!room &&
+  !!myUserId &&
+  room.getMember(myUserId)?.events?.member?.getContent()?.is_direct === true;
 
 export const getDirectUserId = (mx: MatrixClient, roomId: string): string | undefined => {
-  const mDirectEvent = getAccountData(mx, AccountDataEvent.Direct);
-  const userIdToDirects = mDirectEvent?.getContent<Record<string, string[]>>();
-
+  const userIdToDirects = getAccountData(mx, AccountDataEvent.Direct)?.getContent<
+    Record<string, string[]>
+  >();
   if (userIdToDirects && typeof userIdToDirects === 'object') {
     for (const [userId, directs] of Object.entries(userIdToDirects)) {
-      if (Array.isArray(directs) && directs.includes(roomId)) {
-        return userId;
-      }
+      if (Array.isArray(directs) && directs.includes(roomId)) return userId;
     }
   }
-
   const room = mx.getRoom(roomId);
-  if (room) {
-    if (isDirectInvite(room, mx.getUserId())) {
-      const inviter = room.getDMInviter();
-      if (inviter) return inviter;
-    }
-
-    if (room.getMyMembership() === 'invite') {
-      const inviter = room.getDMInviter();
-      if (inviter) return inviter;
-    }
+  if (room && (isDirectInvite(room, mx.getUserId()) || room.getMyMembership() === 'invite')) {
+    return room.getDMInviter() ?? undefined;
   }
-
   return undefined;
 };
 
@@ -108,75 +84,44 @@ export const getDirectUserName = (
   dmUserId: string,
   oldName?: string,
 ): string => {
-  const room = mx.getRoom(roomId);
-  const member = room?.getMember(dmUserId);
-  if (member?.name && member.name !== dmUserId) {
-    return member.name;
-  }
-
+  const member = mx.getRoom(roomId)?.getMember(dmUserId);
+  if (member?.name && member.name !== dmUserId) return member.name;
   const user = mx.getUser(dmUserId);
-  if (user?.displayName) {
-    return user.displayName;
-  }
-  if (user?.rawDisplayName) {
-    return user.rawDisplayName;
-  }
-
-  if (oldName) {
-    return oldName;
-  }
-
-  if (member?.name) {
-    return member.name;
-  }
-
-  return dmUserId;
+  return user?.displayName ?? user?.rawDisplayName ?? oldName ?? member?.name ?? dmUserId;
 };
 
 export const createRoomNameGenerator = (mx: MatrixClient) => {
   return (roomId: string, state: RoomNameState): string | null => {
-    if (state.type === RoomNameType.Actual) {
-      return state.name;
-    }
-
+    if (state.type === RoomNameType.Actual) return state.name;
     const dmUserId = getDirectUserId(mx, roomId);
-    if (dmUserId) {
-      const name = getDirectUserName(
-        mx,
-        roomId,
-        dmUserId,
-        state.type === RoomNameType.EmptyRoom ? state.oldName : undefined,
-      );
-
-      if (state.type === RoomNameType.Generated && state.subtype === 'Inviting') {
-        return `Inviting ${name}`;
-      }
-      return name;
-    }
-
-    return null;
+    if (!dmUserId) return null;
+    const name = getDirectUserName(
+      mx,
+      roomId,
+      dmUserId,
+      state.type === RoomNameType.EmptyRoom ? state.oldName : undefined,
+    );
+    return state.type === RoomNameType.Generated && state.subtype === 'Inviting'
+      ? `Inviting ${name}`
+      : name;
   };
 };
 
-export const isSpace = (room: Room | null): boolean => {
-  if (!room) return false;
-  const event = getStateEvent(room, StateEvent.RoomCreate);
-  if (!event) return false;
-  return event.getContent().type === RoomType.Space;
-};
+const getCreateType = (room: Room | null): string | undefined =>
+  room ? getStateEvent(room, StateEvent.RoomCreate)?.getContent().type : undefined;
+
+export const isSpace = (room: Room | null): boolean =>
+  !!room && getCreateType(room) === RoomType.Space;
 
 export const isRoom = (room: Room | null): boolean => {
   if (!room) return false;
-  const event = getStateEvent(room, StateEvent.RoomCreate);
-  if (!event) return true;
-  return event.getContent().type !== RoomType.Space;
+  return getCreateType(room) !== RoomType.Space;
 };
 
 export const isUnsupportedRoom = (room: Room | null): boolean => {
   if (!room) return false;
-  const event = getStateEvent(room, StateEvent.RoomCreate);
-  if (!event) return true; // Consider room unsupported if m.room.create event doesn't exist
-  return event.getContent().type !== undefined && event.getContent().type !== RoomType.Space;
+  if (!getStateEvent(room, StateEvent.RoomCreate)) return true;
+  return getCreateType(room) !== RoomType.Space;
 };
 
 export function isValidChild(mEvent: MatrixEvent): boolean {
@@ -201,14 +146,10 @@ export const getAllParents = (roomToParents: RoomToParents, roomId: string): Set
   return allParents;
 };
 
-export const getSpaceChildren = (room: Room) =>
-  getStateEvents(room, StateEvent.SpaceChild).reduce<string[]>((filtered, mEvent) => {
-    const stateKey = mEvent.getStateKey();
-    if (isValidChild(mEvent) && stateKey) {
-      filtered.push(stateKey);
-    }
-    return filtered;
-  }, []);
+export const getSpaceChildren = (room: Room): string[] =>
+  getStateEvents(room, StateEvent.SpaceChild)
+    .filter((mEvent) => isValidChild(mEvent) && mEvent.getStateKey())
+    .map((mEvent) => mEvent.getStateKey()!);
 
 export const mapParentWithChildren = (
   roomToParents: RoomToParents,
@@ -217,10 +158,7 @@ export const mapParentWithChildren = (
 ) => {
   const allParents = getAllParents(roomToParents, roomId);
   children.forEach((childId) => {
-    if (allParents.has(childId)) {
-      // Space cycle detected.
-      return;
-    }
+    if (allParents.has(childId)) return;
     const parents = roomToParents.get(childId) ?? new Set<string>();
     parents.add(roomId);
     roomToParents.set(childId, parents);
@@ -246,7 +184,6 @@ export const getOrphanParents = (roomToParents: RoomToParents, roomId: string): 
 };
 
 export const isMutedRule = (rule: IPushRule) =>
-  // Check for empty actions (new spec) or dont_notify (deprecated)
   (rule.actions.length === 0 || rule.actions[0] === 'dont_notify') &&
   rule.conditions?.[0]?.kind === 'event_match';
 
@@ -283,23 +220,13 @@ const NOTIFICATION_EVENT_TYPES = [
 ];
 export const isNotificationEvent = (mEvent: MatrixEvent) => {
   const eType = mEvent.getType();
-  if (!NOTIFICATION_EVENT_TYPES.includes(eType)) {
-    return false;
-  }
-  if (eType === 'm.room.member') return false;
-
-  if (mEvent.isRedacted()) return false;
-  if (mEvent.getRelation()?.rel_type === 'm.replace') return false;
-
-  return true;
+  if (!NOTIFICATION_EVENT_TYPES.includes(eType) || eType === 'm.room.member') return false;
+  return !mEvent.isRedacted() && mEvent.getRelation()?.rel_type !== 'm.replace';
 };
 
-export const roomHaveNotification = (room: Room): boolean => {
-  const total = room.getUnreadNotificationCount(NotificationCountType.Total);
-  const highlight = room.getUnreadNotificationCount(NotificationCountType.Highlight);
-
-  return total > 0 || highlight > 0;
-};
+export const roomHaveNotification = (room: Room): boolean =>
+  room.getUnreadNotificationCount(NotificationCountType.Total) > 0 ||
+  room.getUnreadNotificationCount(NotificationCountType.Highlight) > 0;
 
 export const roomHaveUnread = (mx: MatrixClient, room: Room) => {
   const userId = mx.getUserId();
@@ -323,66 +250,38 @@ export const roomHaveUnread = (mx: MatrixClient, room: Room) => {
 export const getUnreadInfo = (room: Room): UnreadInfo => {
   const total = room.getUnreadNotificationCount(NotificationCountType.Total);
   const highlight = room.getUnreadNotificationCount(NotificationCountType.Highlight);
-  return {
-    roomId: room.roomId,
-    highlight,
-    total: highlight > total ? highlight : total,
-  };
+  return { roomId: room.roomId, highlight, total: Math.max(highlight, total) };
 };
 
-export const getUnreadInfos = (mx: MatrixClient): UnreadInfo[] => {
-  const unreadInfos = mx.getRooms().reduce<UnreadInfo[]>((unread, room) => {
-    if (room.isSpaceRoom()) return unread;
-    if (room.getMyMembership() !== 'join') return unread;
-    if (getNotificationType(mx, room.roomId) === NotificationType.Mute) return unread;
-
-    if (roomHaveNotification(room) || roomHaveUnread(mx, room)) {
-      unread.push(getUnreadInfo(room));
-    }
-
-    return unread;
-  }, []);
-  return unreadInfos;
-};
+export const getUnreadInfos = (mx: MatrixClient): UnreadInfo[] =>
+  mx
+    .getRooms()
+    .filter(
+      (room) =>
+        !room.isSpaceRoom() &&
+        room.getMyMembership() === 'join' &&
+        getNotificationType(mx, room.roomId) !== NotificationType.Mute &&
+        (roomHaveNotification(room) || roomHaveUnread(mx, room)),
+    )
+    .map(getUnreadInfo);
 
 export const getRoomIconSrc = (
   icons: Record<IconName, IconSrc>,
   roomType?: string,
   joinRule?: JoinRule,
 ): IconSrc => {
+  const locked =
+    joinRule === JoinRule.Invite || joinRule === JoinRule.Knock || joinRule === JoinRule.Private;
   if (roomType === RoomType.Space) {
     if (joinRule === JoinRule.Public) return icons.SpaceGlobe;
-    if (
-      joinRule === JoinRule.Invite ||
-      joinRule === JoinRule.Knock ||
-      joinRule === JoinRule.Private
-    ) {
-      return icons.SpaceLock;
-    }
-    return icons.Space;
+    return locked ? icons.SpaceLock : icons.Space;
   }
-
   if (roomType === RoomType.Call) {
     if (joinRule === JoinRule.Public) return icons.VolumeHighGlobe;
-    if (
-      joinRule === JoinRule.Invite ||
-      joinRule === JoinRule.Knock ||
-      joinRule === JoinRule.Private
-    ) {
-      return icons.VolumeHighLock;
-    }
-    return icons.VolumeHigh;
+    return locked ? icons.VolumeHighLock : icons.VolumeHigh;
   }
-
   if (joinRule === JoinRule.Public) return icons.HashGlobe;
-  if (
-    joinRule === JoinRule.Invite ||
-    joinRule === JoinRule.Knock ||
-    joinRule === JoinRule.Private
-  ) {
-    return icons.HashLock;
-  }
-  return icons.Hash;
+  return locked ? icons.HashLock : icons.Hash;
 };
 
 export const getRoomAvatarUrl = (
@@ -400,20 +299,15 @@ export const getRoomAvatarUrl = (
 
 export const getDirectAvatarMxc = (mx: MatrixClient, roomId: string): string | undefined => {
   const room = mx.getRoom(roomId);
-  const fallbackAvatar = room?.getAvatarFallbackMember()?.getMxcAvatarUrl();
-  if (fallbackAvatar) return fallbackAvatar;
-
   const dmUserId = getDirectUserId(mx, roomId);
-  if (dmUserId) {
-    const member = room?.getMember(dmUserId);
-    const memberAvatar = member?.getMxcAvatarUrl();
-    if (memberAvatar) return memberAvatar;
-
-    const user = mx.getUser(dmUserId);
-    if (user?.avatarUrl) return user.avatarUrl;
-  }
-
-  return undefined;
+  return (
+    room?.getAvatarFallbackMember()?.getMxcAvatarUrl() ??
+    (dmUserId
+      ? (room?.getMember(dmUserId)?.getMxcAvatarUrl() ??
+        mx.getUser(dmUserId)?.avatarUrl ??
+        undefined)
+      : undefined)
+  );
 };
 
 export const getDirectRoomAvatarUrl = (
@@ -466,10 +360,8 @@ export const parseReplyFormattedBody = (
 };
 
 export const getMemberDisplayName = (room: Room, userId: string): string | undefined => {
-  const member = room.getMember(userId);
-  const name = member?.rawDisplayName;
-  if (name === userId) return undefined;
-  return name;
+  const name = room.getMember(userId)?.rawDisplayName;
+  return name === userId ? undefined : name;
 };
 
 export const getMemberSearchStr = (
@@ -481,10 +373,8 @@ export const getMemberSearchStr = (
   query.startsWith('@') || query.indexOf(':') > -1 ? member.userId : mxIdToName(member.userId),
 ];
 
-export const getMemberAvatarMxc = (room: Room, userId: string): string | undefined => {
-  const member = room.getMember(userId);
-  return member?.getMxcAvatarUrl();
-};
+export const getMemberAvatarMxc = (room: Room, userId: string): string | undefined =>
+  room.getMember(userId)?.getMxcAvatarUrl();
 
 export const isMembershipChanged = (mEvent: MatrixEvent): boolean =>
   mEvent.getContent().membership !== mEvent.getPrevContent().membership ||
@@ -493,12 +383,13 @@ export const isMembershipChanged = (mEvent: MatrixEvent): boolean =>
 export const decryptAllTimelineEvent = async (mx: MatrixClient, timeline: EventTimeline) => {
   const crypto = mx.getCrypto();
   if (!crypto) return;
-  const decryptionPromises = timeline
-    .getEvents()
-    .filter((event) => event.isEncrypted())
-    .reverse()
-    .map((event) => event.attemptDecryption(crypto as CryptoBackend, { isRetry: true }));
-  await Promise.allSettled(decryptionPromises);
+  await Promise.allSettled(
+    timeline
+      .getEvents()
+      .filter((event) => event.isEncrypted())
+      .reverse()
+      .map((event) => event.attemptDecryption(crypto as CryptoBackend, { isRetry: true })),
+  );
 };
 
 export const getReactionContent = (eventId: string, key: string, shortcode?: string) => ({
@@ -523,11 +414,10 @@ export const getEventEdits = (timelineSet: EventTimelineSet, eventId: string, ev
 export const getLatestEdit = (
   targetEvent: MatrixEvent,
   editEvents: MatrixEvent[],
-): MatrixEvent | undefined => {
-  const eventByTargetSender = (rEvent: MatrixEvent) =>
-    rEvent.getSender() === targetEvent.getSender();
-  return editEvents.sort((m1, m2) => m2.getTs() - m1.getTs()).find(eventByTargetSender);
-};
+): MatrixEvent | undefined =>
+  editEvents
+    .sort((m1, m2) => m2.getTs() - m1.getTs())
+    .find((rEvent) => rEvent.getSender() === targetEvent.getSender());
 
 export const getEditedEvent = (
   mEventId: string,
@@ -556,10 +446,8 @@ export const getLatestEditableEvt = (
   canEdit: (mEvent: MatrixEvent) => boolean,
 ): MatrixEvent | undefined => {
   const events = timeline.getEvents();
-
   for (let i = events.length - 1; i >= 0; i -= 1) {
-    const evt = events[i];
-    if (canEdit(evt)) return evt;
+    if (canEdit(events[i])) return events[i];
   }
   return undefined;
 };
@@ -568,62 +456,43 @@ export const reactionOrEditEvent = (mEvent: MatrixEvent) =>
   mEvent.getRelation()?.rel_type === RelationType.Annotation ||
   mEvent.getRelation()?.rel_type === RelationType.Replace;
 
-export const getMentionContent = (userIds: string[], room: boolean): IMentions => {
-  const mMentions: IMentions = {};
-  if (userIds.length > 0) {
-    mMentions.user_ids = userIds;
-  }
-  if (room) {
-    mMentions.room = true;
-  }
+export const getMentionContent = (userIds: string[], room: boolean): IMentions => ({
+  ...(userIds.length > 0 ? { user_ids: userIds } : {}),
+  ...(room ? { room: true as const } : {}),
+});
 
-  return mMentions;
-};
-
-export const getCommonRooms = (
-  mx: MatrixClient,
-  rooms: string[],
-  otherUserId: string,
-): string[] => {
-  const commonRooms: string[] = [];
-
-  rooms.forEach((roomId) => {
+export const getCommonRooms = (mx: MatrixClient, rooms: string[], otherUserId: string): string[] =>
+  rooms.filter((roomId) => {
     const room = mx.getRoom(roomId);
-    if (!room || room.getMyMembership() !== Membership.Join) return;
-
-    const common = room.hasMembershipState(otherUserId, Membership.Join);
-    if (common) {
-      commonRooms.push(roomId);
-    }
+    return (
+      !!room &&
+      room.getMyMembership() === Membership.Join &&
+      room.hasMembershipState(otherUserId, Membership.Join)
+    );
   });
-
-  return commonRooms;
-};
 
 export const bannedInRooms = (mx: MatrixClient, rooms: string[], otherUserId: string): boolean =>
   rooms.some((roomId) => {
     const room = mx.getRoom(roomId);
-    if (!room || room.getMyMembership() !== Membership.Join) return false;
-
-    const banned = room.hasMembershipState(otherUserId, Membership.Ban);
-    return banned;
+    return (
+      !!room &&
+      room.getMyMembership() === Membership.Join &&
+      room.hasMembershipState(otherUserId, Membership.Ban)
+    );
   });
 
 export const getAllVersionsRoomCreator = (room: Room): Set<string> => {
-  const creators = new Set<string>();
-
   const createEvent = getStateEvent(room, StateEvent.RoomCreate);
   const createContent = createEvent?.getContent<IRoomCreateContent>();
   const creator = createEvent?.getSender();
-  if (typeof creator === 'string') creators.add(creator);
-
-  if (createContent && Array.isArray(createContent.additional_creators)) {
-    createContent.additional_creators.forEach((c) => {
-      if (typeof c === 'string') creators.add(c);
-    });
-  }
-
-  return creators;
+  return new Set(
+    [
+      creator,
+      ...(Array.isArray(createContent?.additional_creators)
+        ? createContent.additional_creators
+        : []),
+    ].filter((c): c is string => typeof c === 'string'),
+  );
 };
 
 export const guessPerfectParent = (
@@ -631,51 +500,37 @@ export const guessPerfectParent = (
   roomId: string,
   parents: string[],
 ): string | undefined => {
-  if (parents.length === 1) {
-    return parents[0];
-  }
+  if (parents.length === 1) return parents[0];
 
-  const getSpecialUsers = (rId: string): string[] => {
-    const specialUsers: Set<string> = new Set();
-
+  const getSpecialUsers = (rId: string): Set<string> => {
     const r = mx.getRoom(rId);
-    if (!r) return [];
-
-    getAllVersionsRoomCreator(r).forEach((c) => specialUsers.add(c));
-
+    if (!r) return new Set();
+    const specialUsers = getAllVersionsRoomCreator(r);
     const powerLevels = getStateEvent(
       r,
       StateEvent.RoomPowerLevels,
     )?.getContent<IPowerLevelsContent>();
-
-    const { users_default: usersDefault, users } = powerLevels ?? {};
-    const defaultPower = typeof usersDefault === 'number' ? usersDefault : 0;
-
-    if (typeof users === 'object')
-      Object.keys(users).forEach((userId) => {
-        if (users[userId] > defaultPower) {
-          specialUsers.add(userId);
-        }
+    const defaultPower =
+      typeof powerLevels?.users_default === 'number' ? powerLevels.users_default : 0;
+    if (typeof powerLevels?.users === 'object') {
+      Object.entries(powerLevels.users).forEach(([userId, power]) => {
+        if (power > defaultPower) specialUsers.add(userId);
       });
-
-    return Array.from(specialUsers);
+    }
+    return specialUsers;
   };
 
+  const roomSpecialUsers = getSpecialUsers(roomId);
   let perfectParent: string | undefined;
   let score = 0;
-
-  const roomSpecialUsers = getSpecialUsers(roomId);
   parents.forEach((parentId) => {
-    const parentSpecialUsers = getSpecialUsers(parentId);
-    const matchedUsersCount = parentSpecialUsers.filter((userId) =>
-      roomSpecialUsers.includes(userId),
+    const matched = [...getSpecialUsers(parentId)].filter((userId) =>
+      roomSpecialUsers.has(userId),
     ).length;
-
-    if (matchedUsersCount > score) {
-      score = matchedUsersCount;
+    if (matched > score) {
+      score = matched;
       perfectParent = parentId;
     }
   });
-
   return perfectParent;
 };

@@ -7,43 +7,27 @@ import { getStateEvent } from '../utils/room';
 
 export const getRoomCreators = (createEvent: MatrixEvent): Set<string> => {
   const createContent = createEvent.getContent<IRoomCreateContent>();
-
-  const creators: Set<string> = new Set();
-
-  if (!creatorsSupported(createContent.room_version)) return creators;
-
-  if (createEvent.event.sender) {
-    creators.add(createEvent.event.sender);
-  }
-
-  if ('additional_creators' in createContent && Array.isArray(createContent.additional_creators)) {
-    createContent.additional_creators.forEach((creator) => {
-      if (typeof creator === 'string') {
-        creators.add(creator);
-      }
-    });
-  }
-
-  return creators;
+  if (!creatorsSupported(createContent.room_version)) return new Set();
+  const additional = Array.isArray(createContent.additional_creators)
+    ? createContent.additional_creators
+    : [];
+  return new Set(
+    [createEvent.event.sender, ...additional].filter(
+      (creator): creator is string => typeof creator === 'string',
+    ),
+  );
 };
 
 export const useRoomCreators = (room: Room): Set<string> => {
   const createEvent = useStateEvent(room, StateEvent.RoomCreate);
-
-  const creators = useMemo(
+  return useMemo(
     () => (createEvent ? getRoomCreators(createEvent) : new Set<string>()),
     [createEvent],
   );
-
-  return creators;
 };
 
 export const getRoomCreatorsForRoomId = (mx: MatrixClient, roomId: string): Set<string> => {
   const room = mx.getRoom(roomId);
-  if (!room) return new Set();
-
-  const createEvent = getStateEvent(room, StateEvent.RoomCreate);
-  if (!createEvent) return new Set();
-
-  return getRoomCreators(createEvent);
+  const createEvent = room ? getStateEvent(room, StateEvent.RoomCreate) : undefined;
+  return createEvent ? getRoomCreators(createEvent) : new Set();
 };

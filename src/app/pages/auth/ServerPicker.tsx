@@ -41,7 +41,6 @@ export function ServerPicker({
   const serverInputRef = useRef<HTMLInputElement>(null as unknown as HTMLInputElement);
 
   useEffect(() => {
-    // sync input with it outside server changes
     if (serverInputRef.current && serverInputRef.current.value !== server) {
       serverInputRef.current.value = server;
     }

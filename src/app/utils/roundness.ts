@@ -56,9 +56,6 @@ export const applyRoundness = (value: number): void => {
     document.head.appendChild(styleEl);
   }
 
-  // At default (50), we still set explicit values so slider reflects correctly,
-  // but we could also clear. Keep explicit to ensure consistency across reloads where
-  // config defaults match.
   const radii = config.radii as Record<string, string>;
   const varMap: Record<string, string> = {};
 

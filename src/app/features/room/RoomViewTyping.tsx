@@ -32,8 +32,6 @@ export const RoomViewTyping = as<'div', RoomViewTypingProps>(
     }
 
     const handleDropAll = () => {
-      // some homeserver does not timeout typing status
-      // we have given option so user can drop their typing status
       typingMembers.forEach((receipt) =>
         setTypingMembers({
           type: 'DELETE',

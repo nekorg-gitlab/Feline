@@ -52,8 +52,6 @@ export const useUserProfile = (userId: string): UserProfile => {
       try {
         const supported = await mx.doesServerSupportExtendedProfiles().catch(() => false);
         if (!supported) return;
-        // Use getExtendedProfile to bypass local cache which may be stale after save/delete
-        // Fall back to getExtendedProfileProperty if getExtendedProfile fails
         let bioValue: unknown = undefined;
         let fetched = false;
         try {
@@ -62,7 +60,6 @@ export const useUserProfile = (userId: string): UserProfile => {
             bioValue = (full as Record<string, unknown>)[BIO_KEY];
             fetched = true;
           } else {
-            // key not present -> treat as deleted
             setProfile((prev) => {
               if (prev.bio === undefined) return prev;
               const next = { ...prev };
@@ -72,12 +69,10 @@ export const useUserProfile = (userId: string): UserProfile => {
             return;
           }
         } catch {
-          // fallback to property fetch (may use cache)
           try {
             bioValue = await mx.getExtendedProfileProperty(userId, BIO_KEY);
             fetched = true;
           } catch {
-            // property not found -> clear bio
             setProfile((prev) => {
               if (prev.bio === undefined) return prev;
               const next = { ...prev };
@@ -100,9 +95,7 @@ export const useUserProfile = (userId: string): UserProfile => {
             return next;
           });
         }
-      } catch {
-        // ignore
-      }
+      } catch {}
     };
     fetchBio();
 

@@ -1,14 +1,6 @@
 import { MatchResult, replaceMatch } from '../internal';
 import { InlineMDParser, InlineMDRule } from './type';
 
-/**
- * Runs a single markdown rule on the provided text.
- *
- * @param text - The text to parse.
- * @param rule - The markdown rule to run.
- * @param parse - A function that run the parser on remaining parts.
- * @returns The text with the markdown rule applied or `undefined` if no match is found.
- */
 export const runInlineRule = (
   text: string,
   rule: InlineMDRule,
@@ -22,15 +14,6 @@ export const runInlineRule = (
   return undefined;
 };
 
-/**
- * Runs multiple rules at the same time to better handle nested rules.
- * Rules will be run in the order they appear.
- *
- * @param text - The text to parse.
- * @param rules - The markdown rules to run.
- * @param parse - A function that run the parser on remaining parts.
- * @returns The text with the markdown rules applied or `undefined` if no match is found.
- */
 export const runInlineRules = (
   text: string,
   rules: InlineMDRule[],

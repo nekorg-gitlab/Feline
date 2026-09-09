@@ -59,7 +59,6 @@ export function CreateSpaceForm({ defaultAccess, space, onCreate }: CreateSpaceF
   const roomVersions = capabilities['m.room_versions'];
   const [selectedRoomVersion, selectRoomVersion] = useState(roomVersions?.default ?? '1');
   useEffect(() => {
-    // capabilities load async
     selectRoomVersion(roomVersions?.default ?? '1');
   }, [roomVersions?.default]);
 

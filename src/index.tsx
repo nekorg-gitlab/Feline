@@ -20,7 +20,6 @@ import { applyAnimations } from './app/utils/animations';
 import { applyBorders } from './app/utils/borders';
 import App from './app/pages/App';
 
-// import i18n (needs to be bundled ;))
 import './app/i18n';
 import { pushSessionToSW } from './sw-session';
 import { getFallbackSession } from './app/state/sessions';
@@ -43,7 +42,6 @@ try {
   if (import.meta.env.DEV) console.warn('[init] roundness parse failed', err);
 }
 
-// Register Service Worker
 if ('serviceWorker' in navigator) {
   const swUrl =
     import.meta.env.MODE === 'production'

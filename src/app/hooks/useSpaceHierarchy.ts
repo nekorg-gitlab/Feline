@@ -61,9 +61,6 @@ const getHierarchySpaces = (
       const childId = childEvent.getStateKey();
       if (!childId || !isRoomId(childId)) return;
 
-      // because we can not find if a childId is space without joining
-      // or requesting room summary, we will look it into spaceRooms local
-      // cache which we maintain as we load summary in UI.
       if (getRoom(childId)?.isSpaceRoom() || spaceRooms.has(childId)) {
         const childItem: HierarchyItemSpace = {
           roomId: childId,
@@ -266,7 +263,6 @@ export const useSpaceJoinedHierarchy = (
   return hierarchy;
 };
 
-// we will paginate until 5000 items
 const PER_PAGE_COUNT = 100;
 const MAX_AUTO_PAGE_COUNT = 50;
 export type FetchSpaceHierarchyLevelData = {

@@ -5,8 +5,6 @@ import { precacheAndRoute, cleanupOutdatedCaches } from 'workbox-precaching';
 export type {};
 declare const self: ServiceWorkerGlobalScope & { __WB_MANIFEST: Array<unknown> };
 
-// Precache app shell (VitePWA injects manifest at build)
-// Show cache instantly offline; network updates cache in background
 precacheAndRoute(self.__WB_MANIFEST);
 cleanupOutdatedCaches();
 
@@ -36,9 +34,6 @@ type SessionInfo = {
   baseUrl: string;
 };
 
-/**
- * Store session per client (tab)
- */
 const sessions = new Map<string, SessionInfo>();
 
 const clientToResolve = new Map<string, (value: SessionInfo | undefined) => void>();
@@ -61,7 +56,6 @@ function setSession(clientId: string, accessToken: any, baseUrl: any) {
   if (typeof accessToken === 'string' && typeof baseUrl === 'string') {
     sessions.set(clientId, { accessToken, baseUrl });
   } else {
-    // Logout or invalid session
     sessions.delete(clientId);
   }
 
@@ -117,9 +111,6 @@ self.addEventListener('activate', (event: ExtendableEvent) => {
   );
 });
 
-/**
- * Receive session updates from clients
- */
 self.addEventListener('message', (event: ExtendableMessageEvent) => {
   const client = event.source as Client | null;
   if (!client) return;
@@ -189,17 +180,12 @@ async function fetchWithFallback(request: Request): Promise<Response> {
   }
 }
 
-// Offline fallback for pure remote (Tauri desktop loads https://nekorg.gitlab.io/feline)
-// - If cached shell exists, return it instantly (stale-while-revalidate)
-// - If no cache and offline (first launch), return offline.html fallback
 self.addEventListener('fetch', (event: FetchEvent) => {
   const req = event.request;
   if (req.mode === 'navigate' && req.method === 'GET') {
-    // Don't handle media navigations (shouldn't happen)
     if (mediaPath(req.url)) return;
     event.respondWith(
       (async () => {
-        // Try cache instantly
         const cached = await caches.match(req);
         const networkPromise = fetch(req)
           .then((response) => {
@@ -215,7 +201,6 @@ self.addEventListener('fetch', (event: FetchEvent) => {
           .catch(() => undefined);
 
         if (cached) {
-          // Update cache in background
           void networkPromise;
           return cached;
         }
@@ -223,7 +208,6 @@ self.addEventListener('fetch', (event: FetchEvent) => {
         const networkResponse = await networkPromise;
         if (networkResponse) return networkResponse;
 
-        // Offline + no cache -> fallback to offline.html (precached)
         const offlineCandidates = [
           '/offline.html',
           '/feline/offline.html',

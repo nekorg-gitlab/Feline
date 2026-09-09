@@ -81,8 +81,6 @@ export const ImageContent = as<'div', ImageContentProps>(
     ref,
   ) => {
     const mx = useMatrixClient();
-    // For message media, always try authenticated v1 first (with manual Authorization fallback in downloadMedia)
-    // to avoid 404 on v3 for media that is only on v1 (matrix.org). See logs: v3 404 for EYHOlyrA...
     const useAuthentication = true;
     const blurHash = validBlurHash(info?.[MATRIX_BLUR_HASH_PROPERTY_NAME]);
 

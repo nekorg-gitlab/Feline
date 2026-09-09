@@ -19,9 +19,6 @@ export type SessionStoreName = {
 const SESSIONS_KEY = 'feline_sessions';
 const ACTIVE_SESSION_KEY = 'feline_active_session';
 const ADDING_ACCOUNT_KEY = 'feline_adding_account';
-// User id that owns the pre-multi-account IndexedDBs ('web-sync-store',
-// 'crypto-store', 'matrix-js-sdk::...'). Set once when migrating legacy keys
-// so upgraded users keep their cache and crypto keys.
 const LEGACY_DB_USER_KEY = 'feline_legacy_db_user';
 
 const LEGACY_BASE_URL = 'feline_hs_base_url';
@@ -101,7 +98,6 @@ const migrateLegacyIfNeeded = (): Session[] => {
   if (!legacy) return [];
   writeSessionsList([legacy]);
   localStorage.setItem(ACTIVE_SESSION_KEY, legacy.userId);
-  // Preserve old IndexedDB names for the upgraded account.
   localStorage.setItem(LEGACY_DB_USER_KEY, legacy.userId);
   return [legacy];
 };
@@ -140,7 +136,6 @@ export const getActiveSession = (): Session | undefined => {
   return sessions.find((s) => s.userId === activeId) ?? sessions[0];
 };
 
-/** Backwards-compatible alias used across the app. Returns the active session. */
 export const getFallbackSession = (): Session | undefined => getActiveSession();
 
 export function setFallbackSession(

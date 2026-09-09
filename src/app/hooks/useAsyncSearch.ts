@@ -54,8 +54,6 @@ export const orderSearchItems = <TSearchItem extends object | string | number>(
 ): TSearchItem[] => {
   const orderedItems: TSearchItem[] = Array.from(items);
 
-  // we will consider "_" as word boundary char.
-  // because in more use-cases it is used. (like: emojishortcode)
   const boundaryRegex = new RegExp(`(\\b|_)${sanitizeForRegex(query)}`);
   const perfectBoundaryRegex = new RegExp(`(\\b|_)${sanitizeForRegex(query)}(\\b|_)`);
 
@@ -70,28 +68,24 @@ export const orderSearchItems = <TSearchItem extends object | string | number>(
     let points1 = 0;
     let points2 = 0;
 
-    // short string should score more
     const pointsToSmallStr = (points: number) => {
       if (str1.length < str2.length) points1 += points;
       else if (str2.length < str1.length) points2 += points;
     };
     pointsToSmallStr(1);
 
-    // closes query match should score more
     const indexIn1 = str1.indexOf(query);
     const indexIn2 = str2.indexOf(query);
     if (indexIn1 < indexIn2) points1 += 2;
     else if (indexIn2 < indexIn1) points2 += 2;
     else pointsToSmallStr(2);
 
-    // query match word start on boundary should score more
     const boundaryIn1 = str1.match(boundaryRegex);
     const boundaryIn2 = str2.match(boundaryRegex);
     if (boundaryIn1 && boundaryIn2) pointsToSmallStr(4);
     else if (boundaryIn1) points1 += 4;
     else if (boundaryIn2) points2 += 4;
 
-    // query match word start and end on boundary should score more
     const perfectBoundaryIn1 = str1.match(perfectBoundaryRegex);
     const perfectBoundaryIn2 = str2.match(perfectBoundaryRegex);
     if (perfectBoundaryIn1 && perfectBoundaryIn2) pointsToSmallStr(8);
@@ -145,7 +139,6 @@ export const useAsyncSearch = <TSearchItem extends object | string | number>(
 
   useEffect(
     () => () => {
-      // terminate any ongoing search request on unmount.
       terminateSearch();
     },
     [terminateSearch],

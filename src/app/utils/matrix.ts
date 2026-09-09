@@ -57,24 +57,20 @@ export const getCanonicalAliasOrRoomId = (mx: MatrixClient, roomId: string): str
   return roomId;
 };
 
-export const getImageInfo = (img: HTMLImageElement, fileOrBlob: File | Blob): IImageInfo => {
-  const info: IImageInfo = {};
-  info.w = img.width;
-  info.h = img.height;
-  info.mimetype = fileOrBlob.type;
-  info.size = fileOrBlob.size;
-  return info;
-};
+export const getImageInfo = (img: HTMLImageElement, fileOrBlob: File | Blob): IImageInfo => ({
+  w: img.width,
+  h: img.height,
+  mimetype: fileOrBlob.type,
+  size: fileOrBlob.size,
+});
 
-export const getVideoInfo = (video: HTMLVideoElement, fileOrBlob: File | Blob): IVideoInfo => {
-  const info: IVideoInfo = {};
-  info.duration = Number.isNaN(video.duration) ? undefined : Math.floor(video.duration * 1000);
-  info.w = video.videoWidth;
-  info.h = video.videoHeight;
-  info.mimetype = fileOrBlob.type;
-  info.size = fileOrBlob.size;
-  return info;
-};
+export const getVideoInfo = (video: HTMLVideoElement, fileOrBlob: File | Blob): IVideoInfo => ({
+  duration: Number.isNaN(video.duration) ? undefined : Math.floor(video.duration * 1000),
+  w: video.videoWidth,
+  h: video.videoHeight,
+  mimetype: fileOrBlob.type,
+  size: fileOrBlob.size,
+});
 
 export const getThumbnailContent = (thumbnailInfo: {
   thumbnail: File | Blob;
@@ -92,15 +88,8 @@ export const getThumbnailContent = (thumbnailInfo: {
       w: width,
       h: height,
     },
+    ...(encInfo ? { thumbnail_file: { ...encInfo, url: mxc } } : { thumbnail_url: mxc }),
   };
-  if (encInfo) {
-    content.thumbnail_file = {
-      ...encInfo,
-      url: mxc,
-    };
-  } else {
-    content.thumbnail_url = mxc;
-  }
   return content;
 };
 
@@ -111,15 +100,11 @@ export const encryptFile = async (
   file: File;
   originalFile: File | Blob;
 }> => {
-  const dataBuffer = await file.arrayBuffer();
-  const encryptedAttachment = await encryptAttachment(dataBuffer);
+  const encryptedAttachment = await encryptAttachment(await file.arrayBuffer());
   const filename = file instanceof File ? file.name : 'file';
-  const encFile = new File([encryptedAttachment.data], filename, {
-    type: file.type,
-  });
   return {
     encInfo: encryptedAttachment.info,
-    file: encFile,
+    file: new File([encryptedAttachment.data], filename, { type: file.type }),
     originalFile: file,
   };
 };
@@ -128,11 +113,7 @@ export const decryptFile = async (
   dataBuffer: ArrayBuffer,
   type: string,
   encInfo: EncryptedAttachmentInfo,
-): Promise<Blob> => {
-  const dataArray = await decryptAttachment(dataBuffer, encInfo);
-  const blob = new Blob([dataArray], { type });
-  return blob;
-};
+): Promise<Blob> => new Blob([await decryptAttachment(dataBuffer, encInfo)], { type });
 
 export type TUploadContent = File;
 
@@ -197,33 +178,36 @@ export const guessDmRoomUserId = (room: Room, myUserId: string): string => {
   const getOldestMember = (members: RoomMember[]): RoomMember | undefined => {
     let oldestMemberTs: number | undefined;
     let oldestMember: RoomMember | undefined;
-
-    const pickOldestMember = (member: RoomMember) => {
+    members.forEach((member) => {
       if (member.userId === myUserId) return;
-
-      if (
-        oldestMemberTs === undefined ||
-        (member.events.member && member.events.member.getTs() < oldestMemberTs)
-      ) {
+      const ts = member.events.member?.getTs();
+      if (oldestMemberTs === undefined || (ts !== undefined && ts < oldestMemberTs)) {
         oldestMember = member;
-        oldestMemberTs = member.events.member?.getTs();
+        oldestMemberTs = ts;
       }
-    };
-
-    members.forEach(pickOldestMember);
-
+    });
     return oldestMember;
   };
 
-  // Pick the joined user who's been here longest (and isn't us),
-  const member = getOldestMember(room.getJoinedMembers());
-  if (member) return member.userId;
-
-  // if there are no joined members other than us, use the oldest member
-  const member1 = getOldestMember(
-    room.getLiveTimeline().getState(EventTimeline.FORWARDS)?.getMembers() ?? [],
+  return (
+    getOldestMember(room.getJoinedMembers())?.userId ??
+    getOldestMember(room.getLiveTimeline().getState(EventTimeline.FORWARDS)?.getMembers() ?? [])
+      ?.userId ??
+    myUserId
   );
-  return member1?.userId ?? myUserId;
+};
+
+const getMDirectMap = (mx: MatrixClient): Record<string, string[]> => {
+  const event = mx.getAccountData(AccountDataEvent.Direct as any);
+  return event ? structuredClone(event.getContent()) : {};
+};
+
+const removeRoomFromAll = (map: Record<string, string[]>, roomId: string, except?: string) => {
+  Object.entries(map).forEach(([targetUserId, roomIds]) => {
+    if (targetUserId === except) return;
+    const index = roomIds.indexOf(roomId);
+    if (index > -1) roomIds.splice(index, 1);
+  });
 };
 
 export const addRoomIdToMDirect = async (
@@ -231,49 +215,17 @@ export const addRoomIdToMDirect = async (
   roomId: string,
   userId: string,
 ): Promise<void> => {
-  const mDirectsEvent = mx.getAccountData(AccountDataEvent.Direct as any);
-  let userIdToRoomIds: Record<string, string[]> = {};
-
-  if (typeof mDirectsEvent !== 'undefined')
-    userIdToRoomIds = structuredClone(mDirectsEvent.getContent());
-
-  // remove it from the lists of any others users
-  // (it can only be a DM room for one person)
-  Object.keys(userIdToRoomIds).forEach((targetUserId) => {
-    const roomIds = userIdToRoomIds[targetUserId];
-
-    if (targetUserId !== userId) {
-      const indexOfRoomId = roomIds.indexOf(roomId);
-      if (indexOfRoomId > -1) {
-        roomIds.splice(indexOfRoomId, 1);
-      }
-    }
-  });
-
-  const roomIds = userIdToRoomIds[userId] || [];
-  if (roomIds.indexOf(roomId) === -1) {
-    roomIds.push(roomId);
-  }
+  const userIdToRoomIds = getMDirectMap(mx);
+  removeRoomFromAll(userIdToRoomIds, roomId, userId);
+  const roomIds = userIdToRoomIds[userId] ?? [];
+  if (!roomIds.includes(roomId)) roomIds.push(roomId);
   userIdToRoomIds[userId] = roomIds;
-
   await mx.setAccountData(AccountDataEvent.Direct as any, userIdToRoomIds as any);
 };
 
 export const removeRoomIdFromMDirect = async (mx: MatrixClient, roomId: string): Promise<void> => {
-  const mDirectsEvent = mx.getAccountData(AccountDataEvent.Direct as any);
-  let userIdToRoomIds: Record<string, string[]> = {};
-
-  if (typeof mDirectsEvent !== 'undefined')
-    userIdToRoomIds = structuredClone(mDirectsEvent.getContent());
-
-  Object.keys(userIdToRoomIds).forEach((targetUserId) => {
-    const roomIds = userIdToRoomIds[targetUserId];
-    const indexOfRoomId = roomIds.indexOf(roomId);
-    if (indexOfRoomId > -1) {
-      roomIds.splice(indexOfRoomId, 1);
-    }
-  });
-
+  const userIdToRoomIds = getMDirectMap(mx);
+  removeRoomFromAll(userIdToRoomIds, roomId);
   await mx.setAccountData(AccountDataEvent.Direct as any, userIdToRoomIds as any);
 };
 
@@ -312,39 +264,38 @@ export const getThumbnailFallbackUrl = (url: string): string | null => {
   }
 };
 
+const getMediaToken = (mx?: MatrixClient): string | undefined => {
+  try {
+    return (mx?.getAccessToken() ?? getFallbackSession()?.accessToken) || undefined;
+  } catch (err) {
+    if (import.meta.env.DEV) console.warn('[matrix] access token read failed', err);
+    return undefined;
+  }
+};
+
+const throwMediaError = (res: Response, src: string): never => {
+  if (res.status === 404 && import.meta.env.DEV) {
+    try {
+      console.debug(`[media] not found (404): ${new URL(src).pathname}`);
+    } catch {
+      console.debug(`[media] not found (404): ${src}`);
+    }
+  }
+  throw new Error(`Failed to fetch media: ${res.status} ${res.statusText}`);
+};
+
 export const downloadMedia = async (src: string, mx?: MatrixClient): Promise<Blob> => {
   if (src.startsWith('blob:') || src.startsWith('data:')) {
     const res = await fetch(src);
-    if (!res.ok) throw new Error(`Failed to fetch media: ${res.status} ${res.statusText}`);
+    if (!res.ok) throwMediaError(res, src);
     return res.blob();
   }
-  let token: string | undefined;
-  if (mx) {
-    try {
-      token = mx.getAccessToken() ?? undefined;
-    } catch (err) {
-      if (import.meta.env.DEV) console.warn('[matrix] getAccessToken failed', err);
-    }
-  }
-  if (!token) {
-    try {
-      token = getFallbackSession()?.accessToken ?? undefined;
-    } catch (err) {
-      if (import.meta.env.DEV) console.warn('[matrix] localStorage read failed', err);
-    }
-  }
-  const headers = token ? { Authorization: `Bearer ${token}` } : undefined;
-  const res = await fetch(src, { method: 'GET', headers });
-  if (!res.ok) {
-    if (res.status === 404 && import.meta.env.DEV) {
-      try {
-        console.debug(`[media] not found (404): ${new URL(src).pathname}`);
-      } catch {
-        console.debug(`[media] not found (404): ${src}`);
-      }
-    }
-    throw new Error(`Failed to fetch media: ${res.status} ${res.statusText}`);
-  }
+  const token = getMediaToken(mx);
+  const res = await fetch(src, {
+    method: 'GET',
+    headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+  });
+  if (!res.ok) throwMediaError(res, src);
   return res.blob();
 };
 
@@ -352,12 +303,7 @@ export const downloadEncryptedMedia = async (
   src: string,
   decryptContent: (buf: ArrayBuffer) => Promise<Blob>,
   mx?: MatrixClient,
-): Promise<Blob> => {
-  const encryptedContent = await downloadMedia(src, mx);
-  const decryptedContent = await decryptContent(await encryptedContent.arrayBuffer());
-
-  return decryptedContent;
-};
+): Promise<Blob> => decryptContent(await (await downloadMedia(src, mx)).arrayBuffer());
 
 export const rateLimitedActions = async <T, R = void>(
   data: T[],
@@ -392,11 +338,11 @@ export const rateLimitedActions = async <T, R = void>(
   }
 };
 
-const V1_6 = new Set(['1', '2', '3', '4', '5', '6']);
-const V1_7 = new Set(['1', '2', '3', '4', '5', '6', '7']);
-const V1_9 = new Set(['1', '2', '3', '4', '5', '6', '7', '8', '9']);
-const V1_11 = new Set(['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11']);
-export const knockSupported = (v: string) => !V1_6.has(v);
-export const restrictedSupported = (v: string) => !V1_7.has(v);
-export const knockRestrictedSupported = (v: string) => !V1_9.has(v);
-export const creatorsSupported = (v: string) => !V1_11.has(v);
+const roomVersionNumber = (v: string): number => {
+  const n = parseInt(v, 10);
+  return Number.isNaN(n) ? Infinity : n;
+};
+export const knockSupported = (v: string) => roomVersionNumber(v) > 6;
+export const restrictedSupported = (v: string) => roomVersionNumber(v) > 7;
+export const knockRestrictedSupported = (v: string) => roomVersionNumber(v) > 9;
+export const creatorsSupported = (v: string) => roomVersionNumber(v) > 11;

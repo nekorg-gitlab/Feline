@@ -206,12 +206,6 @@ export const highlightText = (
     );
   });
 
-/**
- * Recursively extracts and concatenates all text content from an array of ChildNode objects.
- *
- * @param {ChildNode[]} nodes - An array of ChildNode objects to extract text from.
- * @returns {string} The concatenated plain text content of all descendant text nodes.
- */
 const extractTextFromChildren = (nodes: ChildNode[]): string => {
   let text = '';
 

@@ -888,8 +888,6 @@ export const Message = as<'div', MessageProps>(
     const handleAddReactions: MouseEventHandler<HTMLButtonElement> = () => {
       const rect = menuAnchor;
       closeMenu();
-      // open it with timeout because closeMenu
-      // FocusTrap will return focus from emojiBoard
 
       setTimeout(() => {
         setEmojiBoardAnchor(rect);

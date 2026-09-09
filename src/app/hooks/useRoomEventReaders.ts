@@ -4,8 +4,6 @@ import { useEffect, useState } from 'react';
 const getEventReaders = (room: Room, evtId?: string) => {
   if (!evtId) return [];
 
-  // if eventId is locally generated
-  // we don't have read receipt for it yet
   if (!evtId.startsWith('$')) return [];
 
   const liveEvents = room.getLiveTimeline().getEvents();
@@ -35,8 +33,6 @@ export const useRoomEventReaders = (room: Room, eventId?: string): string[] => {
       r,
       oldEventId,
     ) => {
-      // update members on local event id replaced
-      // with server generated id
       if (r.roomId !== room.roomId || !oldEventId) return;
       if (oldEventId.startsWith('$')) return;
       if (oldEventId !== eventId) return;

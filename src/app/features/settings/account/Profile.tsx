@@ -372,7 +372,6 @@ function ProfileBiography({ profile, userId }: ProfileProps) {
         const trimmed = valueToStore.trim();
         if (!trimmed) {
           await mx.deleteExtendedProfileProperty(BIO_KEY);
-          // keep local store in sync to avoid stale cache on fallback
           try {
             const store = (
               mx as unknown as {
@@ -445,9 +444,7 @@ function ProfileBiography({ profile, userId }: ProfileProps) {
       setSavedBio(result as string);
       setBioDraft(result as string);
       setSavedRichText(richText);
-    } catch {
-      // error handled via saveState
-    }
+    } catch {}
   };
 
   const insertTag = (openTag: string, closeTag: string) => {

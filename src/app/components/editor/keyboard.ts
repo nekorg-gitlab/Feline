@@ -25,9 +25,6 @@ const isHeading1 = isKeyHotkey('mod+1');
 const isHeading2 = isKeyHotkey('mod+2');
 const isHeading3 = isKeyHotkey('mod+3');
 
-/**
- * @return boolean true if shortcut is toggled.
- */
 export const toggleKeyboardShortcut = (editor: Editor, event: KeyboardEvent<Element>): boolean => {
   if (isKeyHotkey('backspace', event) && editor.selection && Range.isCollapsed(editor.selection)) {
     const startPoint = Range.start(editor.selection);
@@ -49,15 +46,11 @@ export const toggleKeyboardShortcut = (editor: Editor, event: KeyboardEvent<Elem
       parentNode.type === BlockType.QuoteLine ||
       parentNode.type === BlockType.ListItem
     ) {
-      // exit formatting only when line block
-      // is first of last of it's parent
       if (!previousNode || !nextNode) {
         toggleBlock(editor, BlockType.Paragraph);
         return true;
       }
     }
-    // Unwrap paragraph children to put them
-    // in previous none paragraph element
     if (SlateElement.isElement(previousNode) && previousNode.type !== BlockType.Paragraph) {
       Transforms.unwrapNodes(editor, {
         at: startPoint,

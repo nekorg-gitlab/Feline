@@ -1,10 +1,6 @@
 import { style } from '@vanilla-extract/css';
 import { toRem, color, config, DefaultReset, FocusOutline } from 'folds';
 
-/**
- * Layout
- */
-
 export const Base = style({
   maxWidth: toRem(432),
   width: `calc(100vw - 2 * ${config.space.S400})`,
@@ -21,10 +17,6 @@ export const Header = style({
   padding: config.space.S300,
   paddingBottom: 0,
 });
-
-/**
- * Sidebar
- */
 
 export const Sidebar = style({
   width: toRem(54),
@@ -51,10 +43,6 @@ export const SidebarBtnImg = style({
   height: toRem(24),
   objectFit: 'contain',
 });
-
-/**
- * Preview
- */
 
 export const Preview = style({
   padding: config.space.S200,
@@ -85,10 +73,6 @@ export const PreviewImg = style([
   },
 ]);
 
-/**
- * Group
- */
-
 export const EmojiGroup = style({
   position: 'relative',
   padding: `${config.space.S300} 0`,
@@ -112,10 +96,6 @@ export const EmojiGroupContent = style([
     padding: `0 ${config.space.S200}`,
   },
 ]);
-
-/**
- * Item
- */
 
 export const EmojiItem = style([
   DefaultReset,

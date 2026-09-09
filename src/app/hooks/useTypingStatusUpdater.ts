@@ -19,8 +19,6 @@ export const useTypingStatusUpdater = (mx: MatrixClient, roomId: string): Typing
         const sentTs = Date.now();
         statusSentTsRef.current = sentTs;
 
-        // Don't believe server will timeout typing status;
-        // Clear typing status after timeout if already not;
         setTimeout(() => {
           if (statusSentTsRef.current === sentTs) {
             mx.sendTyping(roomId, false, TYPING_TIMEOUT_MS);

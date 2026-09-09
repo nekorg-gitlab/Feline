@@ -19,7 +19,6 @@ function assertCryptoAvailable() {
 }
 
 function toFriendlyError(e: unknown): Error {
-  // preserve friendlyText if present (from cryptE2ERoomKeys friendlyError)
   if (e instanceof Error && (e as any).friendlyText) {
     return new Error((e as any).friendlyText);
   }

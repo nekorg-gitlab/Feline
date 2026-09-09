@@ -20,7 +20,6 @@ export const useRoomState = (room: Room): StateTypeToState => {
 
     roomState.events.forEach((stateKeyToEvents, eventType) => {
       if (eventType === StateEvent.RoomMember) {
-        // Ignore room members from state on purpose;
         return;
       }
       const kToE: StateKeyToEvents = new Map();

@@ -142,8 +142,6 @@ export function SettingsTab() {
   const [signingOutId, setSigningOutId] = useState<string>();
   const [copied, setCopied] = useState(false);
   const switchCloseTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
-  // Touch screens emulate (sticky) hover on tap, which fights the tap toggle.
-  // Only honor hover on devices with a real fine pointer; touch uses tap.
   const [canHover] = useState(
     () =>
       typeof window !== 'undefined' &&
@@ -247,8 +245,6 @@ export function SettingsTab() {
   const FLYOUT_GAP = 8;
 
   const placeFlyout = (rowEl: HTMLElement) => {
-    // Anchor horizontally to the visible popover card (not just the row) so
-    // the panel always lands to the right of the profile, never on top of it.
     const menuRect = mainMenuRef.current?.getBoundingClientRect();
     const rowRect = rowEl.getBoundingClientRect();
     const cardRight = menuRect && menuRect.width > 0 ? menuRect.right : rowRect.right;
@@ -258,8 +254,6 @@ export function SettingsTab() {
       setFlyoutPos(undefined);
       return;
     }
-    // Center on the row; if the panel is already mounted, position it
-    // exactly. On first open the layout effect below does this once mounted.
     const rowCenter = (rowRect.top + rowRect.bottom) / 2;
     const centerClamped = (height: number) =>
       Math.min(
@@ -281,8 +275,6 @@ export function SettingsTab() {
 
   const switchOpen = !!profileAnchor && (switchHover || flyoutHover || switchPinned);
 
-  // Keep the flyout glued to the row if the layout shifts while open,
-  // and re-evaluate side vs. inline on resize.
   useEffect(() => {
     if (!switchOpen) return undefined;
     const onReposition = () => {
@@ -305,8 +297,6 @@ export function SettingsTab() {
 
   const scheduleSwitchClose = () => {
     cancelSwitchClose();
-    // Small delay so moving the cursor from the row to the flyout
-    // (across the offset gap) doesn't instantly close it and cause flicker.
     switchCloseTimer.current = setTimeout(() => {
       setSwitchHover(false);
       setFlyoutHover(false);
@@ -349,7 +339,6 @@ export function SettingsTab() {
   const showSideFlyout = switchOpen && flyoutSide && !!flyoutPos;
   const showInlineAccounts = switchOpen && !flyoutSide;
 
-  // After the panel mounts, center it on the row, clamped to the viewport.
   useLayoutEffect(() => {
     if (!showSideFlyout || !flyoutPos) return;
     const el = flyoutMenuRef.current;
@@ -648,10 +637,6 @@ export function SettingsTab() {
       {showSideFlyout &&
         flyoutPos &&
         createPortal(
-          // Transparent full-viewport layer: unlike folds PopOut (whose layer
-          // intercepts pointer events), this lets hover pass through everywhere
-          // except on the panel itself, so the trigger row keeps its hover
-          // and the flyout can't open/close-loop.
           <div
             style={{
               position: 'fixed',

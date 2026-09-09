@@ -25,11 +25,6 @@ export class ASCIILexicalTable {
     this.startCode = startCode;
     this.endCode = endCode;
 
-    /**
-     * @param i smaller - inclusive
-     * @param j larger - inclusive
-     * @returns number
-     */
     this.rangeCount = (i: number, j: number): number => j - i + 1;
 
     this.widthToSize = [];

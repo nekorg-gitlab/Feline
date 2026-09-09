@@ -22,11 +22,6 @@ export const RESET_PASSWORD_PATH = '/reset-password/:server?/';
 export const _CREATE_PATH = 'create/';
 export const _JOIN_PATH = 'join/';
 export const _LOBBY_PATH = 'lobby/';
-/**
- * array of rooms and senders mxId assigned
- * to search param as string should be "," separated
- * Like: url?rooms=!one:server,!two:server
- */
 export type _SearchPathSearchParams = {
   global?: string;
   term?: string;
@@ -37,7 +32,6 @@ export type _SearchPathSearchParams = {
 export const _SEARCH_PATH = 'search/';
 
 export type _RoomSearchParams = {
-  /* comma separated string of servers */
   viaServers?: string;
 };
 export const _ROOM_PATH = ':roomIdOrAlias/:eventId?/';

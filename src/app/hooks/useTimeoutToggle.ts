@@ -1,37 +1,16 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 
-/**
- * Temporarily sets a boolean state.
- *
- * @param duration - Duration in milliseconds before resetting (default: 1500)
- * @param initial - Initial value (default: false)
- */
 export function useTimeoutToggle(duration = 1500, initial = false): [boolean, () => void] {
   const [active, setActive] = useState(initial);
-  const timeoutRef = useRef<number | null>(null);
+  const timeoutRef = useRef<number | undefined>(undefined);
 
-  const clear = () => {
-    if (timeoutRef.current !== null) {
-      clearTimeout(timeoutRef.current);
-      timeoutRef.current = null;
-    }
-  };
+  useEffect(() => () => window.clearTimeout(timeoutRef.current), []);
 
   const trigger = useCallback(() => {
     setActive(!initial);
-    clear();
-    timeoutRef.current = window.setTimeout(() => {
-      setActive(initial);
-      timeoutRef.current = null;
-    }, duration);
+    window.clearTimeout(timeoutRef.current);
+    timeoutRef.current = window.setTimeout(() => setActive(initial), duration);
   }, [duration, initial]);
-
-  useEffect(
-    () => () => {
-      clear();
-    },
-    [],
-  );
 
   return [active, trigger];
 }

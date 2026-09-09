@@ -2,10 +2,6 @@ import { useCallback } from 'react';
 import { IPowerLevels, readPowerLevel } from './usePowerLevels';
 
 export const useMemberPowerCompare = (creators: Set<string>, powerLevels: IPowerLevels) => {
-  /**
-   * returns `true` if `userIdA` has more power than `userIdB`
-   * returns `false` otherwise
-   */
   const hasMorePower = useCallback(
     (userIdA: string, userIdB: string): boolean => {
       const aIsCreator = creators.has(userIdA);

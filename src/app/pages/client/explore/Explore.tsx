@@ -58,7 +58,6 @@ export function AddServer() {
     evt.preventDefault();
     const server = getInputServer();
     if (!server) return;
-    // explore(server);
 
     navigate(getExploreServerPath(server));
     setDialog(false);
