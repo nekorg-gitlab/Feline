@@ -39,6 +39,7 @@
             rust-analyzer
             pkg-config
             git
+            android-tools # adb, fastboot
           ];
 
           # Tauri v2 Linux system libs (WebKitGTK stack + tray + bundler deps).
