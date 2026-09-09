@@ -20,7 +20,9 @@ export function installNoiseSuppressionPatch(
     let effectiveConstraints: MediaStreamConstraints = constraints;
     if (constraints.audio) {
       const audioOpt: MediaTrackConstraints =
-        typeof constraints.audio === 'boolean' ? {} : { ...(constraints.audio as MediaTrackConstraints) };
+        typeof constraints.audio === 'boolean'
+          ? {}
+          : { ...(constraints.audio as MediaTrackConstraints) };
       (audioOpt as unknown as Record<string, unknown>).autoGainControl = false;
       (audioOpt as unknown as Record<string, unknown>).noiseSuppression = false;
       (audioOpt as unknown as Record<string, unknown>).echoCancellation = false;
