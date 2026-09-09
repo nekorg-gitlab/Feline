@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { Box, Button, Header, Icon, Icons, Line, Spinner, Text, color } from 'folds';
+import { Box, Button, Header, Icon, Icons, Line, Spinner, Text, color, config } from 'folds';
 import {
   Outlet,
   generatePath,
@@ -27,6 +27,8 @@ import { AuthFlowsProvider } from '../../hooks/useAuthFlows';
 import { AuthServerProvider } from '../../hooks/useAuthServer';
 import { tryDecodeURIComponent } from '../../utils/dom';
 import { PasswordLoginForm } from './login/PasswordLoginForm';
+import { getSessions, isAddingAccount, setAddingAccount } from '../../state/sessions';
+import { getHomePath } from '../pathUtils';
 
 const currentAuthPath = (pathname: string): string => {
   if (matchPath(LOGIN_PATH, pathname)) {
@@ -116,6 +118,13 @@ export function AuthLayout() {
     discoveryState.status === AsyncStatus.Success ? discoveryState.data.response : [];
 
   const [showAdvanced, setShowAdvanced] = useState(false);
+  const addingAccount = isAddingAccount();
+  const existingCount = getSessions().length;
+
+  const handleCancelAdd = useCallback(() => {
+    setAddingAccount(false);
+    navigate(getHomePath(), { replace: true });
+  }, [navigate]);
 
   return (
     <Box
@@ -133,6 +142,27 @@ export function AuthLayout() {
           </Box>
         </Header>
         <Box className={css.AuthCardContent} direction="Column">
+          {addingAccount && existingCount > 0 && (
+            <Box
+              direction="Column"
+              gap="200"
+              style={{
+                backgroundColor: color.Secondary.Container,
+                padding: config.space.S300,
+                borderRadius: config.radii.R400,
+              }}
+            >
+              <Text size="L400">Adding account ({existingCount} saved)</Text>
+              <Text size="T300" priority="300">
+                You are signed in. Logging in here adds another account and switches to it.
+              </Text>
+              <Button variant="Secondary" size="300" outlined onClick={handleCancelAdd}>
+                <Text as="span" size="B300">
+                  Cancel and go back
+                </Text>
+              </Button>
+            </Box>
+          )}
           {discoveryState.status === AsyncStatus.Loading && (
             <AuthLayoutLoading message="Looking for homeserver..." />
           )}

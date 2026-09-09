@@ -17,6 +17,7 @@ import { IImageInfo, IThumbnailContent, IVideoInfo } from '../../types/matrix/co
 import { AccountDataEvent } from '../../types/matrix/accountData';
 import { getStateEvent } from './room';
 import { Membership, StateEvent } from '../../types/matrix/room';
+import { getFallbackSession } from '../state/sessions';
 
 const DOMAIN_REGEX = /\b(?:[a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}\b/;
 
@@ -327,7 +328,7 @@ export const downloadMedia = async (src: string, mx?: MatrixClient): Promise<Blo
   }
   if (!token) {
     try {
-      token = localStorage.getItem('feline_access_token') ?? undefined;
+      token = getFallbackSession()?.accessToken ?? undefined;
     } catch (err) {
       if (import.meta.env.DEV) console.warn('[matrix] localStorage read failed', err);
     }

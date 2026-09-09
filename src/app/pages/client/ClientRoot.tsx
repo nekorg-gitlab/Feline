@@ -19,6 +19,7 @@ import React, { MouseEventHandler, ReactNode, useCallback, useEffect, useState }
 import {
   clearCacheAndReload,
   clearLoginData,
+  cleanupLoggedOutSession,
   initClient,
   logoutClient,
   startClient,
@@ -34,7 +35,7 @@ import { useSyncState } from '../../hooks/useSyncState';
 import { stopPropagation } from '../../utils/keyboard';
 import { SyncStatus } from './SyncStatus';
 import { AuthMetadataProvider } from '../../hooks/useAuthMetadata';
-import { getFallbackSession } from '../../state/sessions';
+import { getFallbackSession, setAddingAccount } from '../../state/sessions';
 import { AutoDiscovery } from './AutoDiscovery';
 
 function ClientRootLoading() {
@@ -126,9 +127,10 @@ function ClientRootOptions({ mx }: { mx?: MatrixClient }) {
 const useLogoutListener = (mx?: MatrixClient) => {
   useEffect(() => {
     const handleLogout: HttpApiEventHandlerMap[HttpApiEvent.SessionLoggedOut] = async () => {
-      mx?.stopClient();
-      await mx?.clearStores();
-      window.localStorage.clear();
+      if (!mx) return;
+      const userId = mx.getUserId();
+      if (!userId) return;
+      await cleanupLoggedOutSession(userId, mx);
       window.location.reload();
     };
 
@@ -161,6 +163,10 @@ export function ClientRoot({ children }: ClientRootProps) {
   );
 
   useLogoutListener(mx);
+
+  useEffect(() => {
+    setAddingAccount(false);
+  }, []);
 
   useEffect(() => {
     if (loadState.status === AsyncStatus.Idle) {
