@@ -6,6 +6,13 @@ export const CardGrid = style({
   display: 'grid',
   gridTemplateColumns: 'repeat(3, 1fr)',
   gap: config.space.S400,
+
+  '@media': {
+    'screen and (max-width: 750px)': {
+      gridTemplateColumns: '1fr',
+      gap: config.space.S300,
+    },
+  },
 });
 
 export const RoomCardBase = style([

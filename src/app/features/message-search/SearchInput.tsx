@@ -1,6 +1,7 @@
 import React, { FormEventHandler, RefObject } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Box, Text, Input, Icon, Icons, Spinner, Chip, config } from 'folds';
+import { ScreenSize, useScreenSizeContext } from '../../hooks/useScreenSize';
 
 type SearchProps = {
   active?: boolean;
@@ -11,6 +12,8 @@ type SearchProps = {
 };
 export function SearchInput({ active, loading, searchInputRef, onSearch, onReset }: SearchProps) {
   const { t } = useTranslation();
+  // Auto-focus pops the Android keyboard and shifts layout; let the user tap.
+  const autoFocus = useScreenSizeContext() !== ScreenSize.Mobile;
   const handleSearchSubmit: FormEventHandler<HTMLFormElement> = (evt) => {
     evt.preventDefault();
     const { searchInput } = evt.target as HTMLFormElement & {
@@ -31,7 +34,7 @@ export function SearchInput({ active, loading, searchInputRef, onSearch, onReset
         ref={searchInputRef}
         style={{ paddingRight: config.space.S300 }}
         name="searchInput"
-        autoFocus
+        autoFocus={autoFocus}
         size="500"
         variant="Background"
         placeholder={t('Common.searchForKeyword')}

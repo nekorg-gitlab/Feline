@@ -65,6 +65,7 @@ import {
 import { UseStateProvider } from '../../../components/UseStateProvider';
 import { JoinAddressPrompt } from '../../../components/join-address-prompt';
 import { _RoomSearchParams } from '../../paths';
+import { ScreenSize, useScreenSizeContext } from '../../../hooks/useScreenSize';
 
 type HomeMenuProps = {
   requestClose: () => void;
@@ -223,6 +224,7 @@ export function Home() {
   const createChatSelected = useHomeChatCreateSelected();
   const searchSelected = useHomeSearchSelected();
   const noRoomToDisplay = rooms.length === 0 && directs.length === 0;
+  const isMobile = useScreenSizeContext() === ScreenSize.Mobile;
 
   const sortedRooms = useMemo(() => Array.from(rooms).sort(factoryRoomIdByAtoZ(mx)), [mx, rooms]);
 
@@ -234,14 +236,14 @@ export function Home() {
   const roomVirtualizer = useVirtualizer({
     count: sortedRooms.length,
     getScrollElement: () => scrollRef.current,
-    estimateSize: () => 38,
+    estimateSize: () => (isMobile ? 60 : 38),
     overscan: 10,
   });
 
   const directVirtualizer = useVirtualizer({
     count: sortedDirects.length,
     getScrollElement: () => scrollRef.current,
-    estimateSize: () => 38,
+    estimateSize: () => (isMobile ? 60 : 38),
     overscan: 10,
   });
 

@@ -86,6 +86,12 @@ export const MessageBase = recipe({
       marginTop: SpacingVar,
       padding: `${config.space.S100} ${config.space.S200} ${config.space.S100} ${config.space.S400}`,
       borderRadius: `0 ${config.radii.R400} ${config.radii.R400} 0`,
+
+      '@media': {
+        'screen and (max-width: 750px)': {
+          padding: `${config.space.S100} ${config.space.S400} ${config.space.S100} ${config.space.S200}`,
+        },
+      },
     },
   ],
   variants: {
@@ -132,10 +138,22 @@ export const AvatarBase = style({
 
 export const ModernBefore = style({
   minWidth: toRem(36),
+
+  '@media': {
+    'screen and (max-width: 750px)': {
+      minWidth: toRem(28),
+    },
+  },
 });
 
 export const BubbleBefore = style({
   minWidth: toRem(36),
+
+  '@media': {
+    'screen and (max-width: 750px)': {
+      minWidth: toRem(28),
+    },
+  },
 });
 
 export const BubbleContent = style({
@@ -151,6 +169,7 @@ export const Username = style({
   overflow: 'hidden',
   whiteSpace: 'nowrap',
   textOverflow: 'ellipsis',
+  minWidth: 0,
   selectors: {
     'button&': {
       cursor: 'pointer',
@@ -168,6 +187,8 @@ export const UsernameBold = style({
 export const MessageTextBody = recipe({
   base: {
     wordBreak: 'break-word',
+    overflowWrap: 'anywhere',
+    minWidth: 0,
   },
   variants: {
     preWrap: {

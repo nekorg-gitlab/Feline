@@ -621,7 +621,7 @@ export function Notifications() {
   const virtualizer = useVirtualizer({
     count: notificationTimeline.groups.length,
     getScrollElement: () => scrollRef.current,
-    estimateSize: () => 40,
+    estimateSize: () => (screenSize === ScreenSize.Mobile ? 60 : 40),
     overscan: 4,
   });
   const vItems = virtualizer.getVirtualItems();

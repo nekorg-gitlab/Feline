@@ -61,6 +61,7 @@ import { useAutoDiscoveryInfo } from '../../hooks/useAutoDiscoveryInfo';
 import { livekitSupport } from '../../hooks/useLivekitSupport';
 import { StateEvent } from '../../../types/matrix/room';
 import { webRTCSupported } from '../../utils/rtc';
+import { ScreenSize, useScreenSizeContext } from '../../hooks/useScreenSize';
 
 type RoomNavItemMenuProps = {
   room: Room;
@@ -265,6 +266,7 @@ export function RoomNavItem({
   );
 
   const roomName = useRoomName(room);
+  const isMobile = useScreenSizeContext() === ScreenSize.Mobile;
 
   const handleContextMenu: MouseEventHandler<HTMLElement> = (evt) => {
     evt.preventDefault();
@@ -327,7 +329,7 @@ export function RoomNavItem({
       <NavLink to={linkPath} onClick={room.isCallRoom() ? handleStartCall : undefined}>
         <NavItemContent>
           <Box as="span" grow="Yes" alignItems="Center" gap="200">
-            <Avatar size="200" radii="400">
+            <Avatar size={isMobile ? '300' : '200'} radii="400">
               {showAvatar ? (
                 <RoomAvatar
                   roomId={room.roomId}

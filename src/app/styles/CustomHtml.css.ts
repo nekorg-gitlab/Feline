@@ -91,6 +91,13 @@ export const CodeBlock = style([
     fontStyle: 'normal',
     position: 'relative',
     overflow: 'hidden',
+    maxWidth: '100%',
+
+    '@media': {
+      'screen and (max-width: 750px)': {
+        overflowX: 'auto',
+      },
+    },
   },
 ]);
 export const CodeBlockHeader = style([
@@ -106,6 +113,12 @@ export const CodeBlockInternal = style([
   {
     padding: `${config.space.S200} ${config.space.S200} 0`,
     minWidth: toRem(200),
+
+    '@media': {
+      'screen and (max-width: 750px)': {
+        minWidth: 0,
+      },
+    },
   },
 ]);
 

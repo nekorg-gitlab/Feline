@@ -52,6 +52,7 @@ import {
   useRoomsNotificationPreferencesContext,
 } from '../../../hooks/useRoomsNotificationPreferences';
 import { useDirectCreateSelected } from '../../../hooks/router/useDirectSelected';
+import { ScreenSize, useScreenSizeContext } from '../../../hooks/useScreenSize';
 
 type DirectMenuProps = {
   requestClose: () => void;
@@ -187,6 +188,7 @@ export function Direct() {
   const selectedRoomId = useSelectedRoom();
   const noRoomToDisplay = directs.length === 0;
   const [closedCategories, setClosedCategories] = useAtom(useClosedNavCategoriesAtom());
+  const isMobile = useScreenSizeContext() === ScreenSize.Mobile;
 
   const sortedDirects = useMemo(() => {
     const items = Array.from(directs).sort(factoryRoomIdByActivity(mx));
@@ -199,7 +201,7 @@ export function Direct() {
   const virtualizer = useVirtualizer({
     count: sortedDirects.length,
     getScrollElement: () => scrollRef.current,
-    estimateSize: () => 38,
+    estimateSize: () => (isMobile ? 60 : 38),
     overscan: 10,
   });
 

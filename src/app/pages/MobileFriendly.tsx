@@ -1,4 +1,4 @@
-import { ReactNode, useEffect } from 'react';
+import React, { ReactNode, useEffect } from 'react';
 import { useMatch, useNavigate } from 'react-router-dom';
 import { ScreenSize, useScreenSizeContext } from '../hooks/useScreenSize';
 import { EXPLORE_PATH, HOME_PATH, INBOX_PATH, SPACE_PATH } from './paths';
@@ -102,6 +102,16 @@ export function MobileSwipeBack() {
 }
 
 const KEYBOARD_OPEN_PX = 120;
+
+/**
+ * Frosted fade pinned under the status icons (Twitter-style). Purely visual:
+ * pointer-events pass through and it sits below menus/dialogs.
+ */
+export function MobileStatusScrim() {
+  const screenSize = useScreenSizeContext();
+  if (screenSize !== ScreenSize.Mobile) return null;
+  return <div aria-hidden data-feline-status-scrim="" />;
+}
 
 /**
  * Tracks the visual viewport so the layout shrinks above the on-screen

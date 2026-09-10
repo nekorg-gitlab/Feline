@@ -29,6 +29,11 @@
       "csp": "default-src 'self'; script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval' blob:; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https: mxc:; media-src 'self' blob: https: mxc:; connect-src 'self' https: wss: blob:; font-src 'self' data:; frame-src 'self'; worker-src 'self' blob:; object-src 'none'; base-uri 'self'"
     }
   },
+  "plugins": {
+    "deep-link": {
+      "mobile": [{ "scheme": ["feline"], "host": "auth" }]
+    }
+  },
   "bundle": {
     "active": true,
     "targets": "all",

@@ -24,4 +24,5 @@ export const RoomViewTyping = style([
 ]);
 export const TypingText = style({
   flexGrow: 1,
+  minWidth: 0,
 });

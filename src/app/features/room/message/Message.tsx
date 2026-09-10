@@ -759,8 +759,9 @@ export const Message = as<'div', MessageProps>(
         justifyContent="SpaceBetween"
         alignItems="Baseline"
         grow="Yes"
+        style={{ minWidth: 0 }}
       >
-        <Box alignItems="Center" gap="200">
+        <Box alignItems="Center" gap="200" grow="Yes" style={{ minWidth: 0 }}>
           <Username
             as="button"
             style={{ color: usernameColor }}
@@ -824,14 +825,14 @@ export const Message = as<'div', MessageProps>(
       <Box
         direction="Column"
         alignSelf="Start"
-        style={{ maxWidth: '100%' }}
+        style={{ maxWidth: '100%', minWidth: 0 }}
         data-feline-selectable="true"
       >
         {edit && onEditId ? (
           <MessageEditor
             style={{
               maxWidth: '100%',
-              width: '100vw',
+              width: '100%',
             }}
             roomId={room.roomId}
             room={room}
@@ -850,7 +851,7 @@ export const Message = as<'div', MessageProps>(
       <Box
         direction="Column"
         alignSelf="Start"
-        style={{ maxWidth: '100%' }}
+        style={{ maxWidth: '100%', minWidth: 0 }}
         data-feline-selectable="true"
       >
         {reply}
@@ -858,7 +859,7 @@ export const Message = as<'div', MessageProps>(
           <MessageEditor
             style={{
               maxWidth: '100%',
-              width: '100vw',
+              width: '100%',
             }}
             roomId={room.roomId}
             room={room}
@@ -1191,10 +1192,7 @@ export const Message = as<'div', MessageProps>(
           <div ref={swipeTrackRef}>
             <Box direction="Column">
               {reply && (
-                <Box
-                  style={{ paddingLeft: toRem(48), paddingBottom: toRem(2) }}
-                  data-feline-selectable="true"
-                >
+                <Box className={css.MessageReplyIndent} data-feline-selectable="true">
                   {reply}
                 </Box>
               )}
@@ -1208,10 +1206,7 @@ export const Message = as<'div', MessageProps>(
           <div ref={swipeTrackRef}>
             <Box direction="Column">
               {reply && (
-                <Box
-                  style={{ paddingLeft: toRem(48), paddingBottom: toRem(2) }}
-                  data-feline-selectable="true"
-                >
+                <Box className={css.MessageReplyIndent} data-feline-selectable="true">
                   {reply}
                 </Box>
               )}

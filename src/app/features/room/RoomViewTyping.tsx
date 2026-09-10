@@ -10,6 +10,7 @@ import { getMxIdLocalPart } from '../../utils/matrix';
 import * as css from './RoomViewTyping.css';
 import { useMatrixClient } from '../../hooks/useMatrixClient';
 import { useRoomTypingMember } from '../../hooks/useRoomTypingMembers';
+import { ScreenSize, useScreenSizeContext } from '../../hooks/useScreenSize';
 
 export type RoomViewTypingProps = {
   room: Room;
@@ -19,6 +20,7 @@ export const RoomViewTyping = as<'div', RoomViewTypingProps>(
     const setTypingMembers = useSetAtom(roomIdToTypingMembersAtom);
     const mx = useMatrixClient();
     const typingMembers = useRoomTypingMember(room.roomId);
+    const isMobile = useScreenSizeContext() === ScreenSize.Mobile;
 
     const typingNames = typingMembers
       .filter((receipt) => receipt.userId !== mx.getUserId())
@@ -46,7 +48,7 @@ export const RoomViewTyping = as<'div', RoomViewTypingProps>(
         <Box
           className={classNames(css.RoomViewTyping, className)}
           alignItems="Center"
-          gap="400"
+          gap={isMobile ? '200' : '400'}
           {...props}
           ref={ref}
         >
@@ -72,7 +74,7 @@ export const RoomViewTyping = as<'div', RoomViewTypingProps>(
                 </Text>
               </>
             )}
-            {typingNames.length === 3 && (
+            {typingNames.length === 3 && !isMobile && (
               <>
                 <b>{typingNames[0]}</b>
                 <Text as="span" size="Inherit" priority="300">
@@ -88,7 +90,7 @@ export const RoomViewTyping = as<'div', RoomViewTypingProps>(
                 </Text>
               </>
             )}
-            {typingNames.length > 3 && (
+            {typingNames.length > 3 && !isMobile && (
               <>
                 <b>{typingNames[0]}</b>
                 <Text as="span" size="Inherit" priority="300">
@@ -108,10 +110,26 @@ export const RoomViewTyping = as<'div', RoomViewTypingProps>(
                 </Text>
               </>
             )}
+            {typingNames.length >= 3 && isMobile && (
+              <>
+                <b>{typingNames[0]}</b>
+                <Text as="span" size="Inherit" priority="300">
+                  {', '}
+                </Text>
+                <b>{typingNames[1]}</b>
+                <Text as="span" size="Inherit" priority="300">
+                  {typingNames.length === 3
+                    ? ' are typing...'
+                    : ` +${typingNames.length - 2} typing...`}
+                </Text>
+              </>
+            )}
           </Text>
-          <IconButton title="Drop Typing Status" size="300" radii="Pill" onClick={handleDropAll}>
-            <Icon size="50" src={Icons.Cross} />
-          </IconButton>
+          {!isMobile && (
+            <IconButton title="Drop Typing Status" size="300" radii="Pill" onClick={handleDropAll}>
+              <Icon size="50" src={Icons.Cross} />
+            </IconButton>
+          )}
         </Box>
       </div>
     );

@@ -385,7 +385,8 @@ textarea,
   height: 100%;
   height: 100dvh;
   height: calc(100dvh - var(--feline-vkb-height, 0px));
-  padding-top: var(--feline-safe-top);
+  /* Sides only: top/bottom insets are painted by each screen's own
+     header/footer background so content bleeds edge-to-edge. */
   padding-left: var(--feline-safe-left);
   padding-right: var(--feline-safe-right);
   overflow: hidden;
@@ -402,7 +403,7 @@ div[data-feline-scroll] {
 
 /* Bottom tab bar host (ClientLayout nav on mobile) */
 [data-feline-client-nav] {
-  padding-bottom: var(--feline-safe-bottom);
+  background-color: transparent;
 }
 
 /* Sheet-style entrance for overlays on small screens */
@@ -464,11 +465,6 @@ div[data-feline-scroll] {
     max-width: 100% !important;
   }
 
-  /* Bottom tab bar reserves space so lists never hide behind it */
-  [data-feline-has-tabbar='true'] {
-    padding-bottom: calc(var(--feline-tabbar-height) + var(--feline-safe-bottom));
-  }
-
   /* Sidebar rail becomes a horizontal bottom tab bar */
   [data-feline-sidebar-separator] {
     display: none !important;
@@ -520,4 +516,31 @@ div[data-feline-scroll] {
 /* Keyboard open: hide tab bar so the composer stays visible */
 #root[data-keyboard-open='true'] [data-feline-client-nav] {
   display: none;
+}
+
+/* Twitter-style frosted fade under the status icons (mobile only).
+   Content gracefully blurs/fades as it scrolls behind clock/camera. */
+@media (max-width: 750px) {
+  [data-feline-status-scrim] {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: calc(env(safe-area-inset-top, 0px) + 32px);
+    z-index: 40;
+    pointer-events: none;
+    background: linear-gradient(
+      to bottom,
+      rgba(255, 255, 255, 0.72) 0%,
+      rgba(255, 255, 255, 0) 100%
+    );
+    backdrop-filter: blur(14px);
+    mask-image: linear-gradient(to bottom, black 0%, black 35%, transparent 100%);
+    -webkit-mask-image: linear-gradient(to bottom, black 0%, black 35%, transparent 100%);
+  }
+
+  .dark-theme [data-feline-status-scrim],
+  .butter-theme [data-feline-status-scrim] {
+    background: linear-gradient(to bottom, rgba(26, 26, 26, 0.78) 0%, rgba(26, 26, 26, 0) 100%);
+  }
 }

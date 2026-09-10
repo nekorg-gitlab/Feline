@@ -25,10 +25,13 @@ import { AutoDiscoveryInfoProvider } from '../../hooks/useAutoDiscoveryInfo';
 import { AuthFlowsLoader } from '../../components/AuthFlowsLoader';
 import { AuthFlowsProvider } from '../../hooks/useAuthFlows';
 import { AuthServerProvider } from '../../hooks/useAuthServer';
+import { ScreenSize, useScreenSizeContext } from '../../hooks/useScreenSize';
 import { tryDecodeURIComponent } from '../../utils/dom';
 import { PasswordLoginForm } from './login/PasswordLoginForm';
 import { getSessions, isAddingAccount, setAddingAccount } from '../../state/sessions';
 import { getHomePath } from '../pathUtils';
+import { TauriDeepLinkAuth } from './TauriDeepLinkAuth';
+import { MobileStatusScrim } from '../MobileFriendly';
 
 const currentAuthPath = (pathname: string): string => {
   if (matchPath(LOGIN_PATH, pathname)) {
@@ -119,6 +122,9 @@ export function AuthLayout() {
   const [showAdvanced, setShowAdvanced] = useState(false);
   const addingAccount = isAddingAccount();
   const existingCount = getSessions().length;
+  // Dotted backdrop only suits roomy desktop layouts; phones get full-bleed card.
+  const dotsBackdrop =
+    useScreenSizeContext() === ScreenSize.Mobile ? undefined : PatternsCss.BackgroundDotPattern;
 
   const handleCancelAdd = useCallback(() => {
     setAddingAccount(false);
@@ -127,13 +133,14 @@ export function AuthLayout() {
 
   return (
     <Box
-      className={classNames(css.AuthLayout, PatternsCss.BackgroundDotPattern)}
+      className={classNames(css.AuthLayout, dotsBackdrop)}
       direction="Column"
       alignItems="Center"
-      justifyContent="Center"
       gap="400"
     >
-      <Box direction="Column" className={css.AuthCard}>
+      <MobileStatusScrim />
+      <TauriDeepLinkAuth />
+      <Box direction="Column" shrink="No" className={css.AuthCard}>
         <Header className={css.AuthHeader} size="600" variant="Surface">
           <Box grow="Yes" direction="Row" gap="300" alignItems="Center">
             <img className={css.AuthLogo} src={FelineSVG} alt="Feline Logo" />

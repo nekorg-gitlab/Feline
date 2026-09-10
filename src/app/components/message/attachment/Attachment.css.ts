@@ -10,6 +10,12 @@ export const Attachment = recipe({
     overflow: 'hidden',
     maxWidth: '100%',
     width: toRem(400),
+
+    '@media': {
+      'screen and (max-width: 750px)': {
+        width: '100%',
+      },
+    },
   },
   variants: {
     outlined: {
@@ -33,6 +39,13 @@ export const AttachmentBox = style([
     maxHeight: toRem(600),
     width: toRem(400),
     overflow: 'hidden',
+
+    '@media': {
+      'screen and (max-width: 750px)': {
+        width: '100%',
+        maxHeight: '50vh',
+      },
+    },
   },
 ]);
 

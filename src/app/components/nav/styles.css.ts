@@ -11,6 +11,13 @@ export const NavCategory = style([
 
 export const NavCategoryHeader = style({
   gap: config.space.S100,
+
+  '@media': {
+    'screen and (max-width: 750px)': {
+      padding: `${config.space.S400} ${config.space.S400} ${config.space.S100}`,
+      minHeight: toRem(44),
+    },
+  },
 });
 
 export const NavLink = style({
@@ -75,6 +82,18 @@ const NavItemBase = style({
     [`not selector(:has(.${NavLink}:focus-visible))`]: {
       ':focus-within': {
         boxShadow: `inset 0 0 0 ${config.borderWidth.B600} ${ContainerLine}`,
+      },
+    },
+  },
+  '@media': {
+    'screen and (max-width: 750px)': {
+      minHeight: toRem(56),
+    },
+    '(hover: none)': {
+      selectors: {
+        '&:active': {
+          backgroundColor: ContainerActive,
+        },
       },
     },
   },

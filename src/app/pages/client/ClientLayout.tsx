@@ -1,7 +1,7 @@
 import React, { ReactNode } from 'react';
 import { Box } from 'folds';
 import { ScreenSize, useScreenSizeContext } from '../../hooks/useScreenSize';
-import { MobileSwipeBack, useMobileViewportHeight } from '../MobileFriendly';
+import { MobileStatusScrim, MobileSwipeBack, useMobileViewportHeight } from '../MobileFriendly';
 
 type ClientLayoutProps = {
   nav: ReactNode;
@@ -15,6 +15,7 @@ export function ClientLayout({ nav, children }: ClientLayoutProps) {
   if (isMobile) {
     return (
       <Box grow="Yes" direction="Column">
+        <MobileStatusScrim />
         <MobileSwipeBack />
         <Box grow="Yes" direction="Column" style={{ minHeight: 0 }}>
           {children}

@@ -23,6 +23,7 @@ import { useRoomLatestRenderedEvent } from '../../hooks/useRoomLatestRenderedEve
 import { useRoomEventReaders } from '../../hooks/useRoomEventReaders';
 import { EventReaders } from '../../components/event-readers';
 import { stopPropagation } from '../../utils/keyboard';
+import { ScreenSize, useScreenSizeContext } from '../../hooks/useScreenSize';
 
 export function RoomViewFollowingPlaceholder() {
   return <div className={css.RoomViewFollowingPlaceholder} />;
@@ -35,6 +36,7 @@ export const RoomViewFollowing = as<'div', RoomViewFollowingProps>(
   ({ className, room, ...props }, ref) => {
     const mx = useMatrixClient();
     const [open, setOpen] = useState(false);
+    const isMobile = useScreenSizeContext() === ScreenSize.Mobile;
     const latestEvent = useRoomLatestRenderedEvent(room);
     const latestEventReaders = useRoomEventReaders(room, latestEvent?.getId());
     const names = latestEventReaders
@@ -79,8 +81,26 @@ export const RoomViewFollowing = as<'div', RoomViewFollowingProps>(
           {names.length > 0 && (
             <>
               <Icon style={{ opacity: config.opacity.P300 }} size="100" src={Icons.CheckTwice} />
-              <Text size="T300" truncate>
-                {names.length === 1 && (
+              <Text size="T300" truncate style={{ minWidth: 0 }}>
+                {isMobile && (
+                  <>
+                    <b>{names[0]}</b>
+                    {names.length === 2 && (
+                      <>
+                        <Text as="span" size="Inherit" priority="300">
+                          {', '}
+                        </Text>
+                        <b>{names[1]}</b>
+                      </>
+                    )}
+                    {names.length > 2 && (
+                      <Text as="span" size="Inherit" priority="300">
+                        {` +${names.length - 1}`}
+                      </Text>
+                    )}
+                  </>
+                )}
+                {!isMobile && names.length === 1 && (
                   <>
                     <b>{names[0]}</b>
                     <Text as="span" size="Inherit" priority="300">
@@ -88,7 +108,7 @@ export const RoomViewFollowing = as<'div', RoomViewFollowingProps>(
                     </Text>
                   </>
                 )}
-                {names.length === 2 && (
+                {!isMobile && names.length === 2 && (
                   <>
                     <b>{names[0]}</b>
                     <Text as="span" size="Inherit" priority="300">
@@ -100,7 +120,7 @@ export const RoomViewFollowing = as<'div', RoomViewFollowingProps>(
                     </Text>
                   </>
                 )}
-                {names.length === 3 && (
+                {!isMobile && names.length === 3 && (
                   <>
                     <b>{names[0]}</b>
                     <Text as="span" size="Inherit" priority="300">
@@ -116,7 +136,7 @@ export const RoomViewFollowing = as<'div', RoomViewFollowingProps>(
                     </Text>
                   </>
                 )}
-                {names.length > 3 && (
+                {!isMobile && names.length > 3 && (
                   <>
                     <b>{names[0]}</b>
                     <Text as="span" size="Inherit" priority="300">

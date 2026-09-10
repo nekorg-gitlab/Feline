@@ -237,13 +237,16 @@ export const RoomInput = forwardRef<HTMLDivElement, RoomInputProps>(
     const pickFile = useFilePicker(handleFiles, true);
     const handlePaste = useFilePasteHandler(handleFiles);
     const dropZoneVisible = useFileDropZone(fileDropContainerRef, handleFiles);
-    const [hideStickerBtn, setHideStickerBtn] = useState(document.body.clientWidth < 500);
+    // Narrow screens (phones) get a compact composer: attach, field, emoji, send.
+    // Formatting toggle, sticker and GIF buttons are hidden; the emoji board
+    // still exposes its sticker/GIF tabs.
+    const [compactComposer, setCompactComposer] = useState(document.body.clientWidth < 750);
 
     const isComposing = useComposingCheck();
 
     useElementSizeObserver(
       useCallback(() => fileDropContainerRef.current, [fileDropContainerRef]),
-      useCallback((width) => setHideStickerBtn(width < 500), []),
+      useCallback((width) => setCompactComposer(width < 750), []),
     );
 
     useEffect(() => {
@@ -666,11 +669,12 @@ export const RoomInput = forwardRef<HTMLDivElement, RoomInputProps>(
           onPaste={handlePaste}
           top={
             replyDraft && (
-              <div>
+              <div style={{ width: '100%' }}>
                 <Box
                   alignItems="Center"
                   gap="300"
-                  style={{ padding: `${config.space.S200} ${config.space.S300} 0` }}
+                  grow="Yes"
+                  style={{ padding: `${config.space.S200} ${config.space.S300} 0`, minWidth: 0 }}
                 >
                   <IconButton
                     onClick={() => setReplyDraft(undefined)}
@@ -680,11 +684,18 @@ export const RoomInput = forwardRef<HTMLDivElement, RoomInputProps>(
                   >
                     <Icon src={Icons.Cross} size="50" />
                   </IconButton>
-                  <Box direction="Row" gap="200" alignItems="Center">
+                  <Box
+                    direction="Row"
+                    gap="200"
+                    alignItems="Center"
+                    grow="Yes"
+                    style={{ minWidth: 0 }}
+                  >
                     {replyDraft.relation?.rel_type === RelationType.Thread && <ThreadIndicator />}
                     <ReplyLayout
                       hideBend
                       userColor={replyUsernameColor}
+                      style={{ flexGrow: 1, minWidth: 0 }}
                       avatar={
                         replyUserID ? (
                           <UserAvatar
@@ -722,14 +733,16 @@ export const RoomInput = forwardRef<HTMLDivElement, RoomInputProps>(
           }
           after={
             <>
-              <IconButton
-                variant="SurfaceVariant"
-                size="300"
-                radii="300"
-                onClick={() => setToolbar(!toolbar)}
-              >
-                <Icon src={toolbar ? Icons.AlphabetUnderline : Icons.Alphabet} />
-              </IconButton>
+              {!compactComposer && (
+                <IconButton
+                  variant="SurfaceVariant"
+                  size="300"
+                  radii="300"
+                  onClick={() => setToolbar(!toolbar)}
+                >
+                  <Icon src={toolbar ? Icons.AlphabetUnderline : Icons.Alphabet} />
+                </IconButton>
+              )}
               <UseStateProvider initial={undefined}>
                 {(emojiBoardTab: EmojiBoardTab | undefined, setEmojiBoardTab) => (
                   <PopOut
@@ -764,7 +777,7 @@ export const RoomInput = forwardRef<HTMLDivElement, RoomInputProps>(
                       />
                     }
                   >
-                    {!hideStickerBtn && (
+                    {!compactComposer && (
                       <IconButton
                         aria-pressed={emojiBoardTab === EmojiBoardTab.Sticker}
                         onClick={() => setEmojiBoardTab(EmojiBoardTab.Sticker)}
@@ -778,16 +791,18 @@ export const RoomInput = forwardRef<HTMLDivElement, RoomInputProps>(
                         />
                       </IconButton>
                     )}
-                    <IconButton
-                      aria-pressed={emojiBoardTab === EmojiBoardTab.Gif}
-                      onClick={() => setEmojiBoardTab(EmojiBoardTab.Gif)}
-                      variant="SurfaceVariant"
-                      size="300"
-                      radii="300"
-                      aria-label="GIFs"
-                    >
-                      <Text size="B300">GIF</Text>
-                    </IconButton>
+                    {!compactComposer && (
+                      <IconButton
+                        aria-pressed={emojiBoardTab === EmojiBoardTab.Gif}
+                        onClick={() => setEmojiBoardTab(EmojiBoardTab.Gif)}
+                        variant="SurfaceVariant"
+                        size="300"
+                        radii="300"
+                        aria-label="GIFs"
+                      >
+                        <Text size="B300">GIF</Text>
+                      </IconButton>
+                    )}
                     <IconButton
                       ref={emojiBtnRef}
                       aria-pressed={emojiBoardTab === EmojiBoardTab.Emoji}
@@ -807,7 +822,8 @@ export const RoomInput = forwardRef<HTMLDivElement, RoomInputProps>(
             </>
           }
           bottom={
-            toolbar && (
+            toolbar &&
+            !compactComposer && (
               <div>
                 <Line variant="SurfaceVariant" size="300" />
                 <Toolbar />

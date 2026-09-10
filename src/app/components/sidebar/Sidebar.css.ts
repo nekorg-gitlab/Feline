@@ -17,8 +17,8 @@ export const Sidebar = style([
     '@media': {
       'screen and (max-width: 750px)': {
         width: '100%',
-        minHeight: 'var(--feline-tabbar-height, 60px)',
-        maxHeight: 'var(--feline-tabbar-height, 60px)',
+        minHeight: 'calc(var(--feline-tabbar-height, 60px) + env(safe-area-inset-bottom, 0px))',
+        paddingBottom: 'env(safe-area-inset-bottom, 0px)',
         flexDirection: 'row',
         alignItems: 'center',
         overflow: 'hidden',
@@ -155,7 +155,7 @@ export const SidebarItem = recipe({
                 display: 'block',
                 left: '50%',
                 top: 'auto',
-                bottom: toRem(-5),
+                bottom: toRem(2),
                 width: toRem(4),
                 height: toRem(4),
                 borderRadius: '50%',

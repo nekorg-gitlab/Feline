@@ -1,6 +1,6 @@
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Box, Button, Input, Text, color } from 'folds';
+import { Box, Button, Text, color } from 'folds';
 import { useSearchParams } from 'react-router-dom';
 import { SSOAction, createClient } from 'matrix-js-sdk';
 import { useAuthFlows } from '../../../hooks/useAuthFlows';
@@ -12,6 +12,7 @@ import { usePathWithOrigin } from '../../../hooks/usePathWithOrigin';
 import { LoginPathSearchParams } from '../../paths';
 import { useClientConfig } from '../../../hooks/useClientConfig';
 import { useAutoDiscoveryInfo } from '../../../hooks/useAutoDiscoveryInfo';
+import { useSsoRedirectUrl } from '../../../hooks/useSsoRedirectUrl';
 import { isTauri } from '../../../utils/isTauri';
 
 const getLoginTokenSearchParam = () => {
@@ -37,7 +38,7 @@ export function Login() {
   const { loginFlows } = useAuthFlows();
   const [searchParams] = useSearchParams();
   const loginSearchParams = useLoginSearchParams(searchParams);
-  const ssoRedirectUrl = usePathWithOrigin(getLoginPath(server));
+  const ssoRedirectUrl = useSsoRedirectUrl(server);
   const loginTokenForHashRouter = getLoginTokenSearchParam();
   const absoluteLoginPath = usePathWithOrigin(getLoginPath(server));
 
@@ -76,10 +77,10 @@ export function Login() {
     }
   }, []);
 
-  const [manualToken, setManualToken] = useState('');
-  const [submittedToken, setSubmittedToken] = useState<string | undefined>(undefined);
-
-  if (parsedFlows.token && loginSearchParams.loginToken) {
+  // Attempt token login whenever a token is present, even if the homeserver
+  // does not advertise the m.login.token flow. Gating on advertised flows
+  // leaves SSO returns stuck on the welcome screen.
+  if (loginSearchParams.loginToken) {
     return (
       <Box direction="Column" gap="500">
         <TokenLogin token={loginSearchParams.loginToken} />
@@ -87,13 +88,7 @@ export function Login() {
     );
   }
 
-  if (submittedToken) {
-    return (
-      <Box direction="Column" gap="500">
-        <TokenLogin token={submittedToken} />
-      </Box>
-    );
-  }
+  const hasSso = !!parsedFlows.sso;
 
   return (
     <Box direction="Column" gap="500">
@@ -106,7 +101,7 @@ export function Login() {
         </Text>
       </Box>
 
-      {parsedFlows.sso ? (
+      {hasSso ? (
         <Box direction="Column" gap="300">
           <Button
             as="a"
@@ -134,35 +129,9 @@ export function Login() {
             </Text>
           </Button>
           {isTauri() && (
-            <>
-              <Text size="T200" priority="300" align="Center">
-                {t('UI.thisWillOpenYourBrowserToContinue')}
-              </Text>
-              <Box direction="Column" gap="100">
-                <Text size="L400" priority="300">
-                  {t('UI.pasteLoginTokenTauri')}
-                </Text>
-                <Input
-                  value={manualToken}
-                  onChange={(evt) => setManualToken(evt.target.value)}
-                  placeholder="loginToken from browser URL"
-                  variant="Background"
-                  size="500"
-                  outlined
-                />
-                <Button
-                  variant="Secondary"
-                  size="500"
-                  outlined
-                  disabled={!manualToken.trim()}
-                  onClick={() => setSubmittedToken(manualToken.trim())}
-                >
-                  <Text as="span" size="B500">
-                    {t('Common.continueWithToken')}
-                  </Text>
-                </Button>
-              </Box>
-            </>
+            <Text size="T200" priority="300" align="Center">
+              {t('UI.thisWillOpenYourBrowserToContinue')}
+            </Text>
           )}
         </Box>
       ) : (

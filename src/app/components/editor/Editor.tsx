@@ -122,7 +122,7 @@ export const CustomEditor = forwardRef<HTMLDivElement, CustomEditorProps>(
       <div className={css.Editor} ref={ref}>
         <Slate editor={editor} initialValue={initialValue} onChange={onChange}>
           {top}
-          <Box alignItems="Start">
+          <Box alignItems="Start" style={{ minWidth: 0 }}>
             {before && (
               <Box className={css.EditorOptions} alignItems="Center" gap="100" shrink="No">
                 {before}
@@ -131,7 +131,7 @@ export const CustomEditor = forwardRef<HTMLDivElement, CustomEditorProps>(
             <Scroll
               className={css.EditorTextareaScroll}
               variant="SurfaceVariant"
-              style={{ maxHeight }}
+              style={{ maxHeight, flexGrow: 1, flexBasis: 0, minWidth: 0 }}
               size="0"
               visibility="Hover"
               hideTrack

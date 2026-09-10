@@ -21,8 +21,24 @@ export type PageNavVariants = RecipeVariants<typeof PageNav>;
 
 export const PageNavHeader = recipe({
   base: {
-    padding: `0 ${config.space.S200} 0 ${config.space.S300}`,
+    padding: `env(safe-area-inset-top, 0px) ${config.space.S200} 0 ${config.space.S300}`,
     flexShrink: 0,
+    '@media': {
+      'screen and (max-width: 750px)': {
+        // folds Header size="600" fixes height at 54px; on mobile the
+        // status-bar inset padding would crush content, so grow instead.
+        selectors: {
+          'header&': {
+            height: 'auto',
+            minHeight: 'calc(3.375rem + env(safe-area-inset-top, 0px))',
+          },
+        },
+        paddingTop: `calc(env(safe-area-inset-top, 0px) + ${config.space.S200})`,
+        paddingRight: config.space.S400,
+        paddingBottom: config.space.S200,
+        paddingLeft: config.space.S400,
+      },
+    },
     selectors: {
       'button&': {
         cursor: 'pointer',
@@ -57,12 +73,34 @@ export const PageNavContent = style({
   padding: config.space.S200,
   paddingRight: 0,
   paddingBottom: config.space.S700,
+
+  '@media': {
+    'screen and (max-width: 750px)': {
+      padding: `${config.space.S200} ${config.space.S400}`,
+      paddingBottom:
+        'calc(var(--feline-tabbar-height, 60px) + env(safe-area-inset-bottom, 0px) + 16px)',
+    },
+  },
 });
 
 export const PageHeader = recipe({
   base: {
+    paddingTop: 'env(safe-area-inset-top, 0px)',
     paddingLeft: config.space.S400,
     paddingRight: config.space.S200,
+    '@media': {
+      'screen and (max-width: 750px)': {
+        selectors: {
+          'header&': {
+            height: 'auto',
+            minHeight: 'calc(3.375rem + env(safe-area-inset-top, 0px))',
+          },
+        },
+        paddingTop: `calc(env(safe-area-inset-top, 0px) + ${config.space.S200})`,
+        paddingRight: `max(${config.space.S400}, env(safe-area-inset-right, 0px))`,
+        paddingBottom: config.space.S200,
+      },
+    },
   },
   variants: {
     balance: {
@@ -89,6 +127,13 @@ export const PageContent = style([
     paddingLeft: config.space.S400,
     paddingRight: 0,
     paddingBottom: toRem(100),
+
+    '@media': {
+      'screen and (max-width: 750px)': {
+        paddingLeft: config.space.S400,
+        paddingRight: config.space.S400,
+      },
+    },
   },
 ]);
 
@@ -98,6 +143,12 @@ export const PageHeroEmpty = style([
     padding: config.space.S400,
     borderRadius: config.radii.R400,
     minHeight: toRem(450),
+
+    '@media': {
+      'screen and (max-width: 750px)': {
+        minHeight: toRem(280),
+      },
+    },
   },
 ]);
 

@@ -5,12 +5,20 @@ export const UrlPreview = style([
   DefaultReset,
   {
     width: toRem(400),
+    maxWidth: '100%',
     minHeight: toRem(102),
     backgroundColor: color.SurfaceVariant.Container,
     color: color.SurfaceVariant.OnContainer,
     border: `${config.borderWidth.B300} solid ${color.SurfaceVariant.ContainerLine}`,
     borderRadius: config.radii.R300,
     overflow: 'hidden',
+
+    '@media': {
+      'screen and (max-width: 750px)': {
+        width: '100%',
+        flexDirection: 'column',
+      },
+    },
   },
 ]);
 
@@ -27,6 +35,13 @@ export const UrlPreviewImg = style([
 
     ':hover': {
       filter: 'brightness(0.8)',
+    },
+
+    '@media': {
+      'screen and (max-width: 750px)': {
+        width: '100%',
+        height: toRem(140),
+      },
     },
   },
 ]);

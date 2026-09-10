@@ -49,6 +49,17 @@ export const BubbleAvatarBase = style({
   paddingTop: 0,
 });
 
+export const MessageReplyIndent = style({
+  paddingLeft: toRem(48),
+  paddingBottom: toRem(2),
+
+  '@media': {
+    'screen and (max-width: 750px)': {
+      paddingLeft: toRem(28),
+    },
+  },
+});
+
 export const MessageAvatar = style({
   cursor: 'pointer',
 });

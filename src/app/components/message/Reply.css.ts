@@ -52,6 +52,13 @@ export const ReplyBend = style({
       opacity: 1,
     },
   },
+
+  '@media': {
+    'screen and (max-width: 750px)': {
+      left: toRem(-20),
+      width: toRem(20),
+    },
+  },
 });
 
 export const ReplyAvatar = style({
@@ -73,6 +80,14 @@ export const ReplyUsername = style({
   flexShrink: 0,
   display: 'flex',
   alignItems: 'center',
+
+  '@media': {
+    'screen and (max-width: 750px)': {
+      maxWidth: '28vw',
+      minWidth: 0,
+      flexShrink: 1,
+    },
+  },
 });
 
 export const ReplyContent = style({
