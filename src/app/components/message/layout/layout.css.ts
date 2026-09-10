@@ -86,12 +86,6 @@ export const MessageBase = recipe({
       marginTop: SpacingVar,
       padding: `${config.space.S100} ${config.space.S200} ${config.space.S100} ${config.space.S400}`,
       borderRadius: `0 ${config.radii.R400} ${config.radii.R400} 0`,
-
-      '@media': {
-        'screen and (max-width: 750px)': {
-          padding: `${config.space.S100} ${config.space.S400} ${config.space.S100} ${config.space.S200}`,
-        },
-      },
     },
   ],
   variants: {
@@ -138,22 +132,10 @@ export const AvatarBase = style({
 
 export const ModernBefore = style({
   minWidth: toRem(36),
-
-  '@media': {
-    'screen and (max-width: 750px)': {
-      minWidth: toRem(28),
-    },
-  },
 });
 
 export const BubbleBefore = style({
   minWidth: toRem(36),
-
-  '@media': {
-    'screen and (max-width: 750px)': {
-      minWidth: toRem(28),
-    },
-  },
 });
 
 export const BubbleContent = style({
@@ -170,6 +152,10 @@ export const Username = style({
   whiteSpace: 'nowrap',
   textOverflow: 'ellipsis',
   minWidth: 0,
+  // Inline name button must size to its text. A global coarse-pointer rule
+  // gives every button a 40px min-height for touch targets; that would
+  // vertically center this ~22px text and push the name below the avatar top.
+  minHeight: 0,
   selectors: {
     'button&': {
       cursor: 'pointer',

@@ -62,6 +62,9 @@ export const MessageReplyIndent = style({
 
 export const MessageAvatar = style({
   cursor: 'pointer',
+  // Keep the 32px avatar button from inheriting the global coarse-pointer
+  // 40px button min-height, which would offset the avatar below the name.
+  minHeight: 0,
 });
 
 export const MessageQuickReaction = style({
