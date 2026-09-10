@@ -209,7 +209,7 @@ export function RenderMessageContent({
             <ImageContent
               {...props}
               autoPlay={mediaAutoLoad}
-              renderImage={(p) => <Image {...p} loading="lazy" />}
+              renderImage={(p) => <Image {...p} loading="eager" />}
               renderViewer={(p) => <ImageViewer {...p} />}
             />
           )}
@@ -261,7 +261,7 @@ export function RenderMessageContent({
                       <ThumbnailContent
                         info={info}
                         renderImage={(src) => (
-                          <Image alt={body} title={body} src={src} loading="lazy" />
+                          <Image alt={body} title={body} src={src} loading="eager" />
                         )}
                       />
                     )

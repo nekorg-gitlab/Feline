@@ -28,12 +28,8 @@ import {
   mimeTypeToExt,
 } from '../../../utils/mimeTypes';
 import { stopPropagation } from '../../../utils/keyboard';
-import {
-  decryptFile,
-  downloadEncryptedMedia,
-  downloadMedia,
-  mxcUrlToHttp,
-} from '../../../utils/matrix';
+import { downloadMxc } from '../../../utils/matrix';
+import { useMediaAuthentication } from '../../../hooks/useMediaAuthentication';
 import { ModalWide } from '../../../styles/Modal.css';
 
 const renderErrorButton = (retry: () => void, text: string) => (
@@ -80,20 +76,12 @@ type ReadTextFileProps = {
 };
 export function ReadTextFile({ body, mimeType, url, encInfo, renderViewer }: ReadTextFileProps) {
   const mx = useMatrixClient();
-  const useAuthentication = true;
+  const useAuthentication = useMediaAuthentication();
   const [textViewer, setTextViewer] = useState(false);
 
   const [textState, loadText] = useAsyncCallback(
     useCallback(async () => {
-      const mediaUrl = mxcUrlToHttp(mx, url, useAuthentication);
-      if (!mediaUrl) throw new Error('Invalid media URL');
-      const fileContent = encInfo
-        ? await downloadEncryptedMedia(
-            mediaUrl,
-            (encBuf) => decryptFile(encBuf, mimeType, encInfo),
-            mx,
-          )
-        : await downloadMedia(mediaUrl, mx);
+      const fileContent = await downloadMxc(mx, url, useAuthentication, mimeType, encInfo);
 
       const text = fileContent.text();
       setTextViewer(true);
@@ -175,20 +163,12 @@ export type ReadPdfFileProps = {
 };
 export function ReadPdfFile({ body, mimeType, url, encInfo, renderViewer }: ReadPdfFileProps) {
   const mx = useMatrixClient();
-  const useAuthentication = true;
+  const useAuthentication = useMediaAuthentication();
   const [pdfViewer, setPdfViewer] = useState(false);
 
   const [pdfState, loadPdf] = useAsyncCallback(
     useCallback(async () => {
-      const mediaUrl = mxcUrlToHttp(mx, url, useAuthentication);
-      if (!mediaUrl) throw new Error('Invalid media URL');
-      const fileContent = encInfo
-        ? await downloadEncryptedMedia(
-            mediaUrl,
-            (encBuf) => decryptFile(encBuf, mimeType, encInfo),
-            mx,
-          )
-        : await downloadMedia(mediaUrl, mx);
+      const fileContent = await downloadMxc(mx, url, useAuthentication, mimeType, encInfo);
       setPdfViewer(true);
       return URL.createObjectURL(fileContent);
     }, [mx, url, useAuthentication, mimeType, encInfo]),
@@ -258,19 +238,11 @@ export type DownloadFileProps = {
 };
 export function DownloadFile({ body, mimeType, url, info, encInfo }: DownloadFileProps) {
   const mx = useMatrixClient();
-  const useAuthentication = true;
+  const useAuthentication = useMediaAuthentication();
 
   const [downloadState, download] = useAsyncCallback(
     useCallback(async () => {
-      const mediaUrl = mxcUrlToHttp(mx, url, useAuthentication);
-      if (!mediaUrl) throw new Error('Invalid media URL');
-      const fileContent = encInfo
-        ? await downloadEncryptedMedia(
-            mediaUrl,
-            (encBuf) => decryptFile(encBuf, mimeType, encInfo),
-            mx,
-          )
-        : await downloadMedia(mediaUrl, mx);
+      const fileContent = await downloadMxc(mx, url, useAuthentication, mimeType, encInfo);
 
       const fileURL = URL.createObjectURL(fileContent);
       FileSaver.saveAs(fileURL, body);

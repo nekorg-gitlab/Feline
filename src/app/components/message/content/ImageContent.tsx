@@ -25,14 +25,9 @@ import { AsyncStatus, useAsyncCallback } from '../../../hooks/useAsyncCallback';
 import { useMatrixClient } from '../../../hooks/useMatrixClient';
 import * as css from './style.css';
 import { bytesToSize } from '../../../utils/common';
-import { FALLBACK_MIMETYPE } from '../../../utils/mimeTypes';
 import { stopPropagation } from '../../../utils/keyboard';
-import {
-  decryptFile,
-  downloadEncryptedMedia,
-  downloadMedia,
-  mxcUrlToHttp,
-} from '../../../utils/matrix';
+import { downloadMxc, mxcUrlToHttp } from '../../../utils/matrix';
+import { useMediaAuthentication } from '../../../hooks/useMediaAuthentication';
 import { ModalWide } from '../../../styles/Modal.css';
 import { validBlurHash } from '../../../utils/blurHash';
 
@@ -81,31 +76,20 @@ export const ImageContent = as<'div', ImageContentProps>(
     ref,
   ) => {
     const mx = useMatrixClient();
-    const useAuthentication = true;
+    const useAuthentication = useMediaAuthentication();
     const blurHash = validBlurHash(info?.[MATRIX_BLUR_HASH_PROPERTY_NAME]);
 
     const [load, setLoad] = useState(false);
     const [error, setError] = useState(false);
     const [viewer, setViewer] = useState(false);
     const [blurred, setBlurred] = useState(markedAsSpoiler ?? false);
+    const [directFallback, setDirectFallback] = useState(false);
 
     const [srcState, loadSrc] = useAsyncCallback(
       useCallback(async () => {
-        const mediaUrl = mxcUrlToHttp(mx, url, useAuthentication);
-        if (!mediaUrl) throw new Error('Invalid media URL');
-        if (encInfo) {
-          const fileContent = await downloadEncryptedMedia(
-            mediaUrl,
-            (encBuf) => decryptFile(encBuf, mimeType ?? FALLBACK_MIMETYPE, encInfo),
-            mx,
-          );
-          return URL.createObjectURL(fileContent);
-        }
-        if (useAuthentication) {
-          const fileContent = await downloadMedia(mediaUrl, mx);
-          return URL.createObjectURL(fileContent);
-        }
-        return mediaUrl;
+        if (!url) throw new Error('Invalid media URL');
+        const fileContent = await downloadMxc(mx, url, useAuthentication, mimeType, encInfo);
+        return URL.createObjectURL(fileContent);
       }, [mx, url, useAuthentication, mimeType, encInfo]),
     );
 
@@ -113,12 +97,20 @@ export const ImageContent = as<'div', ImageContentProps>(
       setLoad(true);
     };
     const handleError = () => {
+      // Unencrypted media can fall back to a direct <img> URL (no fetch).
+      // This covers WebViews where blob: rendering is blocked but https: is allowed.
+      if (!encInfo && !directFallback) {
+        setDirectFallback(true);
+        return;
+      }
       setLoad(false);
       setError(true);
     };
 
     const handleRetry = () => {
       setError(false);
+      setDirectFallback(false);
+      setLoad(false);
       loadSrc();
     };
 
@@ -126,9 +118,32 @@ export const ImageContent = as<'div', ImageContentProps>(
       if (autoPlay) loadSrc();
     }, [autoPlay, loadSrc]);
 
+    const directUrl = !encInfo ? (mxcUrlToHttp(mx, url, false) ?? undefined) : undefined;
+
+    useEffect(
+      () => () => {
+        if (srcState.status === AsyncStatus.Success && srcState.data.startsWith('blob:')) {
+          URL.revokeObjectURL(srcState.data);
+        }
+      },
+      [srcState],
+    );
+
+    useEffect(() => {
+      if (srcState.status === AsyncStatus.Error && !encInfo && directUrl && !directFallback) {
+        setDirectFallback(true);
+      }
+    }, [srcState, encInfo, directUrl, directFallback]);
+
+    const blobUrl = srcState.status === AsyncStatus.Success ? srcState.data : undefined;
+    const imgSrc = directFallback && directUrl ? directUrl : blobUrl;
+    const showImage = typeof imgSrc === 'string';
+    const showFetchError =
+      (error || srcState.status === AsyncStatus.Error) && !(directUrl && !directFallback);
+
     return (
       <Box className={classNames(css.RelativeBase, className)} {...props} ref={ref}>
-        {srcState.status === AsyncStatus.Success && (
+        {blobUrl && (
           <Overlay open={viewer} backdrop={<OverlayBackdrop />}>
             <OverlayCenter>
               <FocusTrap
@@ -145,7 +160,7 @@ export const ImageContent = as<'div', ImageContentProps>(
                   onContextMenu={(evt: any) => evt.stopPropagation()}
                 >
                   {renderViewer({
-                    src: srcState.data,
+                    src: directFallback && directUrl ? directUrl : blobUrl,
                     alt: body,
                     requestClose: () => setViewer(false),
                   })}
@@ -177,12 +192,12 @@ export const ImageContent = as<'div', ImageContentProps>(
             </Button>
           </Box>
         )}
-        {srcState.status === AsyncStatus.Success && (
+        {showImage && (
           <Box className={classNames(css.AbsoluteContainer, blurred && css.Blur)}>
             {renderImage({
               alt: body,
               title: body,
-              src: srcState.data,
+              src: imgSrc,
               onLoad: handleLoad,
               onError: handleError,
               onClick: () => setViewer(true),
@@ -190,7 +205,7 @@ export const ImageContent = as<'div', ImageContentProps>(
             })}
           </Box>
         )}
-        {blurred && !error && srcState.status !== AsyncStatus.Error && (
+        {blurred && !showFetchError && srcState.status !== AsyncStatus.Error && (
           <Box className={css.AbsoluteContainer} alignItems="Center" justifyContent="Center">
             <TooltipProvider
               tooltip={
@@ -223,14 +238,17 @@ export const ImageContent = as<'div', ImageContentProps>(
             </TooltipProvider>
           </Box>
         )}
-        {(srcState.status === AsyncStatus.Loading || srcState.status === AsyncStatus.Success) &&
+        {(srcState.status === AsyncStatus.Loading ||
+          srcState.status === AsyncStatus.Success ||
+          (srcState.status === AsyncStatus.Error && directUrl && !directFallback)) &&
           !load &&
+          !directFallback &&
           !blurred && (
             <Box className={css.AbsoluteContainer} alignItems="Center" justifyContent="Center">
               <Spinner variant="Secondary" />
             </Box>
           )}
-        {(error || srcState.status === AsyncStatus.Error) && (
+        {showFetchError && (
           <Box className={css.AbsoluteContainer} alignItems="Center" justifyContent="Center">
             <TooltipProvider
               tooltip={

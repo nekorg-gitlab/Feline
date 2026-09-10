@@ -191,7 +191,7 @@ export function SearchResultGroup({
               <ImageContent
                 {...props}
                 autoPlay={mediaAutoLoad}
-                renderImage={(p) => <Image {...p} loading="lazy" />}
+                renderImage={(p) => <Image {...p} loading="eager" />}
                 renderViewer={(p) => <ImageViewer {...p} />}
               />
             )}

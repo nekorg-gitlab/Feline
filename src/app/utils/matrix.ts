@@ -284,19 +284,35 @@ const throwMediaError = (res: Response, src: string): never => {
   throw new Error(`Failed to fetch media: ${res.status} ${res.statusText}`);
 };
 
-export const downloadMedia = async (src: string, mx?: MatrixClient): Promise<Blob> => {
+export const downloadMedia = async (
+  src: string,
+  mx?: MatrixClient,
+  timeoutMs = 30000,
+): Promise<Blob> => {
   if (src.startsWith('blob:') || src.startsWith('data:')) {
     const res = await fetch(src);
     if (!res.ok) throwMediaError(res, src);
     return res.blob();
   }
   const token = getMediaToken(mx);
-  const res = await fetch(src, {
-    method: 'GET',
-    headers: token ? { Authorization: `Bearer ${token}` } : undefined,
-  });
-  if (!res.ok) throwMediaError(res, src);
-  return res.blob();
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    const res = await fetch(src, {
+      method: 'GET',
+      headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+      signal: controller.signal,
+    });
+    if (!res.ok) throwMediaError(res, src);
+    return await res.blob();
+  } catch (err) {
+    if (err instanceof DOMException && err.name === 'AbortError') {
+      throw new Error(`Timed out fetching media after ${timeoutMs}ms`);
+    }
+    throw err;
+  } finally {
+    clearTimeout(timer);
+  }
 };
 
 export const downloadEncryptedMedia = async (
@@ -304,6 +320,36 @@ export const downloadEncryptedMedia = async (
   decryptContent: (buf: ArrayBuffer) => Promise<Blob>,
   mx?: MatrixClient,
 ): Promise<Blob> => decryptContent(await (await downloadMedia(src, mx)).arrayBuffer());
+
+export const downloadMxc = async (
+  mx: MatrixClient,
+  mxcUrl: string,
+  preferAuthenticated: boolean,
+  mimeType?: string,
+  encInfo?: EncryptedAttachmentInfo,
+): Promise<Blob> => {
+  const candidates: (string | null)[] = preferAuthenticated
+    ? [mxcUrlToHttp(mx, mxcUrl, true), mxcUrlToHttp(mx, mxcUrl, false)]
+    : [mxcUrlToHttp(mx, mxcUrl, false), mxcUrlToHttp(mx, mxcUrl, true)];
+
+  let lastError: unknown;
+  for (const mediaUrl of candidates) {
+    if (!mediaUrl) continue;
+    try {
+      if (encInfo) {
+        return await downloadEncryptedMedia(
+          mediaUrl,
+          (encBuf) => decryptFile(encBuf, mimeType ?? 'application/octet-stream', encInfo),
+          mx,
+        );
+      }
+      return await downloadMedia(mediaUrl, mx);
+    } catch (err) {
+      lastError = err;
+    }
+  }
+  throw lastError instanceof Error ? lastError : new Error('Failed to fetch media');
+};
 
 export const rateLimitedActions = async <T, R = void>(
   data: T[],

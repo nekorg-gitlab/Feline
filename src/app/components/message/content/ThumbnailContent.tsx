@@ -1,14 +1,9 @@
 import { ReactNode, useCallback, useEffect } from 'react';
 import { IThumbnailContent } from '../../../../types/matrix/common';
 import { useMatrixClient } from '../../../hooks/useMatrixClient';
+import { useMediaAuthentication } from '../../../hooks/useMediaAuthentication';
 import { AsyncStatus, useAsyncCallback } from '../../../hooks/useAsyncCallback';
-import {
-  decryptFile,
-  downloadEncryptedMedia,
-  downloadMedia,
-  mxcUrlToHttp,
-} from '../../../utils/matrix';
-import { FALLBACK_MIMETYPE } from '../../../utils/mimeTypes';
+import { downloadMxc } from '../../../utils/matrix';
 
 export type ThumbnailContentProps = {
   info: IThumbnailContent;
@@ -16,33 +11,25 @@ export type ThumbnailContentProps = {
 };
 export function ThumbnailContent({ info, renderImage }: ThumbnailContentProps) {
   const mx = useMatrixClient();
-  const useAuthentication = true;
+  const useAuthentication = useMediaAuthentication();
 
   const [thumbSrcState, loadThumbSrc] = useAsyncCallback(
     useCallback(async () => {
       const thumbInfo = info.thumbnail_info;
       const thumbMxcUrl = info.thumbnail_file?.url ?? info.thumbnail_url;
       const encInfo = info.thumbnail_file;
-      if (typeof thumbMxcUrl !== 'string' || typeof thumbInfo?.mimetype !== 'string') {
+      if (typeof thumbMxcUrl !== 'string') {
         throw new Error('Failed to load thumbnail');
       }
 
-      const mediaUrl = mxcUrlToHttp(mx, thumbMxcUrl, useAuthentication);
-      if (!mediaUrl) throw new Error('Invalid media URL');
-      if (encInfo) {
-        const fileContent = await downloadEncryptedMedia(
-          mediaUrl,
-          (encBuf) => decryptFile(encBuf, thumbInfo.mimetype ?? FALLBACK_MIMETYPE, encInfo),
-          mx,
-        );
-        return URL.createObjectURL(fileContent);
-      }
-      if (useAuthentication) {
-        const fileContent = await downloadMedia(mediaUrl, mx);
-        return URL.createObjectURL(fileContent);
-      }
-
-      return mediaUrl;
+      const fileContent = await downloadMxc(
+        mx,
+        thumbMxcUrl,
+        useAuthentication,
+        thumbInfo?.mimetype,
+        encInfo,
+      );
+      return URL.createObjectURL(fileContent);
     }, [mx, info, useAuthentication]),
   );
 
