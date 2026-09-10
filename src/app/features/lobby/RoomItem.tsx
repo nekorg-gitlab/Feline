@@ -35,11 +35,12 @@ import { Membership } from '../../../types/matrix/room';
 import * as css from './RoomItem.css';
 import * as styleCss from './style.css';
 import { AsyncStatus, useAsyncCallback } from '../../hooks/useAsyncCallback';
-import { getDirectAvatarMxc, getDirectRoomAvatarUrl, getRoomAvatarUrl } from '../../utils/room';
+import { getRoomAvatarUrl } from '../../utils/room';
 import { ItemDraggableTarget, useDraggableItem } from './DnD';
 import { mxcUrlToHttp } from '../../utils/matrix';
 import { useMediaAuthentication } from '../../hooks/useMediaAuthentication';
 import { useAuthenticatedMxcUrl } from '../../hooks/useAuthenticatedMxcUrl';
+import { useDirectAvatarMxc } from '../../hooks/useDirectAvatarMxc';
 
 type RoomJoinButtonProps = {
   roomId: string;
@@ -327,13 +328,15 @@ export const RoomItemCard = as<'div', RoomItemCardProps>(
 
     const joined = room?.getMyMembership() === Membership.Join;
 
+    const directAvatarMxc = useDirectAvatarMxc(room, Boolean(dm && room));
     const roomAvatarMxcForAuth = dm
-      ? (getDirectAvatarMxc(mx, roomId) ?? room?.getMxcAvatarUrl() ?? undefined)
+      ? (directAvatarMxc ?? room?.getMxcAvatarUrl() ?? undefined)
       : (room?.getMxcAvatarUrl() ?? undefined);
+    const directAvatarHttp = directAvatarMxc
+      ? (mxcUrlToHttp(mx, directAvatarMxc, useAuthentication, 96, 96, 'crop') ?? undefined)
+      : undefined;
     const directRoomAvatarUrl = dm
-      ? room
-        ? getDirectRoomAvatarUrl(mx, room, 96, useAuthentication)
-        : undefined
+      ? (directAvatarHttp ?? (room ? getRoomAvatarUrl(mx, room, 96, useAuthentication) : undefined))
       : room
         ? getRoomAvatarUrl(mx, room, 96, useAuthentication)
         : undefined;

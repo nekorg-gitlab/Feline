@@ -3,13 +3,15 @@ import { RoomJoinRulesEventContent } from 'matrix-js-sdk/lib/types';
 import { Room, RoomEvent, RoomEventHandlerMap } from 'matrix-js-sdk';
 import { StateEvent } from '../../types/matrix/room';
 import { useStateEvent } from './useStateEvent';
-import { getDirectAvatarMxc } from '../utils/room';
+
+import { useDirectAvatarMxc } from './useDirectAvatarMxc';
 
 export const useRoomAvatar = (room: Room, dm?: boolean): string | undefined => {
   const avatarEvent = useStateEvent(room, StateEvent.RoomAvatar);
+  const directAvatarMxc = useDirectAvatarMxc(room, Boolean(dm));
 
   if (dm) {
-    return getDirectAvatarMxc(room.client, room.roomId);
+    return directAvatarMxc;
   }
   const content = avatarEvent?.getContent();
   const avatarMxc = content && typeof content.url === 'string' ? content.url : undefined;

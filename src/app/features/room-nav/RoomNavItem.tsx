@@ -23,7 +23,8 @@ import { useAtom, useAtomValue } from 'jotai';
 import { NavItem, NavItemContent, NavItemOptions, NavLink } from '../../components/nav';
 import { UnreadBadge, UnreadBadgeCenter } from '../../components/unread-badge';
 import { RoomAvatar, RoomIcon } from '../../components/room-avatar';
-import { getDirectRoomAvatarUrl, getRoomAvatarUrl, getStateEvent } from '../../utils/room';
+import { getRoomAvatarUrl, getStateEvent } from '../../utils/room';
+import { mxcUrlToHttp } from '../../utils/matrix';
 import { nameInitials } from '../../utils/common';
 import { useMatrixClient } from '../../hooks/useMatrixClient';
 import { useRoomUnread } from '../../state/hooks/unread';
@@ -40,6 +41,8 @@ import { getMatrixToRoom } from '../../plugins/matrix-to';
 import { getCanonicalAliasOrRoomId, isRoomAlias } from '../../utils/matrix';
 import { getViaServers } from '../../plugins/via-servers';
 import { useMediaAuthentication } from '../../hooks/useMediaAuthentication';
+import { useAuthenticatedMxcUrl } from '../../hooks/useAuthenticatedMxcUrl';
+import { useDirectAvatarMxc } from '../../hooks/useDirectAvatarMxc';
 import { useSetting } from '../../state/hooks/settings';
 import { settingsAtom } from '../../state/settings';
 import { useOpenRoomSettings } from '../../state/hooks/roomSettings';
@@ -267,6 +270,15 @@ export function RoomNavItem({
 
   const roomName = useRoomName(room);
   const isMobile = useScreenSizeContext() === ScreenSize.Mobile;
+  const directAvatarMxc = useDirectAvatarMxc(room, Boolean(direct && showAvatar));
+  const roomAvatarMxc = direct
+    ? (directAvatarMxc ?? room.getMxcAvatarUrl() ?? undefined)
+    : (room.getMxcAvatarUrl() ?? undefined);
+  const directAvatarUrl = roomAvatarMxc
+    ? (mxcUrlToHttp(mx, roomAvatarMxc, useAuthentication, 96, 96, 'crop') ?? undefined)
+    : undefined;
+  const authAvatarUrl = useAuthenticatedMxcUrl(roomAvatarMxc, 96, 96, 'crop');
+  const avatarUrl = useAuthentication ? authAvatarUrl : directAvatarUrl;
 
   const handleContextMenu: MouseEventHandler<HTMLElement> = (evt) => {
     evt.preventDefault();
@@ -333,11 +345,7 @@ export function RoomNavItem({
               {showAvatar ? (
                 <RoomAvatar
                   roomId={room.roomId}
-                  src={
-                    direct
-                      ? getDirectRoomAvatarUrl(mx, room, 96, useAuthentication)
-                      : getRoomAvatarUrl(mx, room, 96, useAuthentication)
-                  }
+                  src={avatarUrl ?? getRoomAvatarUrl(mx, room, 96, useAuthentication)}
                   alt={roomName}
                   renderFallback={() => (
                     <Text as="span" size="H6">
