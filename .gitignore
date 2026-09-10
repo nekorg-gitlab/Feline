@@ -6,3 +6,5 @@ devAssets
 .DS_Store
 .idea
 .direnv/
+# Tauri Android synced frontend (copied from dist/ on every android build)
+src-tauri/gen/android/app/src/main/assets/*
