@@ -381,6 +381,21 @@ textarea,
   user-select: text;
 }
 
+/* Touch devices: message bodies are not selectable. Long-press opens the
+   message menu instead of the OS text-selection handles. Inputs keep working. */
+@media (pointer: coarse), (max-width: 750px) {
+  [data-feline-selectable],
+  [data-feline-selectable] * {
+    -webkit-user-select: none !important;
+    user-select: none !important;
+    -webkit-touch-callout: none !important;
+  }
+  [data-feline-selectable]::selection,
+  [data-feline-selectable] *::selection {
+    background: transparent !important;
+  }
+}
+
 #root {
   height: 100%;
   height: 100dvh;

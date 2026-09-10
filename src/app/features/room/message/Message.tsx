@@ -28,7 +28,9 @@ import React, {
   FormEventHandler,
   MouseEventHandler,
   ReactNode,
+  TouchEvent as ReactTouchEvent,
   useCallback,
+  useEffect,
   useRef,
   useState,
 } from 'react';
@@ -83,6 +85,69 @@ import { MemberPowerTag, StateEvent } from '../../../../types/matrix/room';
 import { PowerIcon } from '../../../components/power';
 import colorMXID from '../../../../util/colorMXID';
 import { getPowerTagIconSrc } from '../../../hooks/useMemberPowerTag';
+
+const LONG_PRESS_MS = 450;
+const LONG_PRESS_SLOP = 10;
+
+function useCoarsePointer(): boolean {
+  const [coarse] = useState(
+    () =>
+      typeof window !== 'undefined' &&
+      typeof window.matchMedia === 'function' &&
+      window.matchMedia('(pointer: coarse)').matches,
+  );
+  return coarse;
+}
+
+function useLongPressMenu(enabled: boolean, onHold: (x: number, y: number) => void) {
+  const timer = useRef<number | null>(null);
+  const start = useRef<{ x: number; y: number; id: number } | null>(null);
+
+  useEffect(
+    () => () => {
+      if (timer.current !== null) window.clearTimeout(timer.current);
+    },
+    [],
+  );
+
+  const clear = () => {
+    if (timer.current !== null) window.clearTimeout(timer.current);
+    timer.current = null;
+    start.current = null;
+  };
+
+  return {
+    onTouchStart: (evt: ReactTouchEvent) => {
+      if (!enabled || evt.touches.length !== 1) return;
+      try {
+        if (!window.getSelection()?.isCollapsed) return;
+      } catch {
+        return;
+      }
+      const t = evt.touches[0];
+      start.current = { x: t.clientX, y: t.clientY, id: t.identifier };
+      if (timer.current !== null) window.clearTimeout(timer.current);
+      timer.current = window.setTimeout(() => {
+        timer.current = null;
+        try {
+          navigator.vibrate?.(10);
+        } catch {
+          // haptics unavailable; ignore
+        }
+        onHold(t.clientX, t.clientY);
+      }, LONG_PRESS_MS);
+    },
+    onTouchMove: (evt: ReactTouchEvent) => {
+      const s = start.current;
+      if (!s) return;
+      const t = Array.from(evt.touches).find((touch) => touch.identifier === s.id);
+      if (!t) return;
+      if (Math.hypot(t.clientX - s.x, t.clientY - s.y) > LONG_PRESS_SLOP) clear();
+    },
+    onTouchEnd: clear,
+    onTouchCancel: clear,
+  };
+}
 
 export type ReactionHandler = (keyOrMxc: string, shortcode: string) => void;
 
@@ -733,6 +798,15 @@ export const Message = as<'div', MessageProps>(
     const { focusWithinProps } = useFocusWithin({ onFocusWithinChange: setHover });
     const [menuAnchor, setMenuAnchor] = useState<RectCords>();
     const [emojiBoardAnchor, setEmojiBoardAnchor] = useState<RectCords>();
+    const coarsePointer = useCoarsePointer();
+    const openMenuAt = useCallback((x: number, y: number) => {
+      setMenuAnchor({ x, y, width: 0, height: 0 });
+    }, []);
+    const longPressMenu = useLongPressMenu(!edit && coarsePointer, openMenuAt);
+    // Touch devices: options appear on long-press only, never on tap/hover.
+    const showOptions = coarsePointer
+      ? !!menuAnchor || !!emojiBoardAnchor
+      : hover || !!menuAnchor || !!emojiBoardAnchor;
 
     const senderDisplayName =
       getMemberDisplayName(room, senderId) ?? getMxIdLocalPart(senderId) ?? senderId;
@@ -824,7 +898,7 @@ export const Message = as<'div', MessageProps>(
     const bodyOnlyJSX = (
       <Box
         direction="Column"
-        alignSelf="Start"
+        alignSelf="Stretch"
         style={{ maxWidth: '100%', minWidth: 0 }}
         data-feline-selectable="true"
       >
@@ -850,7 +924,8 @@ export const Message = as<'div', MessageProps>(
     const msgContentJSX = (
       <Box
         direction="Column"
-        alignSelf="Start"
+        alignSelf="Stretch"
+        grow="Yes"
         style={{ maxWidth: '100%', minWidth: 0 }}
         data-feline-selectable="true"
       >
@@ -933,7 +1008,22 @@ export const Message = as<'div', MessageProps>(
         {...props}
         {...hoverProps}
         {...focusWithinProps}
-        {...swipeHandlers}
+        onTouchStart={(evt) => {
+          swipeHandlers.onTouchStart(evt);
+          longPressMenu.onTouchStart(evt);
+        }}
+        onTouchMove={(evt) => {
+          swipeHandlers.onTouchMove(evt);
+          longPressMenu.onTouchMove(evt);
+        }}
+        onTouchEnd={(evt) => {
+          swipeHandlers.onTouchEnd(evt);
+          longPressMenu.onTouchEnd();
+        }}
+        onTouchCancel={() => {
+          swipeHandlers.onTouchCancel();
+          longPressMenu.onTouchCancel();
+        }}
         ref={ref}
       >
         {swipeReplyId && (
@@ -941,7 +1031,7 @@ export const Message = as<'div', MessageProps>(
             <Icon size="200" src={Icons.ReplyArrow} />
           </div>
         )}
-        {!edit && (hover || !!menuAnchor || !!emojiBoardAnchor) && (
+        {!edit && showOptions && (
           <div className={css.MessageOptionsBase}>
             <Menu className={css.MessageOptionsBar} variant="SurfaceVariant">
               <Box gap="100">
@@ -1253,6 +1343,12 @@ export const Event = as<'div', EventProps>(
     const { focusWithinProps } = useFocusWithin({ onFocusWithinChange: setHover });
     const [menuAnchor, setMenuAnchor] = useState<RectCords>();
     const stateEvent = typeof mEvent.getStateKey() === 'string';
+    const coarsePointer = useCoarsePointer();
+    const openMenuAt = useCallback((x: number, y: number) => {
+      setMenuAnchor({ x, y, width: 0, height: 0 });
+    }, []);
+    const longPressMenu = useLongPressMenu(coarsePointer, openMenuAt);
+    const showOptions = coarsePointer ? !!menuAnchor : hover || !!menuAnchor;
 
     const handleContextMenu: MouseEventHandler<HTMLDivElement> = (evt) => {
       if (evt.altKey || !window.getSelection()?.isCollapsed) return;
@@ -1287,9 +1383,13 @@ export const Event = as<'div', EventProps>(
         {...props}
         {...hoverProps}
         {...focusWithinProps}
+        onTouchStart={longPressMenu.onTouchStart}
+        onTouchMove={longPressMenu.onTouchMove}
+        onTouchEnd={longPressMenu.onTouchEnd}
+        onTouchCancel={longPressMenu.onTouchCancel}
         ref={ref}
       >
-        {(hover || !!menuAnchor) && (
+        {showOptions && (
           <div className={css.MessageOptionsBase}>
             <Menu className={css.MessageOptionsBar} variant="SurfaceVariant">
               <Box gap="100">

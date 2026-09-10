@@ -42,6 +42,8 @@ export const EditorTextarea = style([
     flexGrow: 1,
     height: '100%',
     padding: `${toRem(13)} ${toRem(1)}`,
+    lineHeight: toRem(22),
+    caretColor: 'currentColor',
     selectors: {
       [`${EditorTextareaScroll}:first-child &`]: {
         paddingLeft: toRem(13),
@@ -71,6 +73,7 @@ export const EditorPlaceholderTextVisual = style([
     display: 'block',
     paddingTop: toRem(13),
     paddingLeft: toRem(1),
+    lineHeight: toRem(22),
   },
 ]);
 

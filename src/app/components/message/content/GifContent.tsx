@@ -6,12 +6,8 @@ import { IThumbnailContent, IVideoInfo } from '../../../../types/matrix/common';
 import * as css from './style.css';
 import { useMatrixClient } from '../../../hooks/useMatrixClient';
 import { AsyncStatus, useAsyncCallback } from '../../../hooks/useAsyncCallback';
-import {
-  decryptFile,
-  downloadEncryptedMedia,
-  downloadMedia,
-  mxcUrlToHttp,
-} from '../../../utils/matrix';
+import { downloadMxc } from '../../../utils/matrix';
+import { useMediaAuthentication } from '../../../hooks/useMediaAuthentication';
 import { useIntersectionObserver } from '../../../hooks/useIntersectionObserver';
 
 type GifContentProps = {
@@ -25,37 +21,45 @@ type GifContentProps = {
 export const GifContent = as<'div', GifContentProps>(
   ({ className, body, mimeType, url, info, encInfo, ...props }, ref) => {
     const mx = useMatrixClient();
-    const useAuthentication = true;
+    const useAuthentication = useMediaAuthentication();
 
     const [srcState, loadSrc] = useAsyncCallback(
       useCallback(async () => {
-        const mediaUrl = mxcUrlToHttp(mx, url, useAuthentication);
-        if (!mediaUrl) throw new Error('Invalid media URL');
-        const fileContent = encInfo
-          ? await downloadEncryptedMedia(
-              mediaUrl,
-              (encBuf) => decryptFile(encBuf, mimeType, encInfo),
-              mx,
-            )
-          : await downloadMedia(mediaUrl, mx);
+        const fileContent = await downloadMxc(mx, url, useAuthentication, mimeType, encInfo);
         return URL.createObjectURL(fileContent);
       }, [mx, url, useAuthentication, mimeType, encInfo]),
     );
 
     const videoRef = useRef<HTMLVideoElement>(null);
     const containerRef = useRef<HTMLDivElement>(null);
+    // Some WebViews (e.g. Android) block autoplay until a user gesture.
+    // In that case show native controls so one tap starts the GIF.
+    const [needsGesture, setNeedsGesture] = useState(false);
 
-    const handleIntersection = useCallback((entries: IntersectionObserverEntry[]) => {
-      const entry = entries[0];
+    const tryPlay = useCallback(() => {
       const video = videoRef.current;
       if (!video) return;
-      if (entry.isIntersecting) {
+      try {
         const play = video.play();
-        if (play) play.catch(() => {});
-      } else {
-        video.pause();
+        if (play) play.catch(() => setNeedsGesture(true));
+      } catch {
+        setNeedsGesture(true);
       }
     }, []);
+
+    const handleIntersection = useCallback(
+      (entries: IntersectionObserverEntry[]) => {
+        const entry = entries[0];
+        const video = videoRef.current;
+        if (!video) return;
+        if (entry.isIntersecting) {
+          tryPlay();
+        } else {
+          video.pause();
+        }
+      },
+      [tryPlay],
+    );
 
     useIntersectionObserver(handleIntersection, { threshold: 0.1 }, () => containerRef.current);
 
@@ -92,7 +96,10 @@ export const GifContent = as<'div', GifContentProps>(
               loop
               muted
               playsInline
-              preload="metadata"
+              preload="auto"
+              controls={needsGesture}
+              onPlaying={() => setNeedsGesture(false)}
+              onClick={tryPlay}
               style={{ width: '100%', height: '100%', objectFit: 'contain', display: 'block' }}
             />
           </Box>

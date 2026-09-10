@@ -359,10 +359,22 @@ export const RoomInput = forwardRef<HTMLDivElement, RoomInputProps>(
         resetEditor(editor);
         resetEditorHistory(editor);
         sendTypingStatus(false);
+        try {
+          ReactEditor.focus(editor);
+        } catch {
+          // editor unmounted; ignore
+        }
         return;
       }
 
-      if (plainText === '') return;
+      if (plainText === '') {
+        try {
+          ReactEditor.focus(editor);
+        } catch {
+          // editor unmounted; ignore
+        }
+        return;
+      }
 
       const body = plainText;
       const formattedBody = customHtml;
@@ -401,6 +413,12 @@ export const RoomInput = forwardRef<HTMLDivElement, RoomInputProps>(
       resetEditorHistory(editor);
       setReplyDraft(undefined);
       sendTypingStatus(false);
+      // Keep the composer focused so the mobile keyboard stays open.
+      try {
+        ReactEditor.focus(editor);
+      } catch {
+        // editor unmounted; ignore
+      }
     }, [mx, roomId, editor, replyDraft, sendTypingStatus, setReplyDraft, isMarkdown, commands]);
 
     const handleKeyDown: KeyboardEventHandler = useCallback(
@@ -816,7 +834,14 @@ export const RoomInput = forwardRef<HTMLDivElement, RoomInputProps>(
                   </PopOut>
                 )}
               </UseStateProvider>
-              <IconButton onClick={submit} variant="SurfaceVariant" size="300" radii="300">
+              <IconButton
+                onMouseDown={(evt) => evt.preventDefault()}
+                onClick={submit}
+                variant="SurfaceVariant"
+                size="300"
+                radii="300"
+                aria-label="Send message"
+              >
                 <Icon src={Icons.Send} />
               </IconButton>
             </>

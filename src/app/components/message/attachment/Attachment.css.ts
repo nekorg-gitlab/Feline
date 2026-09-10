@@ -13,7 +13,11 @@ export const Attachment = recipe({
 
     '@media': {
       'screen and (max-width: 750px)': {
+        // Percentage widths collapse to zero inside shrink-to-fit parents
+        // (e.g. chat bubbles), so keep a definite floor. Replies only ever
+        // render text previews, so this can't blow out reply layouts.
         width: '100%',
+        minWidth: toRem(240),
       },
     },
   },
