@@ -1,6 +1,7 @@
 import { style } from '@vanilla-extract/css';
 import { DefaultReset, config } from 'folds';
 import { ContainerColor } from '../../styles/ContainerColor.css';
+import { mobileScreenMedia } from '../../styles/media';
 
 export const CardGrid = style({
   display: 'grid',
@@ -8,7 +9,7 @@ export const CardGrid = style({
   gap: config.space.S400,
 
   '@media': {
-    'screen and (max-width: 750px)': {
+    [mobileScreenMedia]: {
       gridTemplateColumns: '1fr',
       gap: config.space.S300,
     },

@@ -1,4 +1,5 @@
 import { ComplexStyleRule, createVar, style } from '@vanilla-extract/css';
+import { mobileScreenMedia } from '../../styles/media';
 import { RecipeVariants, recipe } from '@vanilla-extract/recipes';
 import { ContainerColor, DefaultReset, Disabled, RadiiVariant, color, config, toRem } from 'folds';
 
@@ -13,7 +14,7 @@ export const NavCategoryHeader = style({
   gap: config.space.S100,
 
   '@media': {
-    'screen and (max-width: 750px)': {
+    [mobileScreenMedia]: {
       padding: `${config.space.S400} ${config.space.S400} ${config.space.S100}`,
       minHeight: toRem(44),
     },
@@ -86,7 +87,7 @@ const NavItemBase = style({
     },
   },
   '@media': {
-    'screen and (max-width: 750px)': {
+    [mobileScreenMedia]: {
       minHeight: toRem(56),
     },
     '(hover: none)': {

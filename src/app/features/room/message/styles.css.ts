@@ -1,5 +1,6 @@
 import { style } from '@vanilla-extract/css';
 import { DefaultReset, color, config, toRem } from 'folds';
+import { mobileScreenMedia } from '../../../styles/media';
 
 export const MessageBase = style({
   position: 'relative',
@@ -54,7 +55,7 @@ export const MessageReplyIndent = style({
   paddingBottom: toRem(2),
 
   '@media': {
-    'screen and (max-width: 750px)': {
+    [mobileScreenMedia]: {
       paddingLeft: toRem(28),
     },
   },

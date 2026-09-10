@@ -444,7 +444,7 @@ div[data-feline-scroll] {
   }
 }
 
-@media (max-width: 750px) {
+@media (max-width: 750px), (max-height: 499px) {
   /* Room drill-in feels like a native push transition */
   .feline-page-stack > [class*='Page'],
   div[class*='ChatPane'] {
@@ -535,7 +535,7 @@ div[data-feline-scroll] {
 
 /* Twitter-style frosted fade under the status icons (mobile only).
    Content gracefully blurs/fades as it scrolls behind clock/camera. */
-@media (max-width: 750px) {
+@media (max-width: 750px), (max-height: 499px) {
   [data-feline-status-scrim] {
     position: fixed;
     top: 0;
@@ -557,5 +557,13 @@ div[data-feline-scroll] {
   .dark-theme [data-feline-status-scrim],
   .butter-theme [data-feline-status-scrim] {
     background: linear-gradient(to bottom, rgba(26, 26, 26, 0.78) 0%, rgba(26, 26, 26, 0) 100%);
+  }
+}
+
+/* Compact height (landscape phones): the WebView keeps reporting the portrait
+   cutout inset for the top, so cap the scrim at status-bar size. */
+@media (max-height: 499px) {
+  [data-feline-status-scrim] {
+    height: calc(min(env(safe-area-inset-top, 0px), 28px) + 32px);
   }
 }

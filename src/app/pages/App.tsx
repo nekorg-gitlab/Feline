@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { Provider as JotaiProvider, useAtomValue } from 'jotai';
 import { OverlayContainerProvider, PopOutContainerProvider, TooltipContainerProvider } from 'folds';
 import { RouterProvider } from 'react-router-dom';
@@ -6,11 +6,11 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 
 import { ClientConfigLoader } from '../components/ClientConfigLoader';
-import { ClientConfigProvider } from '../hooks/useClientConfig';
+import { ClientConfig, ClientConfigProvider } from '../hooks/useClientConfig';
 import { ConfigConfigError, ConfigConfigLoading } from './ConfigConfig';
 import { FeatureCheck } from './FeatureCheck';
 import { createRouter } from './Router';
-import { ScreenSizeProvider, useScreenSize } from '../hooks/useScreenSize';
+import { ScreenSize, ScreenSizeProvider, useScreenSize } from '../hooks/useScreenSize';
 import { useCompositionEndTracking } from '../hooks/useComposingCheck';
 import { getThumbnailFallbackUrl } from '../utils/matrix';
 import { settingsAtom } from '../state/settings';
@@ -38,6 +38,21 @@ function LanguageSync() {
     }
   }, [settings.language]);
   return null;
+}
+
+// The router bakes in the screen size (mobile route tree vs desktop one).
+// Memoize it: recreating it on every resize remounts the whole route tree,
+// reruns loaders and loses scroll state (visible as flashing/empty panes
+// while rotating the phone).
+function ClientRouter({
+  clientConfig,
+  screenSize,
+}: {
+  clientConfig: ClientConfig;
+  screenSize: ScreenSize;
+}) {
+  const router = useMemo(() => createRouter(clientConfig, screenSize), [clientConfig, screenSize]);
+  return <RouterProvider router={router} />;
 }
 
 function App() {
@@ -83,7 +98,7 @@ function App() {
                       <JotaiProvider>
                         <AnimationsSync />
                         <LanguageSync />
-                        <RouterProvider router={createRouter(clientConfig, screenSize)} />
+                        <ClientRouter clientConfig={clientConfig} screenSize={screenSize} />
                       </JotaiProvider>
                       <ReactQueryDevtools initialIsOpen={false} />
                     </QueryClientProvider>

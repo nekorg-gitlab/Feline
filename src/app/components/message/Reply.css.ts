@@ -1,5 +1,6 @@
 import { style } from '@vanilla-extract/css';
 import { config, toRem, color } from 'folds';
+import { mobileScreenMedia } from '../../styles/media';
 
 export const ThreadIndicator = style({
   opacity: config.opacity.P300,
@@ -54,7 +55,7 @@ export const ReplyBend = style({
   },
 
   '@media': {
-    'screen and (max-width: 750px)': {
+    [mobileScreenMedia]: {
       left: toRem(-20),
       width: toRem(20),
     },
@@ -82,7 +83,7 @@ export const ReplyUsername = style({
   alignItems: 'center',
 
   '@media': {
-    'screen and (max-width: 750px)': {
+    [mobileScreenMedia]: {
       maxWidth: '28vw',
       minWidth: 0,
       flexShrink: 1,

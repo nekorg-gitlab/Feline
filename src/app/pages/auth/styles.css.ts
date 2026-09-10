@@ -1,5 +1,6 @@
 import { style } from '@vanilla-extract/css';
 import { DefaultReset, color, config, toRem } from 'folds';
+import { mobileScreenMedia, compactHeightMedia } from '../../styles/media';
 
 export const AuthLayout = style({
   minHeight: ['100vh', '100dvh'],
@@ -25,9 +26,14 @@ export const AuthLayout = style({
     },
   },
   '@media': {
-    'screen and (max-width: 750px)': {
+    [mobileScreenMedia]: {
       paddingLeft: 0,
       paddingRight: 0,
+    },
+    // Compact height (landscape phones): the WebView keeps reporting the
+    // portrait cutout inset for the top, so cap it at status-bar size.
+    [compactHeightMedia]: {
+      paddingTop: `calc(${config.space.S400} + min(env(safe-area-inset-top, 0px), 28px) + ${toRem(32)})`,
     },
   },
 });
@@ -43,7 +49,7 @@ export const AuthCard = style({
   border: `${config.borderWidth.B300} solid ${color.Surface.ContainerLine}`,
   overflow: 'hidden',
   '@media': {
-    'screen and (max-width: 750px)': {
+    [mobileScreenMedia]: {
       margin: 0,
       maxWidth: '100%',
       flexGrow: 1,
@@ -73,7 +79,7 @@ export const AuthHeader = style({
   '@media': {
     // Phones keep the logo row as plain content: no bar background, no divider.
     // `header&` outranks folds' variant class regardless of injection order.
-    'screen and (max-width: 750px)': {
+    [mobileScreenMedia]: {
       selectors: {
         'header&': {
           backgroundColor: 'transparent',

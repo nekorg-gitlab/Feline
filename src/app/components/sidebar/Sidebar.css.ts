@@ -2,6 +2,7 @@ import { createVar, style } from '@vanilla-extract/css';
 import { recipe, RecipeVariants } from '@vanilla-extract/recipes';
 import { color, config, DefaultReset, Disabled, FocusOutline, toRem } from 'folds';
 import { ContainerColor } from '../../styles/ContainerColor.css';
+import { mobileScreenMedia } from '../../styles/media';
 
 export const Sidebar = style([
   DefaultReset,
@@ -15,7 +16,7 @@ export const Sidebar = style([
     color: color.Background.OnContainer,
 
     '@media': {
-      'screen and (max-width: 750px)': {
+      [mobileScreenMedia]: {
         width: '100%',
         minHeight: 'calc(var(--feline-tabbar-height, 60px) + env(safe-area-inset-bottom, 0px))',
         paddingBottom: 'env(safe-area-inset-bottom, 0px)',
@@ -41,7 +42,7 @@ export const SidebarStack = style([
     padding: `${config.space.S300} 0`,
 
     '@media': {
-      'screen and (max-width: 750px)': {
+      [mobileScreenMedia]: {
         width: 'auto',
         flexShrink: 0,
         flexDirection: 'row',
@@ -120,7 +121,7 @@ export const SidebarItem = recipe({
         },
       },
       '@media': {
-        'screen and (max-width: 750px)': {
+        [mobileScreenMedia]: {
           selectors: {
             '&:hover': {
               transform: `translateY(${toRem(-PUSH_X)})`,
@@ -148,7 +149,7 @@ export const SidebarItem = recipe({
           },
         },
         '@media': {
-          'screen and (max-width: 750px)': {
+          [mobileScreenMedia]: {
             selectors: {
               '&::before': {
                 content: '',
@@ -276,7 +277,7 @@ export const SidebarFolder = recipe({
         gap: config.space.S200,
         borderRadius: config.radii.R500,
         '@media': {
-          'screen and (max-width: 750px)': {
+          [mobileScreenMedia]: {
             flexDirection: 'row',
             alignItems: 'center',
             gap: config.space.S100,

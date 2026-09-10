@@ -1,4 +1,4 @@
-import { createTheme } from '@vanilla-extract/css';
+import { createTheme, globalStyle } from '@vanilla-extract/css';
 import { color } from 'folds';
 
 export const silverTheme = createTheme(color, {
@@ -235,4 +235,11 @@ export const butterTheme = createTheme(color, {
     ContainerLine: '#666459',
     OnContainer: '#F2EED3',
   },
+});
+
+// Paint the window behind the app (status/cutout zones, overscroll) with the
+// active theme's background. The theme class lives on <body> itself, so the
+// token resolves here for every theme, including folds' default light one.
+globalStyle('html body', {
+  backgroundColor: color.Background.Container,
 });

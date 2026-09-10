@@ -1,5 +1,6 @@
 import { style } from '@vanilla-extract/css';
 import { DefaultReset, color, config, toRem } from 'folds';
+import { mobileScreenMedia } from '../../styles/media';
 
 export const UrlPreview = style([
   DefaultReset,
@@ -14,7 +15,7 @@ export const UrlPreview = style([
     overflow: 'hidden',
 
     '@media': {
-      'screen and (max-width: 750px)': {
+      [mobileScreenMedia]: {
         width: '100%',
         flexDirection: 'column',
       },
@@ -38,7 +39,7 @@ export const UrlPreviewImg = style([
     },
 
     '@media': {
-      'screen and (max-width: 750px)': {
+      [mobileScreenMedia]: {
         width: '100%',
         height: toRem(140),
       },

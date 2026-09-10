@@ -1,6 +1,7 @@
 import { style } from '@vanilla-extract/css';
 import { RecipeVariants, recipe } from '@vanilla-extract/recipes';
 import { DefaultReset, color, config, toRem } from 'folds';
+import { mobileScreenMedia } from '../../../styles/media';
 
 export const Attachment = recipe({
   base: {
@@ -12,7 +13,7 @@ export const Attachment = recipe({
     width: toRem(400),
 
     '@media': {
-      'screen and (max-width: 750px)': {
+      [mobileScreenMedia]: {
         // Percentage widths collapse to zero inside shrink-to-fit parents
         // (e.g. chat bubbles), so keep a definite floor. Replies only ever
         // render text previews, so this can't blow out reply layouts.
@@ -45,7 +46,7 @@ export const AttachmentBox = style([
     overflow: 'hidden',
 
     '@media': {
-      'screen and (max-width: 750px)': {
+      [mobileScreenMedia]: {
         width: '100%',
         maxHeight: '50vh',
       },

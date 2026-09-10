@@ -1,6 +1,7 @@
 import { style } from '@vanilla-extract/css';
 import { recipe, RecipeVariants } from '@vanilla-extract/recipes';
 import { DefaultReset, color, config, toRem } from 'folds';
+import { mobileScreenMedia, compactHeightMedia } from '../../styles/media';
 
 export const PageNav = recipe({
   variants: {
@@ -24,7 +25,7 @@ export const PageNavHeader = recipe({
     padding: `env(safe-area-inset-top, 0px) ${config.space.S200} 0 ${config.space.S300}`,
     flexShrink: 0,
     '@media': {
-      'screen and (max-width: 750px)': {
+      [mobileScreenMedia]: {
         // folds Header size="600" fixes height at 54px; on mobile the
         // status-bar inset padding would crush content, so grow instead.
         selectors: {
@@ -37,6 +38,16 @@ export const PageNavHeader = recipe({
         paddingRight: config.space.S400,
         paddingBottom: config.space.S200,
         paddingLeft: config.space.S400,
+      },
+      // Compact height (landscape phones): the WebView keeps reporting the
+      // portrait cutout inset for the top, so cap it at status-bar size.
+      [compactHeightMedia]: {
+        selectors: {
+          'header&': {
+            minHeight: 'calc(3.375rem + min(env(safe-area-inset-top, 0px), 28px))',
+          },
+        },
+        paddingTop: `calc(min(env(safe-area-inset-top, 0px), 28px) + ${config.space.S200})`,
       },
     },
     selectors: {
@@ -75,7 +86,7 @@ export const PageNavContent = style({
   paddingBottom: config.space.S700,
 
   '@media': {
-    'screen and (max-width: 750px)': {
+    [mobileScreenMedia]: {
       padding: `${config.space.S200} ${config.space.S400}`,
       paddingBottom:
         'calc(var(--feline-tabbar-height, 60px) + env(safe-area-inset-bottom, 0px) + 16px)',
@@ -89,7 +100,7 @@ export const PageHeader = recipe({
     paddingLeft: config.space.S400,
     paddingRight: config.space.S200,
     '@media': {
-      'screen and (max-width: 750px)': {
+      [mobileScreenMedia]: {
         selectors: {
           'header&': {
             height: 'auto',
@@ -99,6 +110,16 @@ export const PageHeader = recipe({
         paddingTop: `calc(env(safe-area-inset-top, 0px) + ${config.space.S200})`,
         paddingRight: `max(${config.space.S400}, env(safe-area-inset-right, 0px))`,
         paddingBottom: config.space.S200,
+      },
+      // Compact height (landscape phones): the WebView keeps reporting the
+      // portrait cutout inset for the top, so cap it at status-bar size.
+      [compactHeightMedia]: {
+        selectors: {
+          'header&': {
+            minHeight: 'calc(3.375rem + min(env(safe-area-inset-top, 0px), 28px))',
+          },
+        },
+        paddingTop: `calc(min(env(safe-area-inset-top, 0px), 28px) + ${config.space.S200})`,
       },
     },
   },
@@ -129,7 +150,7 @@ export const PageContent = style([
     paddingBottom: toRem(100),
 
     '@media': {
-      'screen and (max-width: 750px)': {
+      [mobileScreenMedia]: {
         paddingLeft: config.space.S400,
         paddingRight: config.space.S400,
       },
@@ -145,7 +166,7 @@ export const PageHeroEmpty = style([
     minHeight: toRem(450),
 
     '@media': {
-      'screen and (max-width: 750px)': {
+      [mobileScreenMedia]: {
         minHeight: toRem(280),
       },
     },

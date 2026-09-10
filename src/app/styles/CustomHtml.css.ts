@@ -2,6 +2,7 @@ import { style } from '@vanilla-extract/css';
 import { recipe } from '@vanilla-extract/recipes';
 import { color, config, DefaultReset, toRem } from 'folds';
 import { ContainerColor } from './ContainerColor.css';
+import { mobileScreenMedia } from './media';
 
 export const MarginSpaced = style({
   marginBottom: config.space.S200,
@@ -94,7 +95,7 @@ export const CodeBlock = style([
     maxWidth: '100%',
 
     '@media': {
-      'screen and (max-width: 750px)': {
+      [mobileScreenMedia]: {
         overflowX: 'auto',
       },
     },
@@ -115,7 +116,7 @@ export const CodeBlockInternal = style([
     minWidth: toRem(200),
 
     '@media': {
-      'screen and (max-width: 750px)': {
+      [mobileScreenMedia]: {
         minWidth: 0,
       },
     },
